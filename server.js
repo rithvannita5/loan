@@ -36,9 +36,9 @@ const loanSchema = new mongoose.Schema({
     amount: Number,
     interestRate: Number,
     duration: Number,
-    paymentFrequency: String, // Daily, Weekly, Monthly
+    paymentFrequency: String,
     coOfficer: String,
-    status: { type: String, default: 'Pending' }, // Pending, Active, Bad Loan, Closed, Rejected
+    status: { type: String, default: 'Pending' },
     schedule: [{ installmentNumber: Number, dueDate: String, totalDue: Number, status: { type: String, default: 'Unpaid' } }],
     createdAt: { type: Date, default: Date.now }
 });
@@ -50,7 +50,7 @@ const transactionSchema = new mongoose.Schema({
     loanId: { type: mongoose.Schema.Types.ObjectId, ref: 'Loan' },
     coOfficer: String,
     totalPaid: Number,
-    receivedByCashier: { type: Boolean, default: false }, // Pending or Approved by Cashier
+    receivedByCashier: { type: Boolean, default: false },
     paymentDate: { type: Date, default: Date.now }
 });
 const Transaction = mongoose.model('Transaction', transactionSchema);
@@ -70,6 +70,25 @@ const Staff = mongoose.model('Staff', staffSchema);
 // ==========================================
 // ២. API ROUTES
 // ==========================================
+// API Login
+app.post('/api/login', async (req, res) => {
+    try {
+        const { username, password } = req.body;
+        // ពិនិត្យគណនី Admin លំនាំដើម ឬទាញពី Database
+        if(username === 'admin' && password === '123456') {
+            return res.json({ success: true, message: 'Login successful', role: 'Admin' });
+        }
+        const user = await User.findOne({ username, password, active: true });
+        if(user) {
+            res.json({ success: true, message: 'Login successful', role: user.role });
+        } else {
+            res.status(401).json({ success: false, message: 'ឈ្មោះអ្នកប្រើប្រាស់ ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវ!' });
+        }
+    } catch(err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.get('/api/stats', async (req, res) => {
     try {
         const borrowersCount = await Borrower.countDocuments();
@@ -81,33 +100,13 @@ app.get('/api/stats', async (req, res) => {
 });
 
 app.get('/api/borrowers', async (req, res) => res.json(await Borrower.find()));
-app.post('/api/borrowers', async (req, res) => res.status(201).json(await new Borrower(req.body).save()));
-app.delete('/api/borrowers/:id', async (req, res) => res.json(await Borrower.findByIdAndDelete(req.params.id)));
-
 app.get('/api/loans', async (req, res) => res.json(await Loan.find().populate('borrowerId')));
-app.post('/api/loans', async (req, res) => {
-    try {
-        const data = req.body;
-        data.schedule = [{ installmentNumber: 1, dueDate: '2026-05-01', totalDue: data.amount + (data.amount * data.interestRate / 100) }];
-        res.status(201).json(await new Loan(data).save());
-    } catch(err) { res.status(400).json({ error: err.message }); }
-});
-app.put('/api/loans/:id/status', async (req, res) => res.json(await Loan.findByIdAndUpdate(req.params.id, { status: req.body.status }, { new: true })));
-app.delete('/api/loans/:id', async (req, res) => res.json(await Loan.findByIdAndDelete(req.params.id)));
-
 app.get('/api/transactions', async (req, res) => res.json(await Transaction.find().populate({ path: 'loanId', populate: { path: 'borrowerId' } })));
-app.post('/api/transactions', async (req, res) => res.status(201).json(await new Transaction(req.body).save()));
-app.put('/api/transactions/approve/:id', async (req, res) => res.json(await Transaction.findByIdAndUpdate(req.params.id, { receivedByCashier: true }, { new: true })));
-
-app.get('/api/expenses', async (req, res) => res.json(await Expense.find()));
-app.post('/api/expenses', async (req, res) => res.status(201).json(await new Expense(req.body).save()));
-
 app.get('/api/staff', async (req, res) => res.json(await Staff.find()));
-app.post('/api/staff', async (req, res) => res.status(201).json(await new Staff(req.body).save()));
 
 
 // ==========================================
-// ៣. FRONTEND SIDEBAR & UI INTERFACE
+// ៣. FRONTEND (LOGIN + SIDEBAR UI)
 // ==========================================
 app.get('/', (req, res) => {
     res.send(`
@@ -119,20 +118,31 @@ app.get('/', (req, res) => {
             <style>
                 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Khmer OS Battambang', sans-serif; }
                 body { display: flex; height: 100vh; background: #f4f6f9; overflow: hidden; }
-                /* Sidebar */
-                .sidebar { width: 260px; background: #1e293b; color: white; display: flex; flex-direction: column; }
-                .sidebar h2 { padding: 20px; font-size: 18px; text-align: center; background: #0f172a; border-bottom: 1px solid #334155; }
-                .sidebar a { padding: 12px 20px; color: #cbd5e1; text-decoration: none; display: block; transition: 0.3s; cursor: pointer; font-size: 14px; border-left: 4px solid transparent; }
+                
+                /* Login Page Overlay */
+                #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #1e293b; display: flex; justify-content: center; align-items: center; z-index: 999; }
+                .login-card { background: white; padding: 30px; border-radius: 8px; width: 350px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+                .login-card h2 { text-align: center; margin-bottom: 20px; color: #1e293b; }
+                .login-card input { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #cbd5e1; border-radius: 4px; }
+                .login-card button { width: 100%; padding: 10px; background: #0284c7; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+                .login-card button:hover { background: #0369a1; }
+                .error-msg { color: red; font-size: 12px; text-align: center; margin-bottom: 10px; }
+
+                /* Main App Layout (Hidden until login) */
+                #appContainer { display: none; width: 100%; height: 100%; }
+                .sidebar { width: 260px; background: #1e293b; color: white; display: flex; flex-direction: column; height: 100%; }
+                .sidebar h2 { padding: 20px; font-size: 16px; text-align: center; background: #0f172a; border-bottom: 1px solid #334155; }
+                .sidebar a { padding: 12px 20px; color: #cbd5e1; text-decoration: none; display: block; cursor: pointer; font-size: 14px; border-left: 4px solid transparent; }
                 .sidebar a:hover, .sidebar a.active { background: #334155; color: white; border-left-color: #38bdf8; }
                 .submenu { padding-left: 20px; background: #0f172a; display: none; }
                 .submenu.show { display: block; }
-                /* Main Content */
-                .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
-                header { background: white; padding: 15px 25px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); font-size: 18px; font-weight: bold; color: #334155; }
+                
+                .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; height: 100%; }
+                header { background: white; padding: 15px 25px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); font-size: 18px; font-weight: bold; color: #334155; display: flex; justify-content: space-between; align-items: center; }
                 .content-body { padding: 25px; flex: 1; }
                 .section { display: none; }
                 .section.active { display: block; }
-                /* UI Elements */
+                
                 .card-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 25px; }
                 .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: center; }
                 .card h3 { font-size: 24px; color: #0284c7; margin-top: 5px; }
@@ -141,105 +151,119 @@ app.get('/', (req, res) => {
                 th { background: #f8fafc; color: #475569; }
                 .btn { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; color: white; margin: 2px; }
                 .btn-green { background: #10b981; } .btn-blue { background: #0284c7; } .btn-red { background: #ef4444; } .btn-yellow { background: #f59e0b; }
-                .form-group { margin-bottom: 15px; }
-                .form-group label { display: block; margin-bottom: 5px; font-size: 13px; font-weight: bold; }
-                .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; }
             </style>
         </head>
         <body>
-            <div class="sidebar">
-                <h2>ប្រព័ន្ធគ្រប់គ្រងកម្ចី</h2>
-                <a onclick="showSection('dashboard', this)">1. Dashboard</a>
-                <a onclick="showSection('borrowers', this)">2. អតិថិជន</a>
-                <a onclick="showSection('loans', this)">3. កម្ចី (សកម្ម / ខូច)</a>
-                <a onclick="showSection('collections', this)">4. ប្រមូលប្រាក់</a>
-                <a onclick="showSection('payments', this)">5. ទូរទាត់</a>
-                <a onclick="toggleSubmenu()">6. របាយការណ៍ ▾</a>
-                <div id="reportSub" class="submenu">
-                    <a onclick="showSection('rep-collection', this)">- របាយការណ៍ប្រមូលប្រាក់</a>
-                    <a onclick="showSection('rep-expense', this)">- របាយការណ៍ចំណាយ</a>
-                    <a onclick="showSection('rep-cashier', this)">- របាយការណ៍បេឡា</a>
-                    <a onclick="showSection('rep-balance', this)">- សមតុល្យសរុប</a>
+
+            <!-- ផ្ទាំង Login -->
+            <div id="loginOverlay">
+                <div class="login-card">
+                    <h2>ចូលគណនី (Login)</h2>
+                    <div id="errorMsg" class="error-msg"></div>
+                    <input type="text" id="username" placeholder="ឈ្មោះអ្នកប្រើប្រាស់ (Username)">
+                    <input type="password" id="password" placeholder="ពាក្យសម្ងាត់ (Password)">
+                    <button onclick="handleLogin()">ចូលប្រព័ន្ធ</button>
+                    <p style="text-align: center; font-size: 11px; color: #64748b; margin-top: 15px;">គណនីដើម: admin / 123456</p>
                 </div>
-                <a onclick="showSection('settings', this)">7. ការកំណត់</a>
-                <a onclick="alert('ប្ដូរពាក្យសម្ងាត់')">8. ប្ដូរពាក្យសម្ងាត់</a>
-                <a onclick="alert('ចាកចេញដោយជោគជ័យ')" style="color: #ef4444;">9. ចាកចេញ</a>
             </div>
 
-            <div class="main-content">
-                <header id="headerTitle">Dashboard</header>
-                <div class="content-body">
-                    
-                    <!-- 1. DASHBOARD -->
-                    <div id="dashboard" class="section active">
-                        <div class="card-container">
-                            <div class="card">អតិថិជនសរុប<h3 id="dBorrowers">0</h3></div>
-                            <div class="card">កម្ចីសកម្ម<h3 id="dActive">0</h3></div>
-                            <div class="card">កម្ចីខូច<h3 id="dBad">0</h3></div>
-                            <div class="card">ប្រាក់ប្រមូលបានសរុប<h3 id="dCollected">$0</h3></div>
+            <!-- ប្រព័ន្ធគោល (បង្ហាញក្រោយពេល Login ជាប់) -->
+            <div id="appContainer" style="display: none;">
+                <div style="display: flex; width: 100%; height: 100%;">
+                    <div class="sidebar">
+                        <h2>ប្រព័ន្ធគ្រប់គ្រងកម្ចី</h2>
+                        <a onclick="showSection('dashboard', this)" class="active">1. Dashboard</a>
+                        <a onclick="showSection('borrowers', this)">2. អតិថិជន</a>
+                        <a onclick="showSection('loans', this)">3. កម្ចី (សកម្ម / ខូច)</a>
+                        <a onclick="showSection('collections', this)">4. ប្រមូលប្រាក់</a>
+                        <a onclick="showSection('payments', this)">5. ទូរទាត់</a>
+                        <a onclick="toggleSubmenu()">6. របាយការណ៍ ▾</a>
+                        <div id="reportSub" class="submenu">
+                            <a onclick="showSection('rep-collection', this)">- របាយការណ៍ប្រមូលប្រាក់</a>
+                            <a onclick="showSection('rep-expense', this)">- របាយការណ៍ចំណាយ</a>
+                            <a onclick="showSection('rep-cashier', this)">- របាយការណ៍បេឡា</a>
+                            <a onclick="showSection('rep-balance', this)">- សមតុល្យសរុប</a>
+                        </div>
+                        <a onclick="showSection('settings', this)">7. ការកំណត់</a>
+                        <a onclick="alert('មុខងារប្ដូរពាក្យសម្ងាត់')">8. ប្ដូរពាក្យសម្ងាត់</a>
+                        <a onclick="handleLogout()" style="color: #ef4444;">9. ចាកចេញ</a>
+                    </div>
+
+                    <div class="main-content">
+                        <header>
+                            <span id="headerTitle">Dashboard</span>
+                            <span id="userRoleBadge" style="font-size: 12px; background: #e2e8f0; padding: 4px 10px; border-radius: 4px;">Admin</span>
+                        </header>
+                        <div class="content-body">
+                            
+                            <div id="dashboard" class="section active">
+                                <div class="card-container">
+                                    <div class="card">អតិថិជនសរុប<h3 id="dBorrowers">0</h3></div>
+                                    <div class="card">កម្ចីសកម្ម<h3 id="dActive">0</h3></div>
+                                    <div class="card">កម្ចីខូច<h3 id="dBad">0</h3></div>
+                                    <div class="card">ប្រាក់ប្រមូលបានសរុប<h3 id="dCollected">$0</h3></div>
+                                </div>
+                            </div>
+
+                            <div id="borrowers" class="section">
+                                <h3>បញ្ជីឈ្មោះអតិថិជន</h3><br>
+                                <table>
+                                    <thead><tr><th>លេខកូដ</th><th>ឈ្មោះ</th><th>ភេទ</th><th>ទូរស័ព្ទ</th><th>អត្តសញ្ញាណប័ណ្ណ</th><th>អាសយដ្ឋាន</th></tr></thead>
+                                    <tbody id="borrowerTable"></tbody>
+                                </table>
+                            </div>
+
+                            <div id="loans" class="section">
+                                <h3>បញ្ជីកម្ចីសកម្ម និងកម្ចីខូច</h3><br>
+                                <table>
+                                    <thead><tr><th>លេខកូដកម្ចី</th><th>ឈ្មោះអតិថិជន</th><th>ទឹកប្រាក់</th><th>អត្រាការប្រាក់</th><th>មន្ត្រី CO</th><th>ស្ថានភាព</th></tr></thead>
+                                    <tbody id="loanTable"></tbody>
+                                </table>
+                            </div>
+
+                            <div id="collections" class="section"><h3>តារាងប្រមូលប្រាក់</h3></div>
+                            <div id="payments" class="section"><h3>ការទូរទាត់ប្រាក់នៅក្រុមហ៊ុន</h3></div>
+                            <div id="rep-collection" class="section"><h3>របាយការណ៍ប្រមូលប្រាក់</h3></div>
+                            <div id="rep-expense" class="section"><h3>របាយការណ៍ចំណាយ</h3></div>
+                            <div id="rep-cashier" class="section"><h3>របាយការណ៍បេឡាទទួលប្រាក់</h3></div>
+                            <div id="rep-balance" class="section"><h3>របាយការណ៍សមតុល្យសរុប</h3></div>
+                            <div id="settings" class="section"><h3>ការកំណត់ប្រព័ន្ធ</h3></div>
+
                         </div>
                     </div>
-
-                    <!-- 2. BORROWERS -->
-                    <div id="borrowers" class="section">
-                        <h3>បញ្ជីឈ្មោះអតិថិជន</h3>
-                        <br>
-                        <table>
-                            <thead>
-                                <tr><th>លេខកូដ</th><th>ឈ្មោះ</th><th>ភេទ</th><th>ទូរស័ព្ទ</th><th>អត្តសញ្ញាណប័ណ្ណ</th><th>អាសយដ្ឋាន</th><th>សកម្មភាព</th></tr>
-                            </thead>
-                            <tbody id="borrowerTable"></tbody>
-                        </table>
-                    </div>
-
-                    <!-- 3. LOANS -->
-                    <div id="loans" class="section">
-                        <h3>បញ្ជីកម្ចី (សកម្ម / ខូច)</h3>
-                        <br>
-                        <table>
-                            <thead>
-                                <tr><th>លេខកូដកម្ចី</th><th>ឈ្មោះអតិថិជន</th><th>ទឹកប្រាក់</th><th>អត្រាការប្រាក់</th><th>មន្ត្រី CO</th><th>ស្ថានភាព</th><th>សកម្មភាព</th></tr>
-                            </thead>
-                            <tbody id="loanTable"></tbody>
-                        </table>
-                    </div>
-
-                    <!-- 4. COLLECTIONS -->
-                    <div id="collections" class="section">
-                        <h3>តារាងប្រមូលប្រាក់</h3>
-                        <br>
-                        <table>
-                            <thead>
-                                <tr><th>វិក្កយបត្រ</th><th>ឈ្មោះអតិថិជន</th><th>ទឹកប្រាក់បង់</th><th>មន្ត្រី CO</th><th>ស្ថានភាពបេឡា</th><th>សកម្មភាព</th></tr>
-                            </thead>
-                            <tbody id="collectionTable"></tbody>
-                        </table>
-                    </div>
-
-                    <!-- 5. PAYMENTS -->
-                    <div id="payments" class="section">
-                        <h3>ការទូទាត់ប្រាក់នៅក្រុមហ៊ុន</h3>
-                        <p>កន្លែងទទួលប្រាក់ផ្ទាល់ពីអតិថិជន...</p>
-                    </div>
-
-                    <!-- 6. REPORTS -->
-                    <div id="rep-collection" class="section"><h3>របាយការណ៍ប្រមូលប្រាក់</h3><div id="repCollectionContent"></div></div>
-                    <div id="rep-expense" class="section"><h3>របាយការណ៍ចំណាយ</h3></div>
-                    <div id="rep-cashier" class="section"><h3>របាយការណ៍បេឡាទទួលប្រាក់</h3></div>
-                    <div id="rep-balance" class="section"><h3>របាយការណ៍សមតុល្យសរុប</h3></div>
-
-                    <!-- 7. SETTINGS -->
-                    <div id="settings" class="section">
-                        <h3>ការកំណត់ប្រព័ន្ធ</h3>
-                        <br>
-                        <button class="btn btn-blue" onclick="loadStaff()">គ្រប់គ្រងបុគ្គលិក / មន្ត្រីឥណទាន</button>
-                        <div id="staffList" style="margin-top:15px;"></div>
-                    </div>
-
                 </div>
             </div>
 
             <script>
+                async function handleLogin() {
+                    const username = document.getElementById('username').value;
+                    const password = document.getElementById('password').value;
+                    const errorMsg = document.getElementById('errorMsg');
+
+                    const res = await fetch('/api/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password })
+                    });
+                    const data = await res.json();
+
+                    if(data.success) {
+                        document.getElementById('loginOverlay').style.display = 'none';
+                        document.getElementById('appContainer').style.display = 'block';
+                        document.getElementById('userRoleBadge').innerText = 'Role: ' + data.role;
+                        loadDashboardData();
+                    } else {
+                        errorMsg.innerText = data.message;
+                    }
+                }
+
+                function handleLogout() {
+                    document.getElementById('appContainer').style.display = 'none';
+                    document.getElementById('loginOverlay').style.display = 'flex';
+                    document.getElementById('username').value = '';
+                    document.getElementById('password').value = '';
+                }
+
                 function showSection(id, element) {
                     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
                     document.getElementById(id).classList.add('active');
@@ -252,64 +276,30 @@ app.get('/', (req, res) => {
                     document.getElementById('reportSub').classList.toggle('show');
                 }
 
-                async function loadDashboard() {
+                async function loadDashboardData() {
                     const res = await fetch('/api/stats');
                     const data = await res.json();
                     document.getElementById('dBorrowers').innerText = data.borrowersCount;
                     document.getElementById('dActive').innerText = data.activeLoans;
                     document.getElementById('dBad').innerText = data.badLoans;
                     document.getElementById('dCollected').innerText = '$' + data.totalCollected;
-                    
-                    // Load Borrowers
+
                     const bRes = await fetch('/api/borrowers');
                     const borrowers = await bRes.json();
                     let bHtml = '';
                     borrowers.forEach(b => {
-                        bHtml += \`<tr><td>\${b.code||''}</td><td>\${b.name||''}</td><td>\${b.gender||''}</td><td>\${b.phone||''}</td><td>\${b.nationalId||''}</td><td>\${b.address||''}</td><td><button class="btn btn-red" onclick="deleteBorrower('\${b._id}')">លុប</button></td></tr>\`;
+                        bHtml += \`<tr><td>\${b.code||''}</td><td>\${b.name||''}</td><td>\${b.gender||''}</td><td>\${b.phone||''}</td><td>\${b.nationalId||''}</td><td>\${b.address||''}</td></tr>\`;
                     });
-                    document.getElementById('borrowerTable').innerHTML = bHtml || '<tr><td colspan="7">មិនមានទិន្នន័យ</td></tr>';
+                    document.getElementById('borrowerTable').innerHTML = bHtml || '<tr><td colspan="6">មិនមានទិន្នន័យ</td></tr>';
 
-                    // Load Loans
                     const lRes = await fetch('/api/loans');
                     const loans = await lRes.json();
                     let lHtml = '';
                     loans.forEach(l => {
-                        lHtml += \`<tr><td>\${l.loanCode}</td><td>\${l.borrowerId?.name || 'N/A'}</td><td>$\${l.amount}</td><td>\${l.interestRate}%</td><td>\${l.coOfficer}</td><td>\${l.status}</td><td>
-                            <button class="btn btn-green" onclick="updateLoanStatus('\${l._id}', 'Active')">Approve</button>
-                            <button class="btn btn-yellow" onclick="updateLoanStatus('\${l._id}', 'Bad Loan')">កម្ចីខូច</button>
-                            <button class="btn btn-red" onclick="deleteLoan('\${l._id}')">លុប</button>
-                        </td></tr>\`;
+                        lHtml += \`<tr><td>\${l.loanCode}</td><td>\${l.borrowerId?.name || 'N/A'}</td><td>$\${l.amount}</td><td>\${l.interestRate}%</td><td>\${l.coOfficer}</td><td>\${l.status}</td></tr>\`;
                     });
-                    document.getElementById('loanTable').innerHTML = lHtml || '<tr><td colspan="7">មិនមានទិន្នន័យកម្ចី</td></tr>';
-
-                    // Load Collections / Transactions
-                    const tRes = await fetch('/api/transactions');
-                    const txs = await tRes.json();
-                    let tHtml = '';
-                    txs.forEach(t => {
-                        let statusText = t.receivedByCashier ? '<span style="color:green">Approved</span>' : '<span style="color:orange">Pending</span>';
-                        tHtml += \`<tr><td>\${t.receiptNo}</td><td>\${t.loanId?.borrowerId?.name || 'N/A'}</td><td>$\${t.totalPaid}</td><td>\${t.coOfficer}</td><td>\${statusText}</td><td>
-                            \${!t.receivedByCashier ? '<button class="btn btn-green" onclick="approveCashier(\\\`' + t._id + '\\\`)">ទទួលប្រាក់</button>' : ''}
-                        </td></tr>\`;
-                    });
-                    document.getElementById('collectionTable').innerHTML = tHtml || '<tr><td colspan="6">មិនមានទិន្នន័យប្រមូលប្រាក់</td></tr>';
+                    document.getElementById('loanTable').innerHTML = lHtml || '<tr><td colspan="6">មិនមានទិន្នន័យកម្ចី</td></tr>';
                 }
-
-                async function deleteBorrower(id) { if(confirm('លុបមែនទេ?')) { await fetch('/api/borrowers/'+id, {method:'DELETE'}); loadDashboard(); } }
-                async function deleteLoan(id) { if(confirm('លុបកម្ចីនេះមែនទេ?')) { await fetch('/api/loans/'+id, {method:'DELETE'}); loadDashboard(); } }
-                async function updateLoanStatus(id, status) { await fetch('/api/loans/'+id+'/status', {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({status})}); loadDashboard(); }
-                async function approveCashier(id) { await fetch('/api/transactions/approve/'+id, {method:'PUT'}); loadDashboard(); }
-
-                async function loadStaff() {
-                    const res = await fetch('/api/staff');
-                    const staff = await res.json();
-                    let html = '<h4>បញ្ជីបុគ្គលិក</h4><table><tr><th>ឈ្មោះ</th><th>តួនាទី</th><th>ទូរស័ព្ទ</th></tr>';
-                    staff.forEach(s => html += \`<tr><td>\${s.name}</td><td>\${s.role}</td><td>\${s.phone}</td></tr>\`);
-                    html += '</table>';
-                    document.getElementById('staffList').innerHTML = html;
-                }
-
-                loadDashboard();
             </script>
         </body>
         </html>
