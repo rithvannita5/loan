@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>កម្ចីខូច - ប្រព័ន្ធកម្ចី</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Khmer OS', 'Noto Sans Khmer', 'Moul', Arial, sans-serif;
+            background: #f4f6f9;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        .sidebar-brand { text-align: center; padding: 20px 15px 30px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 20px; }
+        .sidebar-brand .logo { font-size: 32px; display: block; margin-bottom: 5px; }
+        .sidebar-brand h2 { font-size: 20px; font-weight: 700; color: #fff; letter-spacing: 1px; }
+        .sidebar-brand h2 span { color: #667eea; }
+        .sidebar-brand p { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 3px; }
+
+        .menu-label { padding: 10px 25px 5px; font-size: 11px; text-transform: uppercase; color: rgba(255,255,255,0.3); letter-spacing: 2px; font-weight: 600; }
+        .menu-item {
+            display: flex; align-items: center; padding: 13px 25px;
+            color: rgba(255,255,255,0.6); text-decoration: none;
+            transition: all 0.3s ease; border-left: 3px solid transparent;
+            cursor: pointer; font-size: 15px; font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif;
+        }
+        .menu-item:hover { background: rgba(255,255,255,0.05); color: #fff; border-left-color: #667eea; }
+        .menu-item.active { background: rgba(102,126,234,0.15); color: #fff; border-left-color: #667eea; }
+        .menu-item .icon { font-size: 20px; margin-right: 14px; width: 28px; text-align: center; }
+        .menu-item .badge { margin-left: auto; background: #e74c3c; color: #fff; font-size: 11px; padding: 2px 10px; border-radius: 20px; }
+
+        .main-content { margin-left: 260px; flex: 1; padding: 30px; min-height: 100vh; }
+
+        .top-header {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #fff; padding: 18px 30px; border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 25px; flex-wrap: wrap; gap: 15px;
+        }
+        .top-header h1 { font-size: 24px; color: #1a1a2e; }
+        .top-header h1 span { color: #e74c3c; }
+        .user-info { display: flex; align-items: center; gap: 15px; }
+        .user-info .avatar { width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 22px; font-weight: 700; }
+        .user-info .name { font-weight: 600; color: #333; }
+        .user-info .role { font-size: 12px; color: #888; }
+        .logout-btn { background: #e74c3c; color: #fff; border: none; padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 14px; transition: all 0.3s ease; font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif; text-decoration: none; }
+        .logout-btn:hover { background: #c0392b; transform: scale(1.02); }
+
+        /* ===== STATS ===== */
+        .stats-mini {
+            display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;
+        }
+        .stat-mini {
+            background: #fff; padding: 15px 25px; border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex; align-items: center; gap: 15px; flex: 1; min-width: 150px;
+        }
+        .stat-mini .icon { font-size: 32px; }
+        .stat-mini .number { font-size: 24px; font-weight: 700; color: #e74c3c; }
+        .stat-mini .label { font-size: 13px; color: #888; }
+
+        .toolbar {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #fff; padding: 15px 25px; border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px; flex-wrap: wrap; gap: 15px;
+        }
+        .btn-restore {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: #fff; border: none; padding: 12px 25px; border-radius: 10px;
+            font-size: 15px; cursor: pointer; transition: all 0.3s ease;
+            font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif;
+            font-weight: 600; display: flex; align-items: center; gap: 8px;
+        }
+        .btn-restore:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(52,152,219,0.4); }
+        .btn-restore i { font-size: 16px; }
+
+        .table-wrapper {
+            background: #fff; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 5px 0; overflow: hidden;
+        }
+        .table-scroll { overflow-x: auto; overflow-y: auto; max-height: 550px; padding: 0 5px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1800px; }
+        table thead { position: sticky; top: 0; z-index: 10; }
+        table th {
+            text-align: left; padding: 12px 10px; background: #f8d7da; color: #721c24;
+            font-weight: 700; white-space: nowrap; font-size: 12px; border-bottom: 2px solid #f5c6cb;
+        }
+        table td { padding: 10px; border-bottom: 1px solid #f0f0f0; color: #333; vertical-align: middle; }
+        table tbody tr:hover { background: #fff5f5; }
+        table tbody tr:nth-child(even) { background: #fafafa; }
+        table tbody tr:nth-child(even):hover { background: #fef0f0; }
+
+        .status {
+            padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;
+            display: inline-block; white-space: nowrap;
+        }
+        .status.bad_debt { background: #f8d7da; color: #721c24; }
+
+        .action-dropdown { position: relative; display: inline-block; }
+        .action-btn { background: transparent; border: none; font-size: 20px; cursor: pointer; padding: 5px 10px; border-radius: 8px; transition: all 0.3s ease; color: #555; }
+        .action-btn:hover { background: #f0f0f0; }
+        .action-menu {
+            display: none; position: absolute; right: 0; top: 30px;
+            background: #fff; min-width: 180px; box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            border-radius: 12px; z-index: 9999; padding: 8px 0; animation: fadeIn 0.2s ease;
+        }
+        .action-menu.show { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .action-menu-item {
+            display: flex; align-items: center; gap: 10px; padding: 10px 18px;
+            color: #333; font-size: 14px; cursor: pointer; border: none; background: none;
+            width: 100%; text-align: left; font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif;
+            transition: all 0.2s ease;
+        }
+        .action-menu-item:hover { background: #f0f2f5; }
+        .action-menu-item.restore { color: #3498db; }
+        .action-menu-item.restore:hover { background: #d6eaf8; }
+        .action-menu-item.delete { color: #e74c3c; }
+        .action-menu-item.delete:hover { background: #f8d7da; }
+
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #e74c3c;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 70px; padding: 15px 0; }
+            .sidebar-brand h2, .sidebar-brand p, .menu-label,
+            .menu-item span:not(.icon), .menu-item .badge { display: none; }
+            .sidebar-brand .logo { font-size: 28px; }
+            .menu-item { padding: 15px 0; justify-content: center; }
+            .menu-item .icon { margin-right: 0; font-size: 24px; }
+            .main-content { margin-left: 70px; padding: 15px; }
+            .top-header h1 { font-size: 18px; }
+            .user-info .name, .user-info .role { display: none; }
+            .stats-mini { flex-direction: column; }
+            .toolbar { flex-direction: column; align-items: stretch; }
+        }
+        @media (max-width: 480px) {
+            .top-header { flex-direction: column; text-align: center; }
+        }
+        .table-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+        .table-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .table-scroll::-webkit-scrollbar-thumb { background: #e74c3c; border-radius: 10px; }
+        .table-scroll::-webkit-scrollbar-thumb:hover { background: #c0392b; }
+    </style>
+</head>
+<body>
+
+    <!-- ===== SIDEBAR ===== -->
+    <nav class="sidebar">
+        <div class="sidebar-brand">
+            <span class="logo">🏦</span>
+            <h2>កម្ចី<span>Plus</span></h2>
+            <p>ប្រព័ន្ធគ្រប់គ្រងកម្ចី</p>
+        </div>
+
+        <div class="menu-label">មុខម្ហូប</div>
+
+        <a href="/dashboard" class="menu-item">
+            <span class="icon">📊</span>
+            <span>Dashboard</span>
+        </a>
+
+        <a href="/customers" class="menu-item">
+            <span class="icon">👤</span>
+            <span>អតិថិជន</span>
+        </a>
+
+        <a href="/loans" class="menu-item">
+            <span class="icon">💰</span>
+            <span>កម្ចី</span>
+        </a>
+
+        <a href="/loans/bad" class="menu-item active">
+            <span class="icon">⚠️</span>
+            <span>កម្ចីខូច</span>
+            <span class="badge" id="badLoanCount" style="background:#e74c3c;">0</span>
+        </a>
+
+        <a href="/pawn" class="menu-item">
+            <span class="icon">🏠</span>
+            <span>បញ្ចាំ</span>
+        </a>
+
+        <a href="/payments" class="menu-item">
+            <span class="icon">📱</span>
+            <span>ទូរទាត់</span>
+        </a>
+
+        <a href="/collection" class="menu-item">
+            <span class="icon">💵</span>
+            <span>ប្រមូលប្រាក់</span>
+        </a>
+
+        <a href="/disbursement" class="menu-item">
+            <span class="icon">📢</span>
+            <span>បេឡា</span>
+        </a>
+
+        <a href="/reports" class="menu-item">
+            <span class="icon">📈</span>
+            <span>របាយការណ៍</span>
+        </a>
+
+        <a href="/settings" class="menu-item">
+            <span class="icon">⚙️</span>
+            <span>ការកំណត់</span>
+        </a>
+
+        <a href="/audit" class="menu-item">
+            <span class="icon">📋</span>
+            <span>សវនៈកម្ម</span>
+        </a>
+    </nav>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="main-content">
+
+        <div class="top-header">
+            <h1>⚠️ <span>កម្ចីខូច</span></h1>
+            <div class="user-info">
+                <div>
+                    <div class="name">ស្វាគមន៍, <span id="usernameDisplay">{{ username }}</span></div>
+                    <div class="role">អ្នកគ្រប់គ្រងប្រព័ន្ធ</div>
+                </div>
+                <div class="avatar">{{ username[0] if username else 'អ' }}</div>
+                <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> ចាកចេញ</a>
+            </div>
+        </div>
+
+        <!-- ===== STATS ===== -->
+        <div class="stats-mini">
+            <div class="stat-mini">
+                <span class="icon">⚠️</span>
+                <div>
+                    <div class="number" id="totalBadLoans">0</div>
+                    <div class="label">កម្ចីខូចសរុប</div>
+                </div>
+            </div>
+            <div class="stat-mini">
+                <span class="icon">💰</span>
+                <div>
+                    <div class="number" id="totalBadAmount">$0.00</div>
+                    <div class="label">បំណុលសរុប</div>
+                </div>
+            </div>
+            <div class="stat-mini">
+                <span class="icon">👥</span>
+                <div>
+                    <div class="number" id="totalCustomers">0</div>
+                    <div class="label">អតិថិជន</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <div>
+                <button class="btn-restore" onclick="restoreAllLoans()">
+                    <i class="fas fa-undo"></i> ស្តារកម្ចីខូចទាំងអស់
+                </button>
+            </div>
+            <div style="color:#888; font-size:14px;">
+                <i class="fas fa-info-circle"></i> ចំនួនកម្ចីខូច: <span id="badCountDisplay">0</span>
+            </div>
+        </div>
+
+        <div class="table-wrapper">
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>លេខកូដ</th>
+                            <th>ឈ្មោះ</th>
+                            <th>ភេទ</th>
+                            <th>ទូរស័ព្ទ</th>
+                            <th>អត្តសញ្ញាណ</th>
+                            <th>ថ្ងៃខែខ្ចី</th>
+                            <th>ទឹកប្រាក់</th>
+                            <th>រូបិយប័ណ្ណ</th>
+                            <th>អត្រាការប្រាក់</th>
+                            <th>ការប្រាក់សរុប</th>
+                            <th>ជំពាក់សរុប</th>
+                            <th>បានសង</th>
+                            <th>បំណុលនៅខ្វះ</th>
+                            <th>ថ្ងៃស្នើបង់</th>
+                            <th>មន្ត្រី CO</th>
+                            <th>ស្ថានភាព</th>
+                            <th>សកម្មភាព</th>
+                        </tr>
+                    </thead>
+                    <tbody id="loanBody">
+                        <tr>
+                            <td colspan="18" style="text-align:center; padding:40px; color:#888;">
+                                <div class="spinner"></div>
+                                <p style="margin-top:10px;">កំពុងផ្ទុកទិន្នន័យ...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div style="text-align:center; color:#a0aec0; font-size:13px; margin-top:20px;">
+            <i class="fas fa-sync-alt"></i>
+            <span id="footerInfo">កំពុងផ្ទុក...</span>
+        </div>
+
+    </div>
+
+    <script>
+        let badLoans = [];
+
+        // ===== FORMAT CURRENCY =====
+        function formatCurrency(amount, currency) {
+            if (amount === null || amount === undefined || isNaN(amount)) return currency === 'KHR' ? '៛ 0' : '$ 0.00';
+            if (currency === 'KHR') {
+                const rounded = Math.round(amount / 100) * 100;
+                return '៛ ' + rounded.toLocaleString('en-US');
+            } else {
+                return '$ ' + amount.toFixed(2);
+            }
+        }
+
+        // ===== LOAD BAD LOANS =====
+        async function loadBadLoans() {
+            try {
+                const response = await fetch('/api/loans/bad');
+                if (!response.ok) throw new Error('Network response was not ok');
+                badLoans = await response.json();
+
+                // Update badge
+                document.getElementById('badLoanCount').textContent = badLoans.length;
+                document.getElementById('badCountDisplay').textContent = badLoans.length;
+
+                // Update stats
+                let totalAmount = 0;
+                let uniqueCustomers = new Set();
+                badLoans.forEach(loan => {
+                    totalAmount += loan.remaining_balance || 0;
+                    if (loan.customer_id) uniqueCustomers.add(loan.customer_id);
+                });
+                document.getElementById('totalBadLoans').textContent = badLoans.length;
+                document.getElementById('totalBadAmount').textContent = formatCurrency(totalAmount, 'USD');
+                document.getElementById('totalCustomers').textContent = uniqueCustomers.size;
+
+                renderTable(badLoans);
+                document.getElementById('footerInfo').textContent = `បង្ហាញចំនួន ${badLoans.length} កម្ចីខូច`;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('loanBody').innerHTML = `
+                    <tr>
+                        <td colspan="18" style="text-align:center; padding:40px; color:#e74c3c;">
+                            <i class="fas fa-exclamation-circle" style="font-size:48px; display:block; margin-bottom:10px;"></i>
+                            មានបញ្ហាក្នុងការផ្ទុកទិន្នន័យ<br>
+                            <small style="color:#888;">${error.message}</small>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // ===== RENDER TABLE =====
+        function renderTable(data) {
+            const tbody = document.getElementById('loanBody');
+            tbody.innerHTML = '';
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="18" style="text-align:center; padding:40px; color:#888;">
+                            <i class="fas fa-check-circle" style="font-size:48px; display:block; margin-bottom:10px; color:#27ae60;"></i>
+                            មិនមានកម្ចីខូច
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            data.forEach((loan, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td><strong>${loan.customer_code || '-'}</strong></td>
+                    <td>${loan.customer_name || '-'}</td>
+                    <td>${loan.customer_gender || '-'}</td>
+                    <td>${loan.customer_phone || '-'}</td>
+                    <td>${loan.customer_id_card || '-'}</td>
+                    <td>${loan.loan_date || '-'}</td>
+                    <td>${formatCurrency(loan.loan_amount, loan.currency)}</td>
+                    <td>${loan.currency || '-'}</td>
+                    <td>${loan.interest_rate || 0}%</td>
+                    <td>${formatCurrency(loan.total_interest, loan.currency)}</td>
+                    <td><strong>${formatCurrency(loan.loan_amount + loan.total_interest, loan.currency)}</strong></td>
+                    <td>${formatCurrency(loan.amount_paid, loan.currency)}</td>
+                    <td><strong style="color:#e74c3c;">${formatCurrency(loan.remaining_balance, loan.currency)}</strong></td>
+                    <td>${loan.due_date || '-'}</td>
+                    <td>${loan.co_officer || '-'}</td>
+                    <td><span class="status bad_debt"><i class="fas fa-exclamation-triangle"></i> កម្ចីខូច</span></td>
+                    <td>
+                        <div class="action-dropdown">
+                            <button class="action-btn" onclick="toggleMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
+                            <div class="action-menu">
+                                <button class="action-menu-item restore" onclick="restoreLoan(${loan.id})">
+                                    <i class="fas fa-undo"></i> ស្តារកម្ចី
+                                </button>
+                                <button class="action-menu-item delete" onclick="deleteLoan(${loan.id})">
+                                    <i class="fas fa-trash"></i> លុបចេញ
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // ===== TOGGLE MENU =====
+        function toggleMenu(btn) {
+            document.querySelectorAll('.action-menu').forEach(m => {
+                if (m !== btn.nextElementSibling) {
+                    m.classList.remove('show');
+                }
+            });
+            const menu = btn.nextElementSibling;
+            menu.classList.toggle('show');
+            if (menu.classList.contains('show')) {
+                document.addEventListener('click', function closeMenu(e) {
+                    if (!btn.parentElement.contains(e.target)) {
+                        menu.classList.remove('show');
+                        document.removeEventListener('click', closeMenu);
+                    }
+                });
+            }
+        }
+
+        // ===== RESTORE LOAN =====
+        async function restoreLoan(loanId) {
+            const loan = badLoans.find(l => l.id === loanId);
+            if (!loan) {
+                alert('មិនឃើញកម្ចីនេះទេ!');
+                return;
+            }
+
+            if (confirm(`តើអ្នកចង់ស្តារកម្ចី #${loan.customer_code} (${loan.customer_name}) មែនទេ?`)) {
+                try {
+                    const response = await fetch('/api/update_loan_status', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ loan_id: loanId, status: 'Approved' })
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        alert('✅ បានស្តារកម្ចីរួចរាល់!');
+                        loadBadLoans();
+                    } else {
+                        alert('❌ បរាជ័យក្នុងការស្តារកម្ចី!');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('❌ មានបញ្ហាក្នុងការភ្ជាប់ទៅម៉ាស៊ីនមេ!');
+                }
+            }
+        }
+
+        // ===== RESTORE ALL LOANS =====
+        async function restoreAllLoans() {
+            if (badLoans.length === 0) {
+                alert('មិនមានកម្ចីខូចដែលត្រូវស្តារទេ!');
+                return;
+            }
+
+            if (confirm(`តើអ្នកចង់ស្តារកម្ចីខូចទាំង ${badLoans.length} មែនទេ?`)) {
+                let successCount = 0;
+                for (const loan of badLoans) {
+                    try {
+                        const response = await fetch('/api/update_loan_status', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ loan_id: loan.id, status: 'Approved' })
+                        });
+                        const result = await response.json();
+                        if (result.success) successCount++;
+                    } catch (error) {
+                        console.error('Error restoring loan:', error);
+                    }
+                }
+                alert(`✅ បានស្តារកម្ចីចំនួន ${successCount} រួចរាល់!`);
+                loadBadLoans();
+            }
+        }
+
+        // ===== DELETE LOAN =====
+        async function deleteLoan(loanId) {
+            const loan = badLoans.find(l => l.id === loanId);
+            if (!loan) {
+                alert('មិនឃើញកម្ចីនេះទេ!');
+                return;
+            }
+
+            if (confirm(`🗑️ តើអ្នកពិតជាចង់លុបកម្ចី #${loan.customer_code} (${loan.customer_name}) មែនទេ?`)) {
+                try {
+                    const response = await fetch('/api/delete_loan', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ loan_id: loanId })
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        alert('✅ បានលុបកម្ចីរួចរាល់!');
+                        loadBadLoans();
+                    } else {
+                        alert('❌ បរាជ័យក្នុងការលុបកម្ចី!');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('❌ មានបញ្ហាក្នុងការភ្ជាប់ទៅម៉ាស៊ីនមេ!');
+                }
+            }
+        }
+
+        // ===== AUTO REFRESH =====
+        document.addEventListener('DOMContentLoaded', function() {
+            loadBadLoans();
+
+            // Refresh every 60 seconds
+            setInterval(loadBadLoans, 60000);
+        });
+    </script>
+
+</body>
+</html>

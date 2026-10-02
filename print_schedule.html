@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>តារាងបង់ប្រាក់ - Loan System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Khmer OS', 'Khmer OS Muol', 'Moul', 'Arial', sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        .sidebar-brand {
+            padding: 0 20px 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+        .sidebar-brand h2 { font-size: 20px; display: flex; align-items: center; gap: 10px; }
+        .sidebar-brand h2 i { color: #667eea; }
+        .sidebar-brand .subtitle { font-size: 12px; color: #a0aec0; margin-top: 5px; }
+
+        .sidebar-menu { list-style: none; padding: 0; }
+        .sidebar-menu li a {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 20px; color: #cbd5e0; text-decoration: none;
+            transition: all 0.3s; border-left: 3px solid transparent; font-size: 14px;
+        }
+        .sidebar-menu li a:hover { background: rgba(255,255,255,0.05); color: white; border-left-color: #667eea; }
+        .sidebar-menu li a.active { background: rgba(102,126,234,0.15); color: white; border-left-color: #667eea; }
+        .sidebar-menu li a i { width: 20px; text-align: center; font-size: 14px; color: #a0aec0; }
+        .sidebar-menu li a.active i { color: #667eea; }
+        .sidebar-menu .menu-label { padding: 15px 20px 5px 20px; font-size: 11px; color: #718096; text-transform: uppercase; letter-spacing: 1px; }
+        .sidebar-menu .menu-divider { height: 1px; background: rgba(255,255,255,0.05); margin: 8px 20px; }
+        .sidebar-footer { padding: 15px 20px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 12px; color: #718096; text-align: center; margin-top: 10px; }
+
+        .main-content { margin-left: 260px; flex: 1; padding: 20px; min-height: 100vh; }
+        .top-header {
+            background: white; padding: 15px 25px; border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 25px; flex-wrap: wrap; gap: 10px;
+        }
+        .top-header .page-title h1 { font-size: 22px; color: #2d3748; }
+        .top-header .page-title p { color: #718096; font-size: 14px; }
+        .top-header .user-info { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .top-header .user-info .avatar {
+            width: 40px; height: 40px; background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: bold; font-size: 18px;
+        }
+        .top-header .user-info .user-name { font-weight: 600; color: #2d3748; font-size: 14px; }
+        .top-header .user-info .user-role { font-size: 12px; color: #718096; }
+        .top-header .user-info .logout-btn {
+            padding: 8px 18px; background: #fc8181; color: white; border: none;
+            border-radius: 8px; cursor: pointer; font-size: 13px;
+            font-family: 'Khmer OS', 'Arial', sans-serif; transition: all 0.3s; text-decoration: none;
+        }
+        .top-header .user-info .logout-btn:hover { background: #f56565; }
+        .menu-toggle { display: none; background: none; border: none; color: #2d3748; font-size: 24px; cursor: pointer; padding: 5px; }
+
+        .page-content {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn {
+            padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer;
+            font-size: 14px; font-family: 'Khmer OS', 'Arial', sans-serif;
+            transition: all 0.3s; text-decoration: none; display: inline-flex;
+            align-items: center; gap: 6px;
+        }
+        .btn-secondary { background: #e2e8f0; color: #2d3748; }
+        .btn-secondary:hover { background: #cbd5e0; }
+        .btn-print {
+            background: #48bb78;
+            color: white;
+        }
+        .btn-print:hover { background: #38a169; }
+
+        .print-container {
+            background: white;
+            border-radius: 16px;
+            padding: 25px 30px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .print-title {
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            color: #1a202c;
+            padding-bottom: 8px;
+            border-bottom: none;
+            margin-bottom: 15px;
+            font-family: 'Khmer OS Muol Light', 'Khmer OS', 'Arial', sans-serif;
+        }
+
+        .info-card {
+            display: grid;
+            grid-template-columns: 1fr 130px;
+            gap: 15px;
+            background: transparent;
+            border-radius: 12px;
+            padding: 15px 20px;
+            border: none;
+            margin-bottom: 15px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 2px 12px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            padding: 3px 0;
+            border-bottom: 1px dashed #edf2f7;
+        }
+        .info-item:last-child { border-bottom: none; }
+        .info-item .label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #4a5568;
+            white-space: nowrap;
+            margin-right: 5px;
+            min-width: 85px;
+        }
+        .info-item .value {
+            font-size: 13px;
+            color: #1a202c;
+            padding: 1px 3px;
+            flex: 1;
+        }
+        .info-item .value.empty { color: #a0aec0; }
+
+        .qr-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2px;
+            border-left: 1px solid #e2e8f0;
+            padding-left: 12px;
+        }
+        .qr-box .qr-placeholder {
+            width: 100px;
+            height: 100px;
+            background: #f7fafc;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #a0aec0;
+            font-size: 11px;
+            transition: all 0.3s;
+            border: 1px dashed #e2e8f0;
+            cursor: pointer;
+        }
+        .qr-box .qr-placeholder.has-qr { background: #f0fff4; border: 1px solid #48bb78; }
+        .qr-box .qr-placeholder i { font-size: 32px; color: #667eea; margin-bottom: 3px; }
+        .qr-box .qr-placeholder.has-qr i { color: #48bb78; }
+        .qr-box .qr-placeholder img { width: 90px; height: 90px; object-fit: contain; }
+        .qr-box .qr-label { font-size: 9px; color: #718096; margin-top: 3px; }
+        .qr-box .qr-upload-input { display: none; }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        .table-wrapper table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .table-wrapper table th {
+            background: #edf2f7;
+            color: #2d3748;
+            padding: 8px 10px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 11px;
+            border-bottom: 2px solid #cbd5e0;
+        }
+        .table-wrapper table td {
+            padding: 6px 10px;
+            text-align: center;
+            border-bottom: 1px solid #edf2f7;
+            color: #4a5568;
+            font-size: 11px;
+        }
+        .table-wrapper table tbody tr:hover { background: #f7fafc; }
+        .table-wrapper table tbody tr:last-child td { border-bottom: none; }
+        .table-wrapper table td.paid { background: #f0fff4; }
+        .table-wrapper table td.paid .status-badge { color: #48bb78; }
+        .table-wrapper table td.unpaid { background: #fff5f5; }
+        .table-wrapper table td.unpaid .status-badge { color: #fc8181; }
+
+        .status-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+        .status-badge.paid { background: #c6f6d5; color: #22543d; }
+        .status-badge.unpaid { background: #fed7d7; color: #9b2c2c; }
+
+        .summary-bar {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+            padding: 10px 15px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        .summary-bar .stat { text-align: center; }
+        .summary-bar .stat .number { font-size: 16px; font-weight: bold; }
+        .summary-bar .stat .label { font-size: 11px; color: #718096; }
+        .summary-bar .stat .number.blue { color: #667eea; }
+        .summary-bar .stat .number.green { color: #48bb78; }
+        .summary-bar .stat .number.orange { color: #ed8936; }
+        .summary-bar .stat .number.red { color: #fc8181; }
+        .summary-bar .stat .number.purple { color: #9f7aea; }
+
+        .signature-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 15px;
+            padding-top: 12px;
+            border-top: 2px solid #e2e8f0;
+        }
+        .signature-box { text-align: center; }
+        .signature-box .line { border-bottom: 1px solid #a0aec0; height: 30px; margin-top: 3px; }
+        .signature-box .label { font-size: 12px; color: #4a5568; font-weight: 600; }
+        .signature-box .sub { font-size: 10px; color: #a0aec0; margin-top: 3px; }
+
+        .footer-text {
+            text-align: center;
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 10px;
+            color: #a0aec0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a0aec0;
+        }
+        .empty-state i { font-size: 48px; display: block; margin-bottom: 15px; color: #e2e8f0; }
+        .empty-state h3 { color: #2d3748; margin-bottom: 8px; }
+
+        .payment-detail {
+            font-size: 10px;
+            color: #718096;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { left: -260px; }
+            .sidebar.open { left: 0; }
+            .main-content { margin-left: 0; padding: 15px; }
+            .menu-toggle { display: block; }
+            .info-card { grid-template-columns: 1fr; }
+            .info-grid { grid-template-columns: 1fr 1fr; }
+            .qr-box { border-left: none; padding-left: 0; padding-top: 10px; border-top: 1px solid #e2e8f0; flex-direction: row; gap: 15px; }
+            .summary-bar { grid-template-columns: 1fr 1fr; }
+            .signature-row { grid-template-columns: 1fr; gap: 20px; }
+            .print-container { padding: 15px; }
+        }
+        @media (max-width: 480px) {
+            .info-grid { grid-template-columns: 1fr; }
+            .summary-bar { grid-template-columns: 1fr; }
+            .table-wrapper table { font-size: 10px; }
+            .table-wrapper table th, .table-wrapper table td { padding: 4px 6px; }
+        }
+
+        @media print {
+            .sidebar, .top-header, .menu-toggle, .logout-btn,
+            .btn-secondary, .btn-print,
+            .page-content > div:first-child,
+            .role-badge, .sidebar-footer {
+                display: none !important;
+            }
+            body > *:not(.main-content) { display: none !important; }
+            .main-content > *:not(.page-content) { display: none !important; }
+            .page-content > *:not(#scheduleContainer) { display: none !important; }
+
+            .main-content { margin-left: 0 !important; padding: 0 !important; background: white !important; }
+            .page-content { padding: 0 !important; background: white !important; box-shadow: none !important; border-radius: 0 !important; }
+            .print-container { box-shadow: none !important; border: none !important; border-radius: 0 !important; padding: 10px 15px !important; max-width: 100% !important; background: white !important; margin: 0 !important; }
+
+            .print-title { border-bottom: none !important; }
+            .info-card { border: 1px solid #ddd !important; background: #f9f9f9 !important; }
+            .info-item { border-bottom: 1px dashed #ddd !important; }
+            .table-wrapper { border: 1px solid #333 !important; }
+            .table-wrapper table th { background: #e8e8e8 !important; border-bottom: 2px solid #333 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .table-wrapper table td { border-bottom: 1px solid #ddd !important; }
+            .summary-bar { border: 1px solid #ddd !important; background: #f9f9f9 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .signature-row { border-top: 2px solid #333 !important; }
+            .signature-box .line { border-bottom: 1px solid #333 !important; }
+            .footer-text { border-top: 1px solid #333 !important; }
+            .qr-box .qr-placeholder { border: 1px dashed #999 !important; background: #f5f5f5 !important; }
+            .qr-box .qr-label { display: none !important; }
+            .empty-state { display: none !important; }
+            .table-wrapper table td.paid { background: #e8f5e9 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .table-wrapper table td.unpaid { background: #ffebee !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-track { background: transparent; }
+        .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <!-- ===== SIDEBAR ===== -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <h2><i class="fas fa-landmark"></i> Loan System</h2>
+            <div class="subtitle">ប្រព័ន្ធគ្រប់គ្រងប្រាក់កម្ចី</div>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="menu-label">ម៉ឺនុយចម្បង</li>
+            <li><a href="{{ url_for('dashboard') }}"><i class="fas fa-chart-pie"></i> Dashboard</a></li>
+            <li class="menu-divider"></li>
+            <li class="menu-label">គ្រប់គ្រងទិន្នន័យ</li>
+            <li><a href="{{ url_for('customers') }}"><i class="fas fa-users"></i> អតិថិជន</a></li>
+            <li><a href="{{ url_for('loans') }}" class="active"><i class="fas fa-hand-holding-usd"></i> កម្ចី</a></li>
+            <li><a href="#"><i class="fas fa-gem"></i> បញ្ចាំ</a></li>
+            <li><a href="/payments"><i class="fas fa-money-bill-wave"></i> ទូទាត់</a></li>
+            <li><a href="/collection"><i class="fas fa-hand-holding-heart"></i> ប្រមូលប្រាក់</a></li>
+            <li class="menu-divider"></li>
+            <li class="menu-label">ហិរញ្ញវត្ថុ</li>
+            <li><a href="#"><i class="fas fa-arrow-up"></i> ចំណូល</a></li>
+            <li><a href="#"><i class="fas fa-arrow-down"></i> ចំណាយ</a></li>
+            <li class="menu-divider"></li>
+            <li class="menu-label">របាយការណ៍ &amp; កំណត់</li>
+            <li><a href="#"><i class="fas fa-file-alt"></i> របាយការណ៍</a></li>
+            <li><a href="#"><i class="fas fa-user-shield"></i> គ្រប់គ្រងអ្នកប្រើប្រាស់</a></li>
+            <li><a href="/settings"><i class="fas fa-cog"></i> ការកំណត់</a></li>
+            <li><a href="#"><i class="fas fa-clipboard-list"></i> សវនកម្ម</a></li>
+            <li class="menu-divider"></li>
+            <li><a href="#"><i class="fas fa-bell"></i> ការជូនដំណឹង</a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <i class="fas fa-code"></i> v2.0 &bull; អ្នកគ្រប់គ្រង
+        </div>
+    </nav>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="main-content">
+
+        <header class="top-header">
+            <div style="display:flex;align-items:center;gap:15px;">
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="page-title">
+                    <h1><i class="fas fa-calendar-alt"></i> តារាងបង់ប្រាក់</h1>
+                    <p>មើល និងបោះពុម្ពតារាងបង់ប្រាក់</p>
+                </div>
+            </div>
+            <div class="user-info">
+                <div>
+                    <div class="user-name">{{ username }}</div>
+                    <div class="user-role">អ្នកគ្រប់គ្រង</div>
+                </div>
+                <div class="avatar">{{ username[0] if username else 'អ' }}</div>
+                <a href="{{ url_for('logout') }}" class="logout-btn"><i class="fas fa-sign-out-alt"></i> ចាកចេញ</a>
+            </div>
+        </header>
+
+        <div class="page-content">
+
+            <!-- ===== BACK BUTTON ===== -->
+            <div style="margin-bottom:20px; display:flex; gap:10px; flex-wrap:wrap;">
+                <a href="{{ url_for('loans') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> ត្រឡប់ទៅបញ្ជីកម្ចី
+                </a>
+                <button onclick="window.print()" class="btn btn-print">
+                    <i class="fas fa-print"></i> បោះពុម្ព
+                </button>
+            </div>
+
+            <!-- ===== SCHEDULE CONTENT ===== -->
+            <div id="scheduleContainer">
+                <div style="text-align:center; padding:40px; color:#a0aec0;">
+                    <i class="fas fa-spinner fa-spin" style="font-size:30px; display:block; margin-bottom:10px;"></i>
+                    កំពុងផ្ទុកតារាងបង់ប្រាក់...
+                </div>
+            </div>
+
+        </div>
+
+        <div style="text-align:center; color:#a0aec0; font-size:13px; padding:20px 0 10px 0; border-top:1px solid #e2e8f0; margin-top:25px;">
+            <i class="fas fa-sync-alt"></i> Loan System Management v2.0
+        </div>
+
+    </div>
+
+    <script>
+        // ===== MENU TOGGLE =====
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+
+        document.addEventListener('click', function(event) {
+            var sidebar = document.getElementById('sidebar');
+            var toggle = document.getElementById('menuToggle');
+            if (window.innerWidth <= 768) {
+                if (!sidebar.contains(event.target) && !toggle.contains(event.target)) {
+                    sidebar.classList.remove('open');
+                }
+            }
+        });
+
+        // ===== LOAD SCHEDULE =====
+        document.addEventListener('DOMContentLoaded', function() {
+            // ===== ប្រើទិន្នន័យពី Server ដែលបានគណនាថ្ងៃធ្វើការរួច =====
+            var scheduleData = {{ schedule_data|tojson|safe }};
+            var loan = {{ loan|tojson|safe }};
+            var customer = {{ customer|tojson|safe }};
+
+            if (scheduleData && scheduleData.length > 0) {
+                displaySchedule(loan, customer, scheduleData);
+            } else {
+                document.getElementById('scheduleContainer').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <h3>មិនមានទិន្នន័យដែលចង់បោះពុម្ពទេ!</h3>
+                        <p>សូមជ្រើសរើសអតិថិជនដែលមានកម្ចី</p>
+                    </div>
+                `;
+            }
+        });
+
+        // ===== DISPLAY SCHEDULE WITH PAYMENT HISTORY =====
+        async function displaySchedule(loan, customer, schedule) {
+            var currencySymbol = (loan.currency === 'KHR') ? '៛' : '$';
+            var currencyName = (loan.currency === 'KHR') ? 'រៀល (៛)' : 'ដុល្លារ ($)';
+
+            if (!schedule || schedule.length === 0) {
+                document.getElementById('scheduleContainer').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-alt"></i>
+                        <h3>មិនមានកាលវិភាគបង់ប្រាក់</h3>
+                        <p>អតិថិជននេះមិនទាន់មានកាលវិភាគបង់ប្រាក់ទេ</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // ===== LOAD PAYMENT HISTORY =====
+            var paymentHistory = [];
+            try {
+                const response = await fetch(`/api/payment_history/${loan.id}`);
+                if (response.ok) {
+                    paymentHistory = await response.json();
+                }
+            } catch (error) {
+                console.error('Error loading payment history:', error);
+            }
+
+            // ===== CREATE PAYMENT MAP =====
+            var paymentMap = {};
+            paymentHistory.forEach(function(p) {
+                paymentMap[p.period] = {
+                    amount: p.amount,
+                    payment_date: p.payment_date,
+                    payment_method: p.payment_method
+                };
+            });
+
+            // ===== CALCULATE TOTALS =====
+            var totalPayment = 0;
+            var totalInterest = 0;
+            var totalPaid = 0;
+            schedule.forEach(function(row) {
+                totalPayment += row.payment;
+                totalInterest += row.interest;
+                if (paymentMap[row.period]) {
+                    totalPaid += paymentMap[row.period].amount;
+                }
+            });
+
+            var html = `
+                <div class="print-container">
+
+                    <div class="print-title">📋 តារាងកាលវិភាគបង់ប្រាក់</div>
+
+                    <!-- ===== INFO CARD ===== -->
+                    <div class="info-card">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="label">លេខកម្ចី</span>
+                                <span class="value">${loan.loan_code || loan.id || '________'}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">ប្រភេទកម្ចី</span>
+                                <span class="value">${loan.calc_type_name || 'មិនស្គាល់'}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">ចំនួនទឹកប្រាក់</span>
+                                <span class="value">${formatCurrency(loan.loan_amount, loan.currency)}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">រូបិយប័ណ្ណ</span>
+                                <span class="value">${currencyName}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">លេខអតិថិជន</span>
+                                <span class="value">${customer.code || '________'}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">មន្ត្រី CO</span>
+                                <span class="value">${loan.co_officer || '________'}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">រយៈពេលកម្ចី</span>
+                                <span class="value">${loan.duration_num || '0'} ${loan.duration_type || 'ថ្ងៃ'}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">កាលបរិច្ឆេទខ្ចី</span>
+                                <span class="value">${loan.loan_date || '________'}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">ឈ្មោះអតិថិជន</span>
+                                <span class="value">${customer.name || '________'}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">ភេទ</span>
+                                <span class="value">${customer.gender || '________'}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">លេខទូរស័ព្ទ</span>
+                                <span class="value">${customer.phone || '________'}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">ថ្ងៃស្នើបង់</span>
+                                <span class="value">${loan.due_date || '________'}</span>
+                            </div>
+                            <div class="info-item" style="grid-column: 1 / 5; border-bottom: none;">
+                                <span class="label">អាសយដ្ឋាន</span>
+                                <span class="value">${customer.address || '_________________________________________________'}</span>
+                            </div>
+                        </div>
+
+                        <!-- ===== QR CODE ===== -->
+                        <div class="qr-box" id="qrContainer" ondblclick="document.getElementById('qrUpload').click()">
+                            <div class="qr-placeholder" id="qrPlaceholder">
+                                <i class="fas fa-qrcode"></i>
+                                <span>QR Code</span>
+                                <span style="font-size:8px; color:#a0aec0; margin-top:2px;">ចុច ២ ដង</span>
+                            </div>
+                            <input type="file" id="qrUpload" class="qr-upload-input" accept="image/*" onchange="uploadQR(event)">
+                            <div class="qr-label">
+                                <i class="fas fa-info-circle"></i> ចុច ២ ដង
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ===== TABLE ===== -->
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ល.រ</th>
+                                    <th>ថ្ងៃបង់ប្រាក់</th>
+                                    <th>ប្រាក់ដើម</th>
+                                    <th>ការប្រាក់</th>
+                                    <th>សរុប</th>
+                                    <th>ទឹកប្រាក់ជាក់ស្តែង</th>
+                                    <th>ថ្ងៃបង់</th>
+                                    <th>ស្ថានភាព</th>
+                                    <th>ហត្ថលេខាមន្ត្រី</th>
+                                    <th>ហត្ថលេខាអតិថិជន</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+
+            schedule.forEach(function(row, index) {
+                // ===== ប្រើ due_date ពី Server (បានគណនាថ្ងៃធ្វើការរួច) =====
+                var dueDate = row.due_date || '________';
+                if (dueDate && dueDate !== '________') {
+                    var due = new Date(dueDate);
+                    dueDate = due.toLocaleDateString('km-KH');
+                }
+
+                // ===== ពិនិត្យមើលថាតើមានការបង់ប្រាក់សម្រាប់វគ្គនេះដែរឬទេ =====
+                var payment = paymentMap[row.period];
+                var isPaid = payment !== undefined;
+                var actualAmount = isPaid ? payment.amount : 0;
+                var paymentDate = isPaid ? payment.payment_date : '-';
+                var paymentMethod = isPaid ? payment.payment_method : '-';
+
+                // ===== កំណត់ status =====
+                var statusClass = isPaid ? 'paid' : 'unpaid';
+                var statusText = isPaid ? 'បានបង់ ✅' : 'មិនទាន់បង់ ⏳';
+                var statusBadge = isPaid ? '<span class="status-badge paid">បានបង់</span>' : '<span class="status-badge unpaid">មិនទាន់បង់</span>';
+
+                // ===== បន្ថែម row =====
+                html += `
+                    <tr class="${isPaid ? 'paid' : 'unpaid'}">
+                        <td><strong>${row.period}</strong></td>
+                        <td>${dueDate}</td>
+                        <td>${formatCurrency(row.principal, loan.currency)}</td>
+                        <td>${formatCurrency(row.interest, loan.currency)}</td>
+                        <td><strong>${formatCurrency(row.payment, loan.currency)}</strong></td>
+                        <td><strong style="color:${isPaid ? '#48bb78' : '#a0aec0'};">${formatCurrency(actualAmount, loan.currency)}</strong></td>
+                        <td>${paymentDate}</td>
+                        <td>${statusBadge}</td>
+                        <td style="height:30px;"><div style="border-bottom:1px solid #a0aec0; height:22px;"></div></td>
+                        <td style="height:30px;"><div style="border-bottom:1px solid #a0aec0; height:22px;"></div></td>
+                    </tr>
+                `;
+            });
+
+            var remainingBalance = totalPayment - totalPaid;
+
+            html += `
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- ===== SUMMARY ===== -->
+                    <div class="summary-bar">
+                        <div class="stat">
+                            <div class="number blue">${formatCurrency(totalPayment, loan.currency)}</div>
+                            <div class="label">សរុបត្រូវបង់</div>
+                        </div>
+                        <div class="stat">
+                            <div class="number green">${formatCurrency(totalInterest, loan.currency)}</div>
+                            <div class="label">ការប្រាក់សរុប</div>
+                        </div>
+                        <div class="stat">
+                            <div class="number purple">${formatCurrency(totalPaid, loan.currency)}</div>
+                            <div class="label">បានបង់រួច</div>
+                        </div>
+                        <div class="stat">
+                            <div class="number orange">${formatCurrency(remainingBalance, loan.currency)}</div>
+                            <div class="label">នៅសល់ត្រូវបង់</div>
+                        </div>
+                        <div class="stat">
+                            <div class="number red">${paymentHistory.length}/${schedule.length}</div>
+                            <div class="label">វគ្គបានបង់</div>
+                        </div>
+                    </div>
+
+                    <!-- ===== SIGNATURE ===== -->
+                    <div class="signature-row">
+                        <div class="signature-box">
+                            <div class="label">ហត្ថលេខាអតិថិជន</div>
+                            <div class="line"></div>
+                            <div class="sub">ឈ្មោះ៖ ${customer.name || '_________________'} &nbsp; ថ្ងៃទី៖ ________</div>
+                        </div>
+                        <div class="signature-box">
+                            <div class="label">ហត្ថលេខាមន្ត្រី</div>
+                            <div class="line"></div>
+                            <div class="sub">ឈ្មោះ៖ ${loan.co_officer || '_________________'} &nbsp; ថ្ងៃទី៖ ________</div>
+                        </div>
+                    </div>
+
+                    <!-- ===== FOOTER ===== -->
+                    <div class="footer-text">
+                        <i class="fas fa-code"></i> ប្រព័ន្ធគ្រប់គ្រងប្រាក់កម្ចី v2.0 &bull;
+                        បោះពុម្ពថ្ងៃទី ${new Date().toLocaleDateString('km-KH')} ម៉ោង ${new Date().toLocaleTimeString('km-KH')}
+                    </div>
+
+                </div>
+            `;
+
+            document.getElementById('scheduleContainer').innerHTML = html;
+            loadSavedQR();
+        }
+
+        // ===== FORMAT CURRENCY =====
+        function formatCurrency(amount, currency) {
+            if (amount === null || amount === undefined || isNaN(amount)) return currency === 'KHR' ? '៛ 0' : '$ 0.00';
+
+            if (currency === 'KHR') {
+                var rounded = Math.round(amount / 100) * 100;
+                return '៛ ' + rounded.toLocaleString('en-US');
+            } else {
+                return '$ ' + amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            }
+        }
+
+        // ===== QR CODE FUNCTIONS =====
+        function uploadQR(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var img = document.createElement('img');
+                img.src = e.target.result;
+                img.style.width = '90px';
+                img.style.height = '90px';
+                img.style.objectFit = 'contain';
+
+                var placeholder = document.getElementById('qrPlaceholder');
+                if (placeholder) {
+                    placeholder.innerHTML = '';
+                    placeholder.appendChild(img);
+                    placeholder.classList.add('has-qr');
+                }
+                localStorage.setItem('qrCodeImage', e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function loadSavedQR() {
+            var savedQR = localStorage.getItem('qrCodeImage');
+            if (savedQR) {
+                var placeholder = document.getElementById('qrPlaceholder');
+                if (placeholder) {
+                    var img = document.createElement('img');
+                    img.src = savedQR;
+                    img.style.width = '90px';
+                    img.style.height = '90px';
+                    img.style.objectFit = 'contain';
+                    placeholder.innerHTML = '';
+                    placeholder.appendChild(img);
+                    placeholder.classList.add('has-qr');
+                }
+            }
+        }
+    </script>
+
+</body>
+</html>
