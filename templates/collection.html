@@ -543,27 +543,34 @@
 
         // ===== SWITCH TAB =====
         function switchTab(type) {
-            currentType = type;
+    currentType = type;
 
-            document.querySelectorAll('.filter-tab').forEach(tab => {
-                tab.classList.remove('active');
-                if (tab.dataset.type === type) {
-                    tab.classList.add('active');
-                }
-            });
+    // ===== បិទ Sub Menu ស្វ័យប្រវត្តិ =====
+    const container = document.getElementById('collectionSubmenu');
+    const arrow = document.getElementById('collectionArrow');
+    if (container) {
+        container.classList.remove('open');
+        if (arrow) arrow.textContent = '▼';
+    }
 
-            document.querySelectorAll('#collectionSubmenu .menu-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            const submenuItems = document.querySelectorAll('#collectionSubmenu .menu-item');
-            const typeMap = {'good': 0, 'late': 1, 'bad': 2};
-            if (submenuItems[typeMap[type]]) {
-                submenuItems[typeMap[type]].classList.add('active');
-            }
-
-            loadCollection(type);
+    document.querySelectorAll('.filter-tab').forEach(tab => {
+        tab.classList.remove('active');
+        if (tab.dataset.type === type) {
+            tab.classList.add('active');
         }
+    });
 
+    document.querySelectorAll('#collectionSubmenu .menu-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    const submenuItems = document.querySelectorAll('#collectionSubmenu .menu-item');
+    const typeMap = {'good': 0, 'late': 1, 'bad': 2};
+    if (submenuItems[typeMap[type]]) {
+        submenuItems[typeMap[type]].classList.add('active');
+    }
+
+    loadCollection(type);
+}
         // ===== FORMAT CURRENCY =====
         function formatCurrency(amount, currency) {
             if (amount === null || amount === undefined || isNaN(amount)) return currency === 'KHR' ? '៛ 0' : '$ 0.00';
