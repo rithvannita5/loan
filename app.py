@@ -593,6 +593,9 @@ def api_generate_loan_code():
 # ===== API: CALCULATE LOAN =====
 @app.route('/api/calculate_loan', methods=['POST'])
 def api_calculate_loan():
+    if 'username' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+
     data = request.get_json()
     loan_amount = float(data.get('loan_amount', 0))
     interest_rate = float(data.get('interest_rate', 0))
@@ -601,31 +604,62 @@ def api_calculate_loan():
     start_date_str = data.get('start_date', '')
     service_fee = float(data.get('service_fee', 0))
 
+    # ===== កំណត់ថ្ងៃចាប់ផ្ដើម =====
     try:
         start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
     except:
         start_date = get_cambodia_date()
 
-    total_interest = loan_amount * (interest_rate / 100)
-    total_payment = loan_amount + total_interest
-    daily_payment = total_payment / duration_num if duration_num > 0 else 0
+    if duration_num <= 0:
+        return jsonify({'error': 'ចំនួនថ្ងៃមិនត្រឹមត្រូវ'}), 400
 
+    # ============================================================
+    # ===== គណនាការប្រាក់សរុប (ត្រឹមត្រូវ) =====
+    # ============================================================
+    # ការប្រាក់សរុប = ប្រាក់ដើម × (អត្រា / 100) × ចំនួនថ្ងៃ
+    total_interest = loan_amount * (interest_rate / 100) * duration_num
+    
+    # ប្រាក់ត្រូវបង់សរុប = ប្រាក់ដើម + ការប្រាក់សរុប
+    total_payment = loan_amount + total_interest
+    
+    # ប្រាក់បង់ប្រចាំថ្ងៃ = ប្រាក់សរុប ÷ ចំនួនថ្ងៃ
+    daily_payment = total_payment / duration_num
+
+    print(f"📊 Loan Calculation:")
+    print(f"   Principal: {loan_amount:,.2f}")
+    print(f"   Interest Rate: {interest_rate}% per day")
+    print(f"   Duration: {duration_num} days")
+    print(f"   Total Interest: {total_interest:,.2f}")
+    print(f"   Total Payment: {total_payment:,.2f}")
+    print(f"   Daily Payment: {daily_payment:,.2f}")
+
+    # ============================================================
+    # ===== បង្កើត Schedule =====
+    # ============================================================
+    schedule = []
     balance = loan_amount
     rate_decimal = interest_rate / 100
-    schedule = []
 
     for i in range(1, duration_num + 1):
+        # ===== គណនាថ្ងៃកំណត់ =====
         due_date = db.get_next_working_day(start_date, i)
 
+        # ===== ការប្រាក់ប្រចាំថ្ងៃ (គិតលើប្រាក់ដើមដែលនៅសល់) =====
         interest = balance * rate_decimal
+        
+        # ===== ប្រាក់ដើមប្រចាំថ្ងៃ =====
         principal = daily_payment - interest
+        
+        # ===== វគ្គចុងក្រោយ: បង់អោយអស់ =====
         if i == duration_num:
             principal = balance
             payment = balance + interest
         else:
             payment = daily_payment
+        
         balance -= principal
 
+        # ===== បង្គត់តាមរូបិយប័ណ្ណ =====
         if currency == 'KHR':
             interest = round(interest / 100) * 100 if interest > 0 else 0
             principal = round(principal / 100) * 100 if principal > 0 else 0
@@ -642,12 +676,14 @@ def api_calculate_loan():
             'payment': payment,
             'interest': interest,
             'principal': principal,
-            'balance': balance if balance > 0 else 0,
+            'balance': max(balance, 0),
             'due_date': due_date.strftime('%Y-%m-%d')
         })
 
-    service_amount = loan_amount * service_fee
+    # ===== គណនាសេវារដ្ឋបាល =====
+    service_amount = loan_amount * (service_fee / 100)
 
+    # ===== បង្គត់តាមរូបិយប័ណ្ណ =====
     def round_amount(amount):
         if currency == 'KHR':
             if amount < 100 and amount > 0:
@@ -658,7 +694,9 @@ def api_calculate_loan():
     return jsonify({
         'total_payment': round_amount(total_payment),
         'total_interest': round_amount(total_interest),
+        'daily_payment': round_amount(daily_payment),
         'service_amount': round_amount(service_amount),
+        'duration_num': duration_num,
         'schedule': schedule
     })
 
