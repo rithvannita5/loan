@@ -43,6 +43,37 @@
         .menu-item.active { background: rgba(102,126,234,0.15); color: #fff; border-left-color: #667eea; }
         .menu-item .icon { font-size: 20px; margin-right: 14px; width: 28px; text-align: center; }
         .menu-item .badge { margin-left: auto; background: #e74c3c; color: #fff; font-size: 11px; padding: 2px 10px; border-radius: 20px; }
+        .menu-item .arrow {
+            margin-left: auto;
+            font-size: 10px;
+            transition: transform 0.3s ease;
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* ===== SUBMENU ANIMATION ===== */
+        .submenu-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease-in-out;
+            background: rgba(0,0,0,0.15);
+        }
+        .submenu-container.open {
+            max-height: 500px;
+        }
+        .submenu-container .menu-item {
+            padding-left: 50px;
+            font-size: 14px;
+            border-left-width: 3px;
+        }
+        .submenu-container .menu-item .icon {
+            font-size: 16px;
+            margin-right: 10px;
+            width: 22px;
+        }
+        .submenu-container .menu-item .badge {
+            font-size: 10px;
+            padding: 1px 8px;
+        }
 
         .main-content { margin-left: 260px; flex: 1; padding: 30px; min-height: 100vh; }
 
@@ -338,24 +369,24 @@
             <span>ទូរទាត់</span>
         </a>
 
-        <!-- ===== COLLECTION WITH SUBMENU ===== -->
-        <div class="menu-item active" onclick="toggleCollectionSubmenu(event)" style="cursor:pointer;">
+        <!-- ===== COLLECTION WITH SUBMENU (កែរួច) ===== -->
+        <div class="menu-item" onclick="toggleCollectionSubmenu(event)" style="cursor:pointer;">
             <span class="icon">💵</span>
             <span>ប្រមូលប្រាក់</span>
-            <span class="arrow" id="collectionArrow">▲</span>
+            <span class="arrow" id="collectionArrow">▼</span>
         </div>
-        <div class="submenu-container open" id="collectionSubmenu">
-            <a href="#" class="menu-item active" onclick="switchTab('good')">
+        <div class="submenu-container" id="collectionSubmenu">
+            <a href="#" class="menu-item" onclick="switchTab('good'); return false;">
                 <span class="icon">✅</span>
                 <span>កម្ចីល្អ</span>
                 <span class="badge" id="goodBadge" style="background:#28a745;">0</span>
             </a>
-            <a href="#" class="menu-item" onclick="switchTab('late')">
+            <a href="#" class="menu-item" onclick="switchTab('late'); return false;">
                 <span class="icon">⏰</span>
                 <span>កម្ចីយឺត</span>
                 <span class="badge" id="lateBadge" style="background:#f39c12;">0</span>
             </a>
-            <a href="#" class="menu-item" onclick="switchTab('bad')">
+            <a href="#" class="menu-item" onclick="switchTab('bad'); return false;">
                 <span class="icon">❌</span>
                 <span>កម្ចីខូច</span>
                 <span class="badge" id="badBadge" style="background:#e74c3c;">0</span>
@@ -500,9 +531,9 @@
                     <div class="form-group">
                         <label><i class="fas fa-university"></i> វិធីសាស្ត្រទូរទាត់ <span class="required">*</span></label>
                         <select name="payment_method" id="modal_payment_method" required>
-                            <option value="cash"><i class="fas fa-money-bill"></i> សាច់ប្រាក់ផ្ទាល់</option>
-                            <option value="aba"><i class="fas fa-building"></i> ធនាគារ ABA</option>
-                            <option value="acleda"><i class="fas fa-building"></i> ធនាគារ ACLEDA</option>
+                            <option value="cash">សាច់ប្រាក់ផ្ទាល់</option>
+                            <option value="aba">ធនាគារ ABA</option>
+                            <option value="acleda">ធនាគារ ACLEDA</option>
                         </select>
                     </div>
 
@@ -515,7 +546,7 @@
                         <button type="submit" class="btn btn-success" style="flex:1; justify-content:center; padding:12px;">
                             <i class="fas fa-check"></i> បញ្ជាក់ការបង់
                         </button>
-                        <button type="button" class="btn btn-secondary" onclick="closePaymentModal()" style="flex:1; justify-content:center; padding:12px; background:#e2e8f0; color:#2d3748;">
+                        <button type="button" class="btn btn-secondary" onclick="closePaymentModal()" style="flex:1; justify-content:center; padding:12px;">
                             <i class="fas fa-times"></i> បោះបង់
                         </button>
                     </div>
@@ -529,7 +560,11 @@
 
         // ===== TOGGLE COLLECTION SUBMENU =====
         function toggleCollectionSubmenu(event) {
-            event.preventDefault();
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
             const container = document.getElementById('collectionSubmenu');
             const arrow = document.getElementById('collectionArrow');
 
@@ -543,34 +578,38 @@
 
         // ===== SWITCH TAB =====
         function switchTab(type) {
-    currentType = type;
+            currentType = type;
 
-    // ===== បិទ Sub Menu ស្វ័យប្រវត្តិ =====
-    const container = document.getElementById('collectionSubmenu');
-    const arrow = document.getElementById('collectionArrow');
-    if (container) {
-        container.classList.remove('open');
-        if (arrow) arrow.textContent = '▼';
-    }
+            // ===== បិទ Sub Menu ស្វ័យប្រវត្តិពេលជ្រើស =====
+            const container = document.getElementById('collectionSubmenu');
+            const arrow = document.getElementById('collectionArrow');
+            if (container) {
+                container.classList.remove('open');
+                if (arrow) arrow.textContent = '▼';
+            }
 
-    document.querySelectorAll('.filter-tab').forEach(tab => {
-        tab.classList.remove('active');
-        if (tab.dataset.type === type) {
-            tab.classList.add('active');
+            // ===== Update Filter Tabs =====
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.type === type) {
+                    tab.classList.add('active');
+                }
+            });
+
+            // ===== Update Sub Menu Active =====
+            document.querySelectorAll('#collectionSubmenu .menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            const submenuItems = document.querySelectorAll('#collectionSubmenu .menu-item');
+            const typeMap = {'good': 0, 'late': 1, 'bad': 2};
+            if (submenuItems[typeMap[type]]) {
+                submenuItems[typeMap[type]].classList.add('active');
+            }
+
+            // ===== Load Data =====
+            loadCollection(type);
         }
-    });
 
-    document.querySelectorAll('#collectionSubmenu .menu-item').forEach(item => {
-        item.classList.remove('active');
-    });
-    const submenuItems = document.querySelectorAll('#collectionSubmenu .menu-item');
-    const typeMap = {'good': 0, 'late': 1, 'bad': 2};
-    if (submenuItems[typeMap[type]]) {
-        submenuItems[typeMap[type]].classList.add('active');
-    }
-
-    loadCollection(type);
-}
         // ===== FORMAT CURRENCY =====
         function formatCurrency(amount, currency) {
             if (amount === null || amount === undefined || isNaN(amount)) return currency === 'KHR' ? '៛ 0' : '$ 0.00';
@@ -710,7 +749,6 @@
                 const customerName = loan.customer_name || 'មិនស្គាល់';
                 const currency = loan.currency || 'USD';
 
-                // ===== បង្ហាញថ្ងៃយឺត =====
                 let overdueDisplay = '';
                 if (isOverdue) {
                     overdueDisplay = `<span class="badge badge-danger">${loan.days_overdue} ថ្ងៃ</span>`;
@@ -734,7 +772,8 @@
                     <td>${formatCurrency(loan.penalty || 0, currency)}</td>
                     <td>
                         <button class="btn btn-success btn-sm"
-                                <strong style="color:#e74c3c;">${formatCurrency(remainingBalance, currency)}</strong>
+                                onclick="alert('បំណុលនៅខ្វះសរុប: ${formatCurrency(remainingBalance, currency)}')">
+                            <strong style="color:#e74c3c;">${formatCurrency(remainingBalance, currency)}</strong>
                         </button>
                     </td>
                     <td>${loan.customer_address || '-'}</td>
@@ -762,7 +801,6 @@
             document.getElementById('modal_total').value = formatCurrencyDisplay(totalDue, currency);
             document.getElementById('modal_penalty').value = 0;
 
-            document.getElementById('modal_penalty').addEventListener('input', calculateTotal);
             document.getElementById('modal_amount').focus();
         }
 
@@ -839,12 +877,6 @@
 
         // ===== INITIAL LOAD =====
         document.addEventListener('DOMContentLoaded', function() {
-            const container = document.getElementById('collectionSubmenu');
-            if (container) {
-                container.classList.add('open');
-                document.getElementById('collectionArrow').textContent = '▲';
-            }
-
             console.log('🚀 Page loaded, loading collection...');
             loadCollection('good');
         });
