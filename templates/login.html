@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ប្រព័ន្ធកម្ចី</title>
+    <style>
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Khmer OS Muol', 'Khmer OS', 'Noto Sans Khmer', 'Moul', 'Moulpali', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* ===== MAIN CONTAINER ===== */
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px 35px;
+            backdrop-filter: blur(10px);
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== SLIDESHOW ===== */
+        .slideshow-container {
+            position: relative;
+            width: 100%;
+            height: 140px;
+            margin-bottom: 25px;
+            border-radius: 15px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 1.2s ease-in-out;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .slide.active {
+            opacity: 1;
+        }
+
+        .slide h3 {
+            color: #fff;
+            font-size: 20px;
+            font-weight: 700;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            letter-spacing: 0.5px;
+            line-height: 1.6;
+        }
+
+        .slide .emoji {
+            font-size: 38px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* Slide dots */
+        .dot-container {
+            text-align: center;
+            margin-top: -10px;
+            margin-bottom: 20px;
+        }
+
+        .dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ccc;
+            margin: 0 5px;
+            transition: background 0.4s;
+            cursor: pointer;
+        }
+
+        .dot.active {
+            background: #764ba2;
+            width: 28px;
+            border-radius: 10px;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .header h1 span {
+            color: #764ba2;
+        }
+
+        .header p {
+            color: #888;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        /* ===== FORM ===== */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #555;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: #764ba2;
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(118, 75, 162, 0.15);
+        }
+
+        .form-group input::placeholder {
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        /* ===== BUTTON ===== */
+        .btn-login {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(118, 75, 162, 0.4);
+            font-family: 'Khmer OS Muol', 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif;
+            letter-spacing: 1px;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(118, 75, 162, 0.5);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #aaa;
+            font-size: 13px;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 480px) {
+            .container {
+                padding: 25px 20px;
+            }
+            .header h1 {
+                font-size: 20px;
+            }
+            .slideshow-container {
+                height: 110px;
+            }
+            .slide h3 {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- ===== SLIDESHOW ===== -->
+        <div class="slideshow-container">
+            <div class="slide active">
+                <div>
+                    <span class="emoji">💰</span>
+                    <h3>កម្ចីងាយស្រួល សុវត្ថិភាពខ្ពស់</h3>
+                </div>
+            </div>
+            <div class="slide">
+                <div>
+                    <span class="emoji">🏦</span>
+                    <h3>សេវាកម្មរហ័ស តម្លាភាព</h3>
+                </div>
+            </div>
+            <div class="slide">
+                <div>
+                    <span class="emoji">🤝</span>
+                    <h3>ទុកចិត្តបាន ១០០%</h3>
+                </div>
+            </div>
+            <div class="slide">
+                <div>
+                    <span class="emoji">📱</span>
+                    <h3>គ្រប់គ្រងបានគ្រប់ទីកន្លែង</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide dots -->
+        <div class="dot-container">
+            <span class="dot active"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+        </div>
+
+        <!-- ===== HEADER ===== -->
+        <div class="header">
+            <h1>សូមស្វាគមន៍ <span>មកកាន់</span></h1>
+            <h1 style="font-size: 22px; color: #764ba2;">ប្រព័ន្ធកម្ចី</h1>
+            <p>សូមបំពេញព័ត៌មានខាងក្រោម</p>
+        </div>
+
+        <!-- ===== LOGIN FORM ===== -->
+        <form method="POST" action="/login">
+            {% if error %}
+<div style="background: #f8d7da; color: #721c24; padding: 12px; border-radius: 10px; margin-bottom: 15px; text-align: center;">
+    ❌ {{ error }}
+</div>
+{% endif %}
+            <div class="form-group">
+                <label>👤 ឈ្មោះអ្នកប្រើប្រាស់</label>
+                <input type="text" id="username" name="username" placeholder="បញ្ចូលឈ្មោះអ្នកប្រើ..." required>
+            </div>
+
+            <div class="form-group">
+                <label>🔒 ពាក្យសម្ងាត់</label>
+                <input type="password" id="password" name="password" placeholder="បញ្ចូលពាក្យសម្ងាត់..." required>
+            </div>
+
+            <button type="submit" class="btn-login">ចូលប្រើប្រាស់</button>
+        </form>
+
+        <div class="footer">
+            &copy; 2026 ប្រព័ន្ធកម្ចី | រក្សាសិទ្ធិគ្រប់យ៉ាង
+        </div>
+    </div>
+
+    <!-- ===== JAVASCRIPT FOR SLIDESHOW ===== -->
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.dot');
+        const totalSlides = slides.length;
+
+        function showSlide(index) {
+            // Hide all slides
+            slides.forEach(s => s.classList.remove('active'));
+            dots.forEach(d => d.classList.remove('active'));
+
+            // Show current slide
+            slides[index].classList.add('active');
+            dots[index].classList.add('active');
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            showSlide(currentSlide);
+        }
+
+        // Auto slide every 4 seconds
+        let slideInterval = setInterval(nextSlide, 4000);
+
+        // Click on dots to change slide
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', function() {
+                clearInterval(slideInterval);
+                currentSlide = index;
+                showSlide(currentSlide);
+                slideInterval = setInterval(nextSlide, 4000);
+            });
+        });
+
+        // Pause on hover
+        const container = document.querySelector('.container');
+        container.addEventListener('mouseenter', () => clearInterval(slideInterval));
+        container.addEventListener('mouseleave', () => {
+            slideInterval = setInterval(nextSlide, 4000);
+        });
+    </script>
+
+</body>
+</html>

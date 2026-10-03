@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - ប្រព័ន្ធកម្ចី</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ===== RESET ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Khmer OS', 'Noto Sans Khmer', 'Moul', Arial, sans-serif;
+            background: #f4f6f9;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar-brand {
+            text-align: center;
+            padding: 20px 15px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-brand .logo {
+            font-size: 32px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-brand h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        .sidebar-brand h2 span {
+            color: #667eea;
+        }
+
+        .sidebar-brand p {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 3px;
+        }
+
+        /* ===== SIDEBAR MENU ===== */
+        .menu-label {
+            padding: 10px 25px 5px;
+            font-size: 11px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.3);
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 13px 25px;
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+            font-size: 15px;
+            font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif;
+        }
+
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            border-left-color: #667eea;
+        }
+
+        .menu-item.active {
+            background: rgba(102, 126, 234, 0.15);
+            color: #fff;
+            border-left-color: #667eea;
+        }
+
+        .menu-item .icon {
+            font-size: 20px;
+            margin-right: 14px;
+            width: 28px;
+            text-align: center;
+        }
+
+        .menu-item .badge {
+            margin-left: auto;
+            background: #e74c3c;
+            color: #fff;
+            font-size: 11px;
+            padding: 2px 10px;
+            border-radius: 20px;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 30px;
+            min-height: 100vh;
+        }
+
+        /* ===== TOP HEADER ===== */
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff;
+            padding: 18px 30px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .top-header h1 {
+            font-size: 24px;
+            color: #1a1a2e;
+        }
+
+        .top-header h1 span {
+            color: #667eea;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .user-info .avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .user-info .name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .user-info .role {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .logout-btn {
+            background: #e74c3c;
+            color: #fff;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif;
+            text-decoration: none;
+        }
+
+        .logout-btn:hover {
+            background: #c0392b;
+            transform: scale(1.02);
+        }
+
+        /* ===== STATS CARDS ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #fff;
+            padding: 25px 20px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: default;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card .stat-icon {
+            font-size: 35px;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .stat-number {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .stat-card .stat-label {
+            font-size: 14px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .stat-card.purple .stat-number { color: #667eea; }
+        .stat-card.green .stat-number { color: #27ae60; }
+        .stat-card.orange .stat-number { color: #f39c12; }
+        .stat-card.red .stat-number { color: #e74c3c; }
+        .stat-card.blue .stat-number { color: #3498db; }
+        .stat-card.gold .stat-number { color: #f39c12; }
+
+        /* ===== CONTENT CARDS ===== */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .card h3 {
+            color: #1a1a2e;
+            font-size: 18px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .card h3 span {
+            color: #667eea;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .card-header h3 {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .view-all {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .view-all:hover {
+            text-decoration: underline;
+        }
+
+        /* ===== TABLE ===== */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        table th {
+            text-align: left;
+            padding: 10px 10px;
+            background: #f8f9fa;
+            color: #555;
+            font-weight: 600;
+            border-bottom: 2px solid #e0e0e0;
+            font-size: 12px;
+        }
+
+        table td {
+            padding: 10px 10px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #333;
+            font-size: 13px;
+        }
+
+        table tr:hover td {
+            background: #f8f9fa;
+        }
+
+        .status {
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        .status.approved { background: #d4edda; color: #155724; }
+        .status.pending { background: #fff3cd; color: #856404; }
+        .status.completed { background: #cce5ff; color: #004085; }
+        .status.bad_debt { background: #f8d7da; color: #721c24; }
+        .status.rejected { background: #f8d7da; color: #721c24; }
+
+        /* ===== NOTIFICATION LIST ===== */
+        .notif-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .notif-item:last-child {
+            border-bottom: none;
+        }
+
+        .notif-item .notif-icon {
+            font-size: 24px;
+            width: 36px;
+            text-align: center;
+        }
+
+        .notif-item .notif-text {
+            flex: 1;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .notif-item .notif-time {
+            font-size: 12px;
+            color: #aaa;
+            white-space: nowrap;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #e2e8f0;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .text-center { text-align: center; }
+        .text-muted { color: #a0aec0; }
+        .mt-10 { margin-top: 10px; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 992px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+                padding: 15px 0;
+            }
+
+            .sidebar-brand h2,
+            .sidebar-brand p,
+            .menu-label,
+            .menu-item span:not(.icon),
+            .menu-item .badge {
+                display: none;
+            }
+
+            .sidebar-brand .logo {
+                font-size: 28px;
+            }
+
+            .menu-item {
+                padding: 15px 0;
+                justify-content: center;
+            }
+
+            .menu-item .icon {
+                margin-right: 0;
+                font-size: 24px;
+            }
+
+            .main-content {
+                margin-left: 70px;
+                padding: 15px;
+            }
+
+            .top-header h1 {
+                font-size: 18px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .user-info .name,
+            .user-info .role {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .top-header {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+
+            .user-info {
+                justify-content: center;
+            }
+        }
+
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-track { background: transparent; }
+        .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+
+        .table-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .table-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .table-scroll::-webkit-scrollbar-thumb { background: #667eea; border-radius: 10px; }
+        .table-scroll::-webkit-scrollbar-thumb:hover { background: #764ba2; }
+    </style>
+</head>
+<body>
+
+    <!-- ===== SIDEBAR ===== -->
+    <nav class="sidebar">
+        <div class="sidebar-brand">
+            <span class="logo">🏦</span>
+            <h2>កម្ចី<span>Plus</span></h2>
+            <p>ប្រព័ន្ធគ្រប់គ្រងកម្ចី</p>
+        </div>
+
+        <div class="menu-label">មុខម្ហូប</div>
+
+        <a href="/dashboard" class="menu-item active">
+            <span class="icon">📊</span>
+            <span>Dashboard</span>
+        </a>
+
+        <a href="/customers" class="menu-item">
+            <span class="icon">👤</span>
+            <span>អតិថិជន</span>
+        </a>
+
+        <a href="/loans" class="menu-item">
+            <span class="icon">💰</span>
+            <span>កម្ចី</span>
+        </a>
+
+        <a href="/loans/bad" class="menu-item">
+            <span class="icon">⚠️</span>
+            <span>កម្ចីខូច</span>
+        </a>
+
+        <a href="/pawn" class="menu-item">
+            <span class="icon">🏠</span>
+            <span>បញ្ចាំ</span>
+        </a>
+
+        <a href="/payments" class="menu-item">
+            <span class="icon">📱</span>
+            <span>ទូរទាត់</span>
+        </a>
+
+        <a href="/collection" class="menu-item">
+            <span class="icon">💵</span>
+            <span>ប្រមូលប្រាក់</span>
+        </a>
+
+        <a href="/disbursement" class="menu-item">
+            <span class="icon">📢</span>
+            <span>បេឡា</span>
+        </a>
+
+        <a href="/reports" class="menu-item">
+            <span class="icon">📈</span>
+            <span>របាយការណ៍</span>
+        </a>
+
+        <a href="/settings" class="menu-item">
+            <span class="icon">⚙️</span>
+            <span>ការកំណត់</span>
+        </a>
+
+        <a href="/audit" class="menu-item">
+            <span class="icon">📋</span>
+            <span>សវនៈកម្ម</span>
+        </a>
+    </nav>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="main-content">
+
+        <!-- Top Header -->
+        <div class="top-header">
+            <h1>📊 <span>Dashboard</span></h1>
+            <div class="user-info">
+                <div>
+                    <div class="name">ស្វាគមន៍, <span id="usernameDisplay">{{ username }}</span></div>
+                    <div class="role">អ្នកគ្រប់គ្រងប្រព័ន្ធ</div>
+                </div>
+                <div class="avatar">{{ username[0] if username else 'អ' }}</div>
+                <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> ចាកចេញ</a>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card purple">
+                <div class="stat-icon">👥</div>
+                <div class="stat-number" id="totalCustomers">0</div>
+                <div class="stat-label">អតិថិជនសរុប</div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-icon">💰</div>
+                <div class="stat-number" id="totalLoans">0</div>
+                <div class="stat-label">កម្ចីសរុប</div>
+            </div>
+            <div class="stat-card orange">
+                <div class="stat-icon">📊</div>
+                <div class="stat-number" id="activeLoans">0</div>
+                <div class="stat-label">កម្ចីសកម្ម</div>
+            </div>
+            <div class="stat-card red">
+                <div class="stat-icon">⚠️</div>
+                <div class="stat-number" id="badLoans">0</div>
+                <div class="stat-label">កម្ចីខូច</div>
+            </div>
+            <!-- ===== ទឹកប្រាក់កម្ចីសរុប (USD) ===== -->
+            <div class="stat-card blue">
+                <div class="stat-icon">💵</div>
+                <div class="stat-number" id="totalAmountUSD">$0</div>
+                <div class="stat-label">ទឹកប្រាក់កម្ចី (USD)</div>
+            </div>
+            <!-- ===== ទឹកប្រាក់កម្ចីសរុប (KHR) ===== -->
+            <div class="stat-card gold" style="border-left-color:#f39c12;">
+                <div class="stat-icon">🇰🇭</div>
+                <div class="stat-number" id="totalAmountKHR" style="color:#f39c12;">៛ 0</div>
+                <div class="stat-label">ទឹកប្រាក់កម្ចី (KHR)</div>
+            </div>
+            <!-- ===== បំណុលសរុប (USD) ===== -->
+            <div class="stat-card orange">
+                <div class="stat-icon">📉</div>
+                <div class="stat-number" id="totalDebtUSD">$0</div>
+                <div class="stat-label">បំណុលសរុប (USD)</div>
+            </div>
+            <!-- ===== បំណុលសរុប (KHR) ===== -->
+            <div class="stat-card orange" style="border-left-color:#e67e22;">
+                <div class="stat-icon">📉</div>
+                <div class="stat-number" id="totalDebtKHR" style="color:#e67e22;">៛ 0</div>
+                <div class="stat-label">បំណុលសរុប (KHR)</div>
+            </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="content-grid">
+            <!-- Left: Recent Loans Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>📋 កម្ចី <span>ថ្មីៗ</span></h3>
+                    <a href="/loans" class="view-all">មើលទាំងអស់ →</a>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>អតិថិជន</th>
+                                <th>ទឹកប្រាក់</th>
+                                <th>កាលបរិច្ឆេទ</th>
+                                <th>ស្ថានភាព</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentLoansBody">
+                            <tr>
+                                <td colspan="4" style="text-align:center; padding:20px; color:#888;">
+                                    <div class="spinner"></div>
+                                    <p style="margin-top:8px;">កំពុងផ្ទុក...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Right: Notifications -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>🔔 សកម្មភាព <span>ថ្មីៗ</span></h3>
+                </div>
+                <div id="activityList">
+                    <div style="text-align:center; padding:20px; color:#888;">
+                        <div class="spinner"></div>
+                        <p style="margin-top:8px;">កំពុងផ្ទុក...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        // ============================================================
+        // ===== FORMAT CURRENCY =====
+        // ============================================================
+
+        function fmtCurrency(amount, currency) {
+            if (amount === null || amount === undefined) amount = 0;
+            if (currency === 'KHR') {
+                return '៛ ' + (Math.round(amount / 100) * 100).toLocaleString('en-US');
+            } else {
+                return '$ ' + amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            }
+        }
+
+        // ============================================================
+        // ===== LOAD DASHBOARD DATA =====
+        // ============================================================
+
+        async function loadDashboard() {
+            try {
+                // ===== Load customers count =====
+                const countRes = await fetch('/api/customers/count');
+                const countData = await countRes.json();
+                document.getElementById('totalCustomers').textContent = countData.count || 0;
+
+                // ===== Load dashboard stats =====
+                const statsRes = await fetch('/api/dashboard_stats');
+                if (!statsRes.ok) throw new Error('Failed to load stats');
+                const stats = await statsRes.json();
+
+                document.getElementById('totalLoans').textContent = stats.total_loans || 0;
+                document.getElementById('activeLoans').textContent = stats.active_loans || 0;
+                document.getElementById('badLoans').textContent = stats.bad_loans || 0;
+
+                // ===== Display amounts (USD & KHR) =====
+                document.getElementById('totalAmountUSD').textContent = fmtCurrency(stats.total_amount_usd || 0, 'USD');
+                document.getElementById('totalAmountKHR').textContent = fmtCurrency(stats.total_amount_khr || 0, 'KHR');
+                document.getElementById('totalDebtUSD').textContent = fmtCurrency(stats.total_debt_usd || 0, 'USD');
+                document.getElementById('totalDebtKHR').textContent = fmtCurrency(stats.total_debt_khr || 0, 'KHR');
+
+                // ===== Load recent loans =====
+                const loansRes = await fetch('/api/loans?page=1&per_page=10');
+                const loans = await loansRes.json();
+                renderRecentLoans(loans);
+
+                // ===== Load activities =====
+                loadActivities();
+
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+                document.getElementById('recentLoansBody').innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align:center; padding:20px; color:#e74c3c;">
+                            <i class="fas fa-exclamation-circle" style="font-size:24px; display:block; margin-bottom:5px;"></i>
+                            មានបញ្ហាក្នុងការផ្ទុកទិន្នន័យ
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // ============================================================
+        // ===== RENDER RECENT LOANS =====
+        // ============================================================
+
+        function renderRecentLoans(loans) {
+            const tbody = document.getElementById('recentLoansBody');
+
+            if (!loans || loans.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align:center; padding:20px; color:#888;">
+                            📭 មិនមានកម្ចី
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            const statusMap = {
+                'Approved': '<span class="status approved">សកម្ម</span>',
+                'Pending': '<span class="status pending">កំពុងរង់ចាំ</span>',
+                'Completed': '<span class="status completed">រួចរាល់</span>',
+                'Rejected': '<span class="status rejected">បដិសេធ</span>',
+                'Bad Debt': '<span class="status bad_debt">កម្ចីខូច</span>'
+            };
+
+            tbody.innerHTML = loans.map(loan => {
+                const currency = loan.currency === 'KHR' ? '៛' : '$';
+                const amount = (loan.loan_amount || 0).toLocaleString();
+                const name = loan.customer_name || 'មិនស្គាល់';
+                const date = loan.loan_date || '-';
+                const status = statusMap[loan.status] || '<span class="status pending">មិនស្គាល់</span>';
+
+                return `
+                    <tr>
+                        <td>${name}</td>
+                        <td>${currency} ${amount}</td>
+                        <td>${date}</td>
+                        <td>${status}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // ============================================================
+        // ===== LOAD ACTIVITIES =====
+        // ============================================================
+
+        async function loadActivities() {
+            const container = document.getElementById('activityList');
+
+            try {
+                const response = await fetch('/api/activities');
+
+                if (!response.ok) {
+                    throw new Error('API not available');
+                }
+
+                const activities = await response.json();
+
+                if (!activities || activities.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align:center; padding:20px; color:#888;">
+                            📭 មិនមានសកម្មភាព
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = activities.slice(0, 5).map(activity => {
+                    // ===== ពិនិត្យមើល description =====
+                    let displayText = activity.description || activity.action;
+                    if (displayText.length > 80) {
+                        displayText = displayText.substring(0, 80) + '...';
+                    }
+
+                    return `
+                        <div class="notif-item">
+                            <span class="notif-icon">${getActivityIcon(activity.action)}</span>
+                            <span class="notif-text">${displayText}</span>
+                            <span class="notif-time">${formatTime(activity.created_at)}</span>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                console.log('Using fallback activities data');
+                container.innerHTML = `
+                    <div class="notif-item">
+                        <span class="notif-icon">✅</span>
+                        <span class="notif-text">ស្វាគមន៍មកកាន់ Dashboard</span>
+                        <span class="notif-time">ថ្មីៗ</span>
+                    </div>
+                    <div class="notif-item">
+                        <span class="notif-icon">ℹ️</span>
+                        <span class="notif-text">ប្រព័ន្ធកំពុងដំណើរការ</span>
+                        <span class="notif-time">ថ្មីៗ</span>
+                    </div>
+                    <div class="notif-item">
+                        <span class="notif-icon">📊</span>
+                        <span class="notif-text">កម្ចីសរុបត្រូវបានធ្វើបច្ចុប្បន្នភាព</span>
+                        <span class="notif-time">ថ្មីៗ</span>
+                    </div>
+                `;
+            }
+        }
+
+        // ============================================================
+        // ===== GET ACTIVITY ICON =====
+        // ============================================================
+
+        function getActivityIcon(action) {
+            const icons = {
+                'create': '➕',
+                'create_customer': '👤',
+                'create_loan': '💰',
+                'create_pawn': '🏠',
+                'update': '✏️',
+                'update_customer': '✏️',
+                'update_loan': '✏️',
+                'update_pawn': '✏️',
+                'delete': '🗑️',
+                'delete_customer': '🗑️',
+                'delete_loan': '🗑️',
+                'delete_pawn': '🗑️',
+                'collection_payment': '✅',
+                'update_loan_status': '🔄',
+                'approve': '✔️',
+                'approve_loan': '✔️',
+                'reject': '❌',
+                'reject_loan': '❌',
+                'redeem_pawn': '🔄',
+                'forfeit_pawn': '❌',
+                'login': '🔑',
+                'logout': '🚪',
+                'create_expense': '📝',
+                'update_expense': '✏️',
+                'delete_expense': '🗑️'
+            };
+            return icons[action] || '📌';
+        }
+
+        // ============================================================
+        // ===== FORMAT TIME =====
+        // ============================================================
+
+        function formatTime(timestamp) {
+            if (!timestamp) return 'ថ្មីៗ';
+            try {
+                const date = new Date(timestamp);
+                const now = new Date();
+                const diff = Math.floor((now - date) / 1000);
+
+                if (diff < 60) return 'ថ្មីៗ';
+                if (diff < 3600) return Math.floor(diff / 60) + ' នាទី';
+                if (diff < 86400) return Math.floor(diff / 3600) + ' ម៉ោង';
+                if (diff < 604800) return Math.floor(diff / 86400) + ' ថ្ងៃ';
+                return date.toLocaleDateString('km-KH');
+            } catch {
+                return timestamp;
+            }
+        }
+
+        // ============================================================
+        // ===== AUTO REFRESH =====
+        // ============================================================
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboard();
+            setInterval(loadDashboard, 60000);
+        });
+    </script>
+
+</body>
+</html>
