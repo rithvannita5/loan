@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>បង្កើតអតិថិជនថ្មី</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Khmer OS', 'Noto Sans Khmer', 'Moul', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: #fff;
+            border-radius: 25px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            padding: 40px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #1a1a2e;
+        }
+
+        .header h1 span {
+            color: #667eea;
+        }
+
+        .header p {
+            color: #888;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 5px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            display: block;
+            color: #555;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .form-group label .required {
+            color: #e74c3c;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #667eea;
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group input::placeholder {
+            color: #aaa;
+            font-size: 13px;
+        }
+
+        /* ===== Auto-generated code style ===== */
+        .form-group input.auto-generated {
+            border-color: #27ae60;
+            background: #f0fff4;
+        }
+
+        .code-input-wrapper {
+            display: flex;
+            gap: 10px;
+        }
+
+        .code-input-wrapper input {
+            flex: 1;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 12px 35px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: #fff;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(39, 174, 96, 0.4);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-cancel {
+            background: #e74c3c;
+            color: #fff;
+        }
+
+        .btn-cancel:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4);
+        }
+
+        .btn-generate {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif;
+            font-size: 14px;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .btn-generate:hover {
+            transform: scale(1.02);
+        }
+
+        .btn-generate:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .alert {
+            padding: 12px 18px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* ===== Loading Spinner ===== */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-actions {
+                flex-direction: column;
+            }
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
+            .code-input-wrapper {
+                flex-direction: column;
+            }
+            .btn-generate {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>➕ បង្កើត <span>អតិថិជនថ្មី</span></h1>
+            <p>សូមបំពេញព័ត៌មានខាងក្រោម</p>
+        </div>
+
+        <div id="alertMessage"></div>
+
+        <form id="createForm" onsubmit="submitForm(event)">
+            <div class="form-grid">
+                <!-- ===== លេខកូដ (ចាប់ស្វ័យប្រវត្តិ) ===== -->
+                <div class="form-group">
+                    <label>លេខកូដ <span class="required">*</span></label>
+                    <div class="code-input-wrapper">
+                        <input type="text" id="code" placeholder="ឧ. CUS-001" required class="auto-generated">
+                        <button type="button" class="btn-generate" onclick="generateCustomerCode()">
+                            🔄 ចាប់ស្វ័យប្រវត្តិ
+                        </button>
+                    </div>
+                    <small style="color: #888; font-size: 12px;">លេខកូដនឹងចាប់ស្វ័យប្រវត្តិដោយស្វ័យប្រវត្តិ</small>
+                </div>
+
+                <!-- ឈ្មោះ -->
+                <div class="form-group">
+                    <label>ឈ្មោះអតិថិជន <span class="required">*</span></label>
+                    <input type="text" id="name" placeholder="ឈ្មោះអតិថិជន" required>
+                </div>
+
+                <!-- ភេទ -->
+                <div class="form-group">
+                    <label>ភេទ</label>
+                    <select id="gender">
+                        <option value="">-- ជ្រើសរើស --</option>
+                        <option value="ប្រុស">ប្រុស</option>
+                        <option value="ស្រី">ស្រី</option>
+                    </select>
+                </div>
+
+                <!-- លេខទូរស័ព្ទ -->
+                <div class="form-group">
+                    <label>លេខទូរស័ព្ទ</label>
+                    <input type="text" id="phone" placeholder="ឧ. 012 345 678">
+                </div>
+
+                <!-- ថ្ងៃខែឆ្នាំកំណើត -->
+                <div class="form-group">
+                    <label>ថ្ងៃខែឆ្នាំកំណើត</label>
+                    <input type="date" id="dob">
+                </div>
+
+                <!-- លេខអត្តសញ្ញាណប័ណ្ណ -->
+                <div class="form-group">
+                    <label>លេខអត្តសញ្ញាណប័ណ្ណ</label>
+                    <input type="text" id="id_card" placeholder="លេខអត្តសញ្ញាណប័ណ្ណ">
+                </div>
+
+                <!-- អសយដ្ឋាន -->
+                <div class="form-group full-width">
+                    <label>អសយដ្ឋាន</label>
+                    <input type="text" id="address" placeholder="អសយដ្ឋានបច្ចុប្បន្ន">
+                </div>
+
+                <!-- ===== ព័ត៌មានអ្នកធានា ===== -->
+                <div class="form-group full-width" style="margin-top: 10px;">
+                    <h3 style="color: #667eea; font-size: 18px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
+                        👤 ព័ត៌មានអ្នកធានា
+                    </h3>
+                </div>
+
+                <!-- ឈ្មោះអ្នកធានា -->
+                <div class="form-group">
+                    <label>ឈ្មោះអ្នកធានា</label>
+                    <input type="text" id="guarantor_name" placeholder="ឈ្មោះអ្នកធានា">
+                </div>
+
+                <!-- ភេទអ្នកធានា -->
+                <div class="form-group">
+                    <label>ភេទ (អ្នកធានា)</label>
+                    <select id="guarantor_gender">
+                        <option value="">-- ជ្រើសរើស --</option>
+                        <option value="ប្រុស">ប្រុស</option>
+                        <option value="ស្រី">ស្រី</option>
+                    </select>
+                </div>
+
+                <!-- លេខអត្តសញ្ញាណអ្នកធានា -->
+                <div class="form-group">
+                    <label>លេខអត្តសញ្ញាណ (អ្នកធានា)</label>
+                    <input type="text" id="guarantor_id_card" placeholder="លេខអត្តសញ្ញាណអ្នកធានា">
+                </div>
+
+                <!-- ថ្ងៃខែឆ្នាំកំណើតអ្នកធានា -->
+                <div class="form-group">
+                    <label>ថ្ងៃខែឆ្នាំកំណើត (អ្នកធានា)</label>
+                    <input type="date" id="guarantor_dob">
+                </div>
+
+                <!-- លេខទូរស័ព្ទអ្នកធានា -->
+                <div class="form-group">
+                    <label>លេខទូរស័ព្ទ (អ្នកធានា)</label>
+                    <input type="text" id="guarantor_phone" placeholder="លេខទូរស័ព្ទអ្នកធានា">
+                </div>
+
+                <!-- អសយដ្ឋានអ្នកធានា -->
+                <div class="form-group">
+                    <label>អសយដ្ឋាន (អ្នកធានា)</label>
+                    <input type="text" id="guarantor_address" placeholder="អសយដ្ឋានអ្នកធានា">
+                </div>
+
+                <!-- ទំនាក់ទំនង -->
+                <div class="form-group">
+                    <label>ទំនាក់ទំនង</label>
+                    <input type="text" id="relation" placeholder="ឧ. បងប្អូន, មិត្តភក្តិ">
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn btn-cancel" onclick="window.location.href='/customers'">❌ បោះបង់</button>
+                <button type="submit" class="btn btn-submit" id="submitBtn">💾 រក្សាទុក</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // ===== GENERATE CUSTOMER CODE AUTOMATICALLY =====
+        let isGenerating = false;
+
+        async function generateCustomerCode() {
+            if (isGenerating) return;
+            
+            const codeInput = document.getElementById('code');
+            const genBtn = document.querySelector('.btn-generate');
+            
+            isGenerating = true;
+            genBtn.disabled = true;
+            genBtn.innerHTML = '⏳ កំពុងដំណើរការ...';
+
+            try {
+                const response = await fetch('/api/generate_customer_code');
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+                
+                if (data.code) {
+                    codeInput.value = data.code;
+                    codeInput.classList.add('auto-generated');
+                    // កំណត់ពណ៌បៃតងបន្តិច
+                    codeInput.style.borderColor = '#27ae60';
+                }
+            } catch (error) {
+                console.error('Error generating customer code:', error);
+                // Fallback: បង្កើតលេខកូដតាមកាលបរិច្ឆេទ
+                const fallbackCode = 'CUS-' + String(Date.now()).slice(-6);
+                codeInput.value = fallbackCode;
+                codeInput.classList.add('auto-generated');
+            } finally {
+                isGenerating = false;
+                genBtn.disabled = false;
+                genBtn.innerHTML = '🔄 ចាប់ស្វ័យប្រវត្តិ';
+            }
+        }
+
+        // ===== GENERATE CODE WHEN PAGE LOADS =====
+        document.addEventListener('DOMContentLoaded', function() {
+            // បង្កើតលេខកូដភ្លាមៗ
+            generateCustomerCode();
+            
+            // ប្រសិនបើចង់បង្កើតថ្មី ពេលចុច Enter លើ Field ណាមួយ
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
+                    // កុំបង្កើតថ្មី បើកំពុងវាយឈ្មោះ
+                    if (e.target.id !== 'name') {
+                        generateCustomerCode();
+                    }
+                }
+            });
+        });
+
+        // ===== SUBMIT FORM =====
+        async function submitForm(event) {
+            event.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            const originalText = submitBtn.innerHTML;
+            
+            // Disable submit button
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '⏳ <span class="spinner"></span> កំពុងរក្សាទុក...';
+
+            const data = {
+                code: document.getElementById('code').value.trim(),
+                name: document.getElementById('name').value.trim(),
+                gender: document.getElementById('gender').value,
+                phone: document.getElementById('phone').value.trim(),
+                dob: document.getElementById('dob').value,
+                id_card: document.getElementById('id_card').value.trim(),
+                address: document.getElementById('address').value.trim(),
+                guarantor_name: document.getElementById('guarantor_name').value.trim(),
+                guarantor_gender: document.getElementById('guarantor_gender').value,
+                guarantor_id_card: document.getElementById('guarantor_id_card').value.trim(),
+                guarantor_dob: document.getElementById('guarantor_dob').value,
+                guarantor_phone: document.getElementById('guarantor_phone').value.trim(),
+                guarantor_address: document.getElementById('guarantor_address').value.trim(),
+                relation: document.getElementById('relation').value.trim()
+            };
+
+            if (!data.code || !data.name) {
+                showAlert('សូមបំពេញ លេខកូដ និង ឈ្មោះអតិថិជន!', 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/create_customer', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('✅ បង្កើតអតិថិជនថ្មីជោគជ័យ! លេខកូដ: ' + data.code, 'success');
+                    
+                    // Reset form but keep code
+                    const codeValue = document.getElementById('code').value;
+                    document.getElementById('createForm').reset();
+                    document.getElementById('code').value = codeValue;
+                    
+                    // Generate new code for next entry
+                    setTimeout(() => {
+                        generateCustomerCode();
+                    }, 300);
+                    
+                    // Redirect after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = '/customers';
+                    }, 2000);
+                } else {
+                    showAlert('❌ ' + (result.error || 'មានបញ្ហាក្នុងការបង្កើតអតិថិជន!'), 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('❌ មានបញ្ហាក្នុងការភ្ជាប់ទៅម៉ាស៊ីនមេ!', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        }
+
+        // ===== SHOW ALERT =====
+        function showAlert(message, type) {
+            const alertDiv = document.getElementById('alertMessage');
+            const className = type === 'success' ? 'alert-success' : 'alert-error';
+            alertDiv.innerHTML = `<div class="alert ${className}">${message}</div>`;
+            
+            // Clear previous timeout
+            if (window.alertTimeout) {
+                clearTimeout(window.alertTimeout);
+            }
+            
+            // Auto hide after 5 seconds
+            window.alertTimeout = setTimeout(() => {
+                alertDiv.innerHTML = '';
+            }, 5000);
+        }
+
+        // ===== PREVENT DOUBLE SUBMIT =====
+        let isSubmitting = false;
+        document.getElementById('createForm').addEventListener('submit', function(e) {
+            if (isSubmitting) {
+                e.preventDefault();
+                return;
+            }
+            isSubmitting = true;
+            setTimeout(() => {
+                isSubmitting = false;
+            }, 3000);
+        });
+    </script>
+</body>
+</html>

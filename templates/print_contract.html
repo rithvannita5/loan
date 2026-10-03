@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>កិច្ចសន្យាខ្ចីប្រាក់ - Loan System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Khmer OS Battambang', 'Khmer OS', 'Arial', sans-serif; background: #f0f4f8; display: flex; min-height: 100vh; font-size: 12px; }
+
+        .sidebar { width: 270px; background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%); color: white; padding: 0; position: fixed; height: 100vh; overflow-y: auto; transition: all 0.3s ease; z-index: 1000; box-shadow: 4px 0 20px rgba(0,0,0,0.1); }
+        .sidebar-brand { padding: 25px 20px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 10px; background: rgba(255,255,255,0.03); }
+        .sidebar-brand h2 { font-size: 22px; display: flex; align-items: center; gap: 12px; color: white; }
+        .sidebar-brand h2 i { color: #667eea; font-size: 28px; }
+        .sidebar-brand .subtitle { font-size: 12px; color: #a0aec0; margin-top: 5px; padding-left: 42px; }
+        .sidebar-menu { list-style: none; padding: 0 12px; }
+        .sidebar-menu li a { display: flex; align-items: center; gap: 14px; padding: 12px 16px; color: #a0aec0; text-decoration: none; transition: all 0.3s ease; border-radius: 10px; font-size: 14px; margin-bottom: 2px; }
+        .sidebar-menu li a:hover { background: rgba(255,255,255,0.08); color: white; }
+        .sidebar-menu li a.active { background: linear-gradient(135deg, #667eea, #764ba2); color: white; box-shadow: 0 4px 15px rgba(102,126,234,0.4); }
+        .sidebar-menu li a i { width: 22px; text-align: center; font-size: 16px; }
+        .sidebar-menu .menu-label { padding: 20px 16px 8px 16px; font-size: 11px; color: #4a5568; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; }
+        .sidebar-menu .menu-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 8px 16px; }
+        .sidebar-footer { padding: 20px; border-top: 1px solid rgba(255,255,255,0.06); font-size: 12px; color: #4a5568; text-align: center; margin-top: 10px; }
+
+        .main-content { margin-left: 270px; flex: 1; padding: 25px 30px; min-height: 100vh; }
+        .top-header { background: white; padding: 18px 30px; border-radius: 16px; box-shadow: 0 2px 15px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
+        .top-header .page-title h1 { font-size: 24px; color: #1a202c; display: flex; align-items: center; gap: 12px; }
+        .top-header .page-title h1 i { color: #667eea; }
+        .top-header .page-title p { color: #718096; font-size: 14px; margin-top: 2px; }
+        .top-header .user-info { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+        .top-header .user-info .avatar { width: 44px; height: 44px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px; box-shadow: 0 4px 12px rgba(102,126,234,0.3); }
+        .top-header .user-info .user-details { text-align: right; }
+        .top-header .user-info .user-name { font-weight: 600; color: #1a202c; font-size: 15px; }
+        .top-header .user-info .user-role { font-size: 12px; color: #718096; }
+        .top-header .user-info .logout-btn { padding: 8px 20px; background: #fc8181; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 13px; font-family: 'Khmer OS Battambang','Khmer OS','Arial',sans-serif; transition: all 0.3s ease; text-decoration: none; display: flex; align-items: center; gap: 8px; }
+        .top-header .user-info .logout-btn:hover { background: #f56565; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(245,101,101,0.4); }
+        .menu-toggle { display: none; background: none; border: none; color: #2d3748; font-size: 26px; cursor: pointer; padding: 5px; }
+
+        .toolbar-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+        .print-btn { padding: 12px 28px; background: #48bb78; color: white; border: none; border-radius: 12px; cursor: pointer; font-size: 15px; font-family: 'Khmer OS Battambang','Khmer OS','Arial',sans-serif; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 10px; font-weight: 600; }
+        .print-btn:hover { background: #38a169; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(72,187,120,0.4); }
+        .btn-cancel { padding: 12px 28px; background: #e2e8f0; color: #2d3748; border: none; border-radius: 12px; cursor: pointer; font-size: 15px; font-family: 'Khmer OS Battambang','Khmer OS','Arial',sans-serif; transition: all 0.3s ease; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; }
+        .btn-cancel:hover { background: #cbd5e0; }
+
+        .contract-container {
+            background: white;
+            border-radius: 16px;
+            padding: 20px 45px 20px 45px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            max-width: 1100px;
+            margin: 0 auto;
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        .contract-header {
+            text-align: center;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        .contract-header .royal-title {
+            font-family: 'Khmer OS Muol Light', 'Khmer OS', 'Arial', sans-serif;
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 4px;
+            text-align: center;
+        }
+        .contract-header .royal-sub {
+            font-family: 'Khmer OS Muol Light', 'Khmer OS', 'Arial', sans-serif;
+            font-size: 16px;
+            letter-spacing: 4px;
+            text-align: right;
+            padding-right: 20px;
+            margin: 2px 0 12px 0;
+        }
+        .contract-header .contract-title {
+            font-family: 'Khmer OS Muol Light', 'Khmer OS', 'Arial', sans-serif;
+            font-size: 16px;
+            font-weight: bold;
+            color: #1a202c;
+            padding: 4px 0 3px 0;
+            border-bottom: none;
+            margin-top: 3px;
+            letter-spacing: 3px;
+            text-align: center;
+        }
+
+        .contract-content {
+            padding: 5px 0;
+            text-align: justify;
+            text-justify: inter-word;
+        }
+        .contract-content .clause {
+            padding: 2px 0;
+            font-size: 12px;
+            line-height: 1.8;
+            color: #2d3748;
+            text-align: justify;
+            text-justify: inter-word;
+        }
+        .contract-content .clause-number {
+            font-weight: 700;
+            color: #667eea;
+        }
+        .contract-content .clause .field {
+            display: inline-block;
+            min-width: 80px;
+            padding: 0 3px;
+            color: #1a202c;
+            font-weight: 500;
+        }
+        .contract-content .clause .field-sm {
+            display: inline-block;
+            min-width: 50px;
+            padding: 0 3px;
+            color: #1a202c;
+            font-weight: 500;
+        }
+        .contract-content .clause .field-md {
+            display: inline-block;
+            min-width: 120px;
+            padding: 0 3px;
+            color: #1a202c;
+            font-weight: 500;
+        }
+        .contract-content .clause .field-lg {
+            display: inline-block;
+            min-width: 150px;
+            padding: 0 3px;
+            color: #1a202c;
+            font-weight: 500;
+        }
+        .contract-content .clause .field-xl {
+            display: inline-block;
+            min-width: 250px;
+            padding: 0 3px;
+            color: #1a202c;
+            font-weight: 500;
+        }
+        .contract-content .clause .indent {
+            padding-left: 25px;
+            display: block;
+        }
+
+        .contract-attachments {
+            margin-top: 8px;
+            padding: 8px 15px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            font-size: 12px;
+            text-align: center;
+        }
+        .contract-attachments strong {
+            color: #2d3748;
+        }
+
+        .contract-signature {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+            gap: 6px;
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 2px solid #e2e8f0;
+        }
+        .signature-box { text-align: center; padding: 4px; }
+        .signature-box .signature-label { font-size: 12px; font-weight: 600; color: #2d3748; }
+        .signature-box .signature-line { border-bottom: 1px solid #a0aec0; height: 50px; margin-top: 2px; }
+        .signature-box .signature-sub { font-size: 11px; color: #718096; margin-top: 2px; }
+        .signature-box .signature-finger { font-size: 10px; color: #a0aec0; margin-top: 4px; }
+
+        .contract-footer {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: center;
+            font-size: 11px;
+            color: #718096;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .page-number { text-align: center; font-size: 11px; color: #a0aec0; margin-top: 6px; }
+
+        @media (max-width: 1024px) { .contract-container { padding: 25px 30px; } .contract-signature { grid-template-columns: 1fr 1fr 1fr; } }
+        @media (max-width: 768px) {
+            .sidebar { left: -270px; } .sidebar.open { left: 0; }
+            .main-content { margin-left: 0; padding: 15px; }
+            .menu-toggle { display: block; }
+            .contract-container { padding: 15px 20px; }
+            .contract-header .contract-title { font-size: 14px; }
+            .contract-signature { grid-template-columns: 1fr 1fr; }
+            .contract-content .clause { font-size: 11px; }
+            .top-header { padding: 15px 20px; }
+            .contract-footer { flex-direction: column; text-align: center; }
+            .contract-content .clause .field-lg { min-width: 120px; }
+            .contract-content .clause .field-xl { min-width: 150px; }
+            .contract-header .royal-sub { font-size: 14px; padding-right: 10px; }
+        }
+        @media (max-width: 480px) {
+            .top-header .user-info .user-details { display: none; }
+            .contract-header .contract-title { font-size: 12px; letter-spacing: 1px; }
+            .contract-signature { grid-template-columns: 1fr; }
+            .contract-content .clause { font-size: 10px; }
+            .contract-content .clause .field { min-width: 60px; }
+            .contract-content .clause .field-sm { min-width: 40px; }
+            .contract-content .clause .field-md { min-width: 80px; }
+            .contract-content .clause .field-lg { min-width: 100px; }
+            .contract-content .clause .field-xl { min-width: 120px; }
+            .contract-header .royal-title { font-size: 14px; letter-spacing: 2px; }
+            .contract-header .royal-sub { font-size: 12px; letter-spacing: 2px; padding-right: 5px; }
+        }
+
+        @media print {
+            .sidebar, .top-header, .menu-toggle, .toolbar-actions, .logout-btn, .print-btn, .btn-cancel { display: none !important; }
+            .main-content { margin-left: 0 !important; padding: 5px !important; }
+            .contract-container { box-shadow: none !important; border: none !important; border-radius: 0 !important; padding: 20px 30px !important; max-width: 100% !important; font-size: 11px !important; }
+            .contract-header .contract-title { border-bottom: none !important; }
+            .signature-line { border-bottom: 1px solid #333 !important; }
+            .contract-footer { border-top: 1px solid #333 !important; }
+            .page-number { position: fixed; bottom: 5px; left: 0; right: 0; }
+            .contract-header .royal-sub { margin-bottom: 10px; }
+            .contract-container { line-height: 1.6; }
+            .contract-content .clause { line-height: 1.6; padding: 1px 0; }
+            .contract-signature { grid-template-columns: 1fr 1fr 1fr 1fr 1fr !important; margin-top: 10px; padding-top: 8px; }
+            .contract-footer { margin-top: 6px; padding-top: 6px; }
+            .contract-attachments { background: #f7fafc !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== SIDEBAR ===== -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <h2><i class="fas fa-landmark"></i> Loan System</h2>
+            <div class="subtitle">ប្រព័ន្ធគ្រប់គ្រងប្រាក់កម្ចី</div>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="menu-label">ម៉ឺនុយចម្បង</li>
+            <li><a href="{{ url_for('dashboard') }}"><i class="fas fa-chart-pie"></i> Dashboard</a></li>
+            <li class="menu-divider"></li>
+            <li class="menu-label">គ្រប់គ្រងទិន្នន័យ</li>
+            <li><a href="{{ url_for('customers') }}"><i class="fas fa-users"></i> អតិថិជន</a></li>
+            <li><a href="{{ url_for('loans') }}" class="active"><i class="fas fa-hand-holding-usd"></i> កម្ចី</a></li>
+            <li><a href="#"><i class="fas fa-gem"></i> បញ្ចាំ</a></li>
+            <li><a href="#"><i class="fas fa-money-bill-wave"></i> ទូទាត់</a></li>
+            <li><a href="#"><i class="fas fa-hand-holding-heart"></i> ប្រមូលប្រាក់</a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <i class="fas fa-code"></i> v2.0 &bull; អ្នកគ្រប់គ្រង
+        </div>
+    </nav>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="main-content">
+        <header class="top-header">
+            <div style="display:flex;align-items:center;gap:15px;">
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="page-title">
+                    <h1><i class="fas fa-file-contract"></i> កិច្ចសន្យាខ្ចីប្រាក់</h1>
+                    <p>បោះពុម្ពកិច្ចសន្យាសម្រាប់អតិថិជន</p>
+                </div>
+            </div>
+            <div class="user-info">
+                <div class="user-details">
+                    <div class="user-name">{{ username }}</div>
+                    <div class="user-role">អ្នកគ្រប់គ្រង</div>
+                </div>
+                <div class="avatar">{{ username[0] if username else 'អ' }}</div>
+                <a href="{{ url_for('logout') }}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> ចាកចេញ
+                </a>
+            </div>
+        </header>
+
+        <!-- ===== TOOLBAR ===== -->
+        <div class="toolbar-actions">
+            <button class="print-btn" onclick="window.print()">
+                <i class="fas fa-print"></i> បោះពុម្ព
+            </button>
+            <a href="{{ url_for('loans') }}" class="btn-cancel">
+                <i class="fas fa-arrow-left"></i> ត្រឡប់ក្រោយ
+            </a>
+        </div>
+
+        <!-- ===== CONTRACT ===== -->
+        <div class="contract-container" id="contract">
+
+            <!-- ===== HEADER ===== -->
+            <div class="contract-header">
+                <div class="royal-title" style="text-align:right; padding-right:50px;">ព្រះរាជាណាចក្រកម្ពុជា</div>
+                <div class="royal-sub">ជាតិ  &nbsp;  សាសនា  &nbsp;  ព្រះមហាក្សត្រ</div>
+                <div class="contract-title">កិច្ចសន្យា ខ្ចីប្រាក់</div>
+            </div>
+
+            <!-- ===== CONTENT ===== -->
+            <div class="contract-content">
+
+                <!-- លេខ ១ - ភាគី (ក) -->
+                <div class="clause">
+                    <span class="clause-number">១៖</span> ស្ថាប័ន ហ៣១ មានអាស័យដ្ឋាន ខេត្តកំពង់ឆ្នាំង តទៅហៅថា ភាគីឲ្យខ្ចីប្រាក់ ឬម្ចាស់បំណុល ឬភាគី(ក)។
+                </div>
+
+                <!-- លេខ ២ - ភាគី (ខ) -->
+                <div class="clause">
+                    <span class="clause-number">២៖</span>
+                    ឈ្មោះ <span class="field">{{ customer.name if customer else '...............' }}</span>
+                    (ឈ្មោះហៅក្រៅ <span class="field">..............</span>)
+                    ភេទ <span class="field-sm">{{ customer.gender if customer else '.....' }}</span>
+                    ថ្ងៃខែឆ្នាំកំណើត <span class="field">{{ customer.dob if customer else '..................' }}</span>
+                    មានអត្តសញ្ញាណប័ណ្ណលេខ <span class="field">{{ customer.id_card if customer else '........................' }}</span>
+                    និងឈ្មោះ(អ្នកធានា) <span class="field">{{ customer.guarantor_name if customer else '.....................' }}</span>
+                    ភេទ <span class="field-sm">{{ customer.guarantor_gender if customer else '.....' }}</span>
+                    ថ្ងៃខែឆ្នាំកំណើត <span class="field">{{ customer.guarantor_dob if customer else '..................' }}</span>
+                    សញ្ជាតិខ្មែរ មានអត្តសញ្ញាណប័ណ្ណ លេខ <span class="field">{{ customer.guarantor_id_card if customer else '........................' }}</span>
+                    ត្រូវជា <span class="field-sm">{{ customer.relation if customer else '......' }}</span>។
+                </div>
+                <div class="clause" style="padding-left: 0px;">
+                    មានអាសយដ្ឋាន៖ <span class="field">{{ customer.address if customer else '........................................................................' }}</span>។
+                </div>
+                <div class="clause" style="padding-left: 25px;">
+                    តទៅហៅថា ភាគីអ្នកខ្ចីប្រាក់ ឬកូនបំណុល ឬភាគី(ខ)។
+                </div>
+
+                <!-- ===== ភាគីទាំងពីរបានព្រមព្រៀងគ្នាដូចខាងក្រោម ===== -->
+                <div class="clause" style="text-align:center; font-family: 'Khmer OS Muol Light', 'Khmer OS', 'Arial', sans-serif; font-size:13px; padding:8px 0;">
+                    ភាគីទាំងពីរបានព្រមព្រៀងគ្នាដូចខាងក្រោម
+                </div>
+
+                <!-- ប្រការ ១ -->
+                <div class="clause">
+                    <span class="clause-number">ប្រការ ១៖</span>
+                    ភាគី (ខ) បានយល់ព្រមដោយស្ម័គ្រចិត្តក្នុងការខ្ចីប្រាក់ចំនួន
+                    <span class="field">
+                        {% if loan.currency == 'KHR' %}
+                            ៛ {{ '{:,.0f}'.format(loan.loan_amount) }}
+                        {% else %}
+                            $ {{ '{:,.2f}'.format(loan.loan_amount) }}
+                        {% endif %}
+                    </span>
+                    (<span class="field">{{ number_to_words(loan.loan_amount, loan.currency) if loan else '......................................' }}</span>)
+                    ខ្ចីលើកទី <span class="field-sm">1</span>
+                    នៅថ្ងៃទី <span class="field">{{ loan.loan_date if loan else '........' }}</span>
+                    ដោយបង់សងត្រឡប់មកវិញចំនួន
+                    <span class="field">
+                        {% if loan.currency == 'KHR' %}
+                            ៛ {{ '{:,.0f}'.format(loan.loan_amount + loan.total_interest) }}
+                        {% else %}
+                            $ {{ '{:,.2f}'.format(loan.loan_amount + loan.total_interest) }}
+                        {% endif %}
+                    </span>
+                    (<span class="field">{{ number_to_words(loan.loan_amount + loan.total_interest, loan.currency) if loan else '......................................' }}</span>)
+                    ក្នុងរយៈពេល <span class="field-sm">{{ loan.duration_num if loan else '....' }}</span> {{ loan.duration_type if loan else 'ថ្ងៃ' }}
+                    ដោយបង់ជារៀងរាល់ថ្ងៃចំនួន
+                    <span class="field">
+                        {% if schedule_data and schedule_data|length > 0 %}
+                        {% if loan.currency == 'KHR' %}
+                        ៛ {{ '{:,.0f}'.format(schedule_data[0].payment) }}
+                        {% else %}
+                        $ {{ '{:,.2f}'.format(schedule_data[0].payment) }}
+                        {% endif %}
+                        {% else %}
+                        ________
+                        {% endif %}
+                    </span>
+(<span class="field">
+    {% if schedule_data and schedule_data|length > 0 %}
+        {{ number_to_words(schedule_data[0].payment, loan.currency) }}
+    {% else %}
+        ......................................
+    {% endif %}
+</span>)។
+                </div>
+
+                <!-- ប្រការ ២ -->
+                <div class="clause">
+                    <span class="clause-number">ប្រការ ២៖</span>
+                    ភាគី (ខ) យល់ព្រមដាក់ទ្រព្យធានាអោយទៅភាគី (ក) មានដូចជា៖<br>
+                    <span style="padding-left:25px;">1. <span class="field-xl">....................................................................................................................................</span></span><br>
+                    <span style="padding-left:25px;">2. <span class="field-xl">....................................................................................................................................</span></span>
+                </div>
+
+                <!-- ប្រការ ៣ -->
+                <div class="clause">
+                    <span class="clause-number">ប្រការ ៣៖</span>
+                    ភាគី (ខ) សូមធានាថាអះអាងថាទ្រព្យធានាខាងលើនេះ ពិតជាទ្រព្យឬជាកម្មសិទ្ធរបស់ខ្លួនពិតប្រាកដមែន។ ក្នុងករណីភាគី (ខ) មិនបានសងប្រាក់គ្រប់ចំនួនតាមតារាងបង់ប្រាក់ ឬគ្មានលទ្ធភាពសងប្រាក់ក្នុងប្រការណាមួយនោះភាគី (ខ) យល់ព្រមកាត់កងឬទូទាត់ទ្រព្យ ដែលបានធានានោះអោយទៅភាគី (ក) ដោយគ្មានលក្ខខ័ណ្ឌ។ ដោយតម្លៃនៃទ្រព្យធានានោះ សុខចិត្តឲទូទាត់ក្នុងតម្លៃត្រឹមតែ 50% នៃតម្លៃទីផ្សារ។ លើសពីនេះបើភាគី (ខ) ធ្វើខុសក្នុងកិច្ចសន្យាឬ គេសវេសក្នុងការសងប្រាក់នោះភាគី (ខ) សុខចិត្តឲភាគី (ក) បិទរូបផ្សព្វផ្សាយជាសាធារណះ ឬ ក្នុងបណ្ដាញសង្គមរហូតដល់ដាក់ពាក្យបណ្ដឹងដល់អាជ្ញាធរ ដោយគ្មានការតវ៉ាអ្វីទាំងអស់។
+                </div>
+
+                <!-- ប្រការ ៤ -->
+                <div class="clause">
+                    <span class="clause-number">ប្រការ ៤៖</span>
+                    ករណីបង់យឺតយ៉ាវក្នុងតារាង នោះភាគី (ខ) សុខចិត្តបង់ពិន័យ ៣០០០ រៀលក្នុង ១ ថ្ងៃ។ បើផុតកំណត់ក្នុងតារាងសុខចិត្តបង់ពិន័យ ៥០០០ រៀល/ថ្ងៃ។
+                </div>
+
+                <!-- ប្រការ ៥ -->
+                <div class="clause">
+                    <span class="clause-number">ប្រការ ៥៖</span>
+                    ភាគី (ខ) មិនត្រូវយកលុយទៅផ្ញើរ រឺ ប្រគល់អោយអ្នកផ្សេងក្រៅពីតំណាងរបស់ភាគី (ក) ឡើយ។ បើមានការបាត់បង់ រឺ ភាន់ច្រលំក្នុងប្រការណាមួយនោះភាគី (ខ) ត្រូវទទួលខុសត្រូវដោយខ្លួនឯង។ ភាគី (ខ) ត្រូវយកតារាងសងប្រាក់ដើម្បីឲភាគី (ក) កត់ត្រា និងចុះហត្ដលេខា។ ករណីមិនមានកត់ត្រា និងចុះហត្ថលេខា ដោយតំណាងភាគី (ក) មិនទទួលខុសត្រូវរាល់ការខាតបង់របស់ភាគី (ខ) ឡើយ។
+                </div>
+
+                <!-- ប្រការ ៦ -->
+                <div class="clause">
+                    <span class="clause-number">ប្រការ ៦៖</span>
+                    អ្នកចូលរួមកម្ចីឈ្មោះ <span class="field">{{ customer.guarantor_name if customer else '........................' }}</span>
+                    ជា <span class="field-sm">{{ customer.relation if customer else '......' }}</span>
+                    ភេទ <span class="field-sm">{{ customer.guarantor_gender if customer else '....' }}</span>
+                    ថ្ងៃខែឆ្នាំកំណើត <span class="field">{{ customer.guarantor_dob if customer else '................' }}</span>
+                    អត្តសញ្ញាណប័ណ្ណលេខ <span class="field">{{ customer.guarantor_id_card if customer else '........................' }}</span>
+                    ត្រូវជា <span class="field-sm">......</span>។
+                </div>
+                <div class="clause" style="padding-left: 25px;">
+                    សុខចិត្តសងជំនួសភាគី (ខ) នៅពេលមិនមានប្រាក់បង់គ្រប់ចំនួន ឬ សងត្រឡប់ឲទៅភាគី (ក) មិនទាន់ពេលវេលាក្នុងករណីដូចជា ៖ នៅផ្ទះឬ មិននៅផ្ទះ ដោយមានចេតនាឬ គ្មានចេតនា គ្មានប្រាក់បង់ក្នុងករណី គ្រោះថ្នាក់ឬ ជំងឺផ្សេងៗ ។
+                </div>
+
+                <!-- ប្រការ ៧ -->
+                <div class="clause">
+                    <span class="clause-number">ប្រការ ៧៖</span>
+                    ភាគី (ខ) យល់ព្រមទទួលខុសត្រូវជាកាតព្វកិច្ចសាមគ្គីចំពោះកម្ចីដែលបានខ្ចី។
+                </div>
+
+                <!-- ប្រការ ៨ -->
+                <div class="clause">
+                    <span class="clause-number">ប្រការ ៨៖</span>
+                    សាក្សីសុខចិត្តទទួលដឹងលឺ×ថាភាគី (ខ) បានខ្ចីប្រាក់ពីភាគី (ក) ពិតប្រាកដមែននៅគ្រប់ពេលវត្តមាន ឬអវត្តមានរបស់ភាគី (ខ)។
+                </div>
+
+                <!-- ប្រការ ៩ -->
+                <div class="clause">
+                    <span class="clause-number">ប្រការ ៩៖</span>
+                    ករណីមានបណ្ដឹងតវ៉ាភាគី (ខ) ឬ អ្នកចូលរួមកម្ចីទទួលខុសត្រូវនូវរាល់ចំណាយទាំងអស់។
+                </div>
+
+                <!-- ប្រការ ១០ -->
+                <div class="clause">
+                    <span class="clause-number">ប្រការ ១០៖</span>
+                    ភាគីទាំងអស់បានព្រមព្រៀងដោយ ស្មគ្រចិត្តក្នុងការចុះកិច្ចសន្យាប្រកបដោយសុឆន្ទះនិងមិនមានការបង្ខិតបង្ខំពីភាគីណាមួយឡើយ។ កិច្ចសន្យានេះមានសពលភាពចាប់ពីផ្តិតមេដៃរឺ ចុះហត្ថលេខានេះតទៅ។
+                </div>
+
+            </div>
+
+            <!-- ===== FOOTER ===== -->
+            <div style="text-align:right; font-size:11px; color:#718096; margin-bottom:5px; padding-right:05px;">
+                ថ្ងៃទី {{ now.strftime('%d') if now else '........' }}
+                ខែ {{ now.strftime('%m') if now else '........' }}
+                ឆ្នាំ ២០{{ now.strftime('%y') if now else '....' }}
+            </div>
+
+            <!-- ===== ATTACHMENTS ===== -->
+            <div class="contract-attachments">
+                <strong>ឯកសារភ្ជាប់ៈ</strong>
+                ពាក្យសុំខ្ចីប្រាក់ &nbsp;|&nbsp;
+                ប័ណ្ណបើកប្រាក់ &nbsp;|&nbsp;
+                តារាងសងប្រាក់ &nbsp;|&nbsp;
+                អត្តសញ្ញាណប័ណ្ណ &nbsp;|&nbsp;
+                សៀវភៅគ្រួសារថតចម្លង
+            </div>
+
+            <!-- ===== SIGNATURE ===== -->
+            <div class="contract-signature">
+                <div class="signature-box">
+                    <div class="signature-label">ភាគី (ខ) - អ្នកខ្ចី</div>
+                    <div class="signature-line"></div>
+                    <div class="signature-sub">ឈ្មោះ៖ {{ customer.name if customer else '........................' }}</div>
+                    <div class="signature-sub">ទូរស័ព្ទ៖ {{ customer.phone if customer else '........................' }}</div>
+                    <div class="signature-finger">(ហត្ថលេខា និង ស្នាមមេដៃ)</div>
+                </div>
+                <div class="signature-box">
+                    <div class="signature-label">អ្នកចូលរួមកម្ចី</div>
+                    <div class="signature-line"></div>
+                    <div class="signature-sub">ឈ្មោះ៖ {{ customer.guarantor_name if customer else '........................' }}</div>
+                    <div class="signature-sub">ទូរស័ព្ទ៖ {{ customer.guarantor_phone if customer else '........................' }}</div>
+                    <div class="signature-finger">(ហត្ថលេខា និង ស្នាមមេដៃ)</div>
+                </div>
+                <div class="signature-box">
+                    <div class="signature-label">ភាគី (ក) - ម្ចាស់ប្រាក់</div>
+                    <div class="signature-line"></div>
+                    <div class="signature-sub">ឈ្មោះ៖ ........................</div>
+                    <div class="signature-sub">ទូរស័ព្ទ៖ ........................</div>
+                    <div class="signature-finger">(ហត្ថលេខា និង ស្នាមមេដៃ)</div>
+                </div>
+                <div class="signature-box">
+                    <div class="signature-label">តំណាង</div>
+                    <div class="signature-line"></div>
+                    <div class="signature-sub">ឈ្មោះ៖ ........................</div>
+                    <div class="signature-sub">ទូរស័ព្ទ៖ ........................</div>
+                    <div class="signature-finger">(ហត្ថលេខា និង ស្នាមមេដៃ)</div>
+                </div>
+                <div class="signature-box">
+                    <div class="signature-label">សាក្សី</div>
+                    <div class="signature-line"></div>
+                    <div class="signature-sub">ឈ្មោះ៖ ........................</div>
+                    <div class="signature-sub">ទូរស័ព្ទ៖ ........................</div>
+                    <div class="signature-finger">(ហត្ថលេខា)</div>
+                </div>
+            </div>
+
+            <div class="page-number">Page 1 of 1</div>
+
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.getElementById('menuToggle');
+            if (window.innerWidth <= 768) {
+                if (!sidebar.contains(event.target) && !toggle.contains(event.target)) {
+                    sidebar.classList.remove('open');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
