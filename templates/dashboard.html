@@ -472,39 +472,86 @@
 <body>
 
     <!-- ===== SIDEBAR ===== -->
-    <nav class="sidebar">
-        <div class="sidebar-brand">
-            <span class="logo">🏦</span>
-            <h2>កម្ចី<span>Plus</span></h2>
-            <p>ប្រព័ន្ធគ្រប់គ្រងកម្ចី</p>
-        </div>
-        <div class="menu-label">មុខម្ហូប</div>
-        <a href="/dashboard" class="menu-item active"><span class="icon">📊</span><span>Dashboard</span></a>
-        <a href="/customers" class="menu-item"><span class="icon">👤</span><span>អតិថិជន</span></a>
-        <a href="/loans" class="menu-item"><span class="icon">💰</span><span>កម្ចី</span></a>
-        <a href="/loans/bad" class="menu-item"><span class="icon">⚠️</span><span>កម្ចីខូច</span></a>
-        <a href="/pawn" class="menu-item"><span class="icon">🏠</span><span>បញ្ចាំ</span></a>
-        <a href="/payments" class="menu-item"><span class="icon">📱</span><span>ទូរទាត់</span></a>
-        <a href="/collection" class="menu-item"><span class="icon">💵</span><span>ប្រមូលប្រាក់</span></a>
-        <a href="/disbursement" class="menu-item"><span class="icon">📢</span><span>បេឡា</span></a>
-        <a href="/reports" class="menu-item"><span class="icon">📈</span><span>របាយការណ៍</span></a>
-        <a href="/settings" class="menu-item"><span class="icon">⚙️</span><span>ការកំណត់</span></a>
-        <a href="/audit" class="menu-item"><span class="icon">📋</span><span>សវនៈកម្ម</span></a>
-    </nav>
+<nav class="sidebar">
+    <div class="sidebar-brand">
+        <span class="logo">🏦</span>
+        <h2>កម្ចី<span>Plus</span></h2>
+        <p>ប្រព័ន្ធគ្រប់គ្រងកម្ចី</p>
+    </div>
 
-    <div class="main-content">
-        <div class="top-header">
-            <h1>📊 <span>Dashboard</span></h1>
-            <div class="user-info">
-                <div>
-                    <div class="name">ស្វាគមន៍, <span>{{ username }}</span></div>
-                    <div class="role">អ្នកគ្រប់គ្រងប្រព័ន្ធ</div>
-                </div>
-                <div class="avatar">{{ username[0] if username else 'អ' }}</div>
-                <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> ចាកចេញ</a>
-            </div>
-        </div>
+    <div class="menu-label">មុខម្ហូប</div>
 
+    <a href="/dashboard" class="menu-item {% if active_page == 'dashboard' %}active{% endif %}">
+        <span class="icon">📊</span>
+        <span>Dashboard</span>
+    </a>
+
+    <a href="/customers" class="menu-item {% if active_page == 'customers' %}active{% endif %}">
+        <span class="icon">👤</span>
+        <span>អតិថិជន</span>
+    </a>
+
+    <a href="/loans" class="menu-item {% if active_page == 'loans' %}active{% endif %}">
+        <span class="icon">💰</span>
+        <span>កម្ចី</span>
+    </a>
+
+    <a href="/loans/bad" class="menu-item {% if active_page == 'loans_bad' %}active{% endif %}">
+        <span class="icon">⚠️</span>
+        <span>កម្ចីខូច</span>
+    </a>
+
+    <a href="/pawn" class="menu-item {% if active_page == 'pawn' %}active{% endif %}">
+        <span class="icon">🏠</span>
+        <span>បញ្ចាំ</span>
+    </a>
+
+    <a href="/payments" class="menu-item {% if active_page == 'payments' %}active{% endif %}">
+        <span class="icon">📱</span>
+        <span>ទូរទាត់</span>
+    </a>
+
+    <!-- ===== COLLECTION WITH SUBMENU ===== -->
+    <div class="menu-item menu-parent {% if active_page in ['collection', 'collection_good', 'collection_late', 'collection_bad'] %}active{% endif %}" onclick="toggleCollectionSubmenu(event)">
+        <span class="icon">💵</span>
+        <span>ប្រមូលប្រាក់</span>
+        <span class="arrow" id="collectionArrow">▼</span>
+    </div>
+    <div class="submenu-container" id="collectionSubmenu">
+        <a href="/collection_good" class="menu-item submenu-item {% if active_page == 'collection_good' %}active{% endif %}">
+            <span class="icon">✅</span>
+            <span>កម្ចីល្អ</span>
+        </a>
+        <a href="/collection_late" class="menu-item submenu-item {% if active_page == 'collection_late' %}active{% endif %}">
+            <span class="icon">⏰</span>
+            <span>កម្ចីយឺត</span>
+        </a>
+        <a href="/collection_bad" class="menu-item submenu-item {% if active_page == 'collection_bad' %}active{% endif %}">
+            <span class="icon">❌</span>
+            <span>កម្ចីខូច</span>
+        </a>
+    </div>
+
+    <a href="/disbursement" class="menu-item {% if active_page == 'disbursement' %}active{% endif %}">
+        <span class="icon">📢</span>
+        <span>បេឡា</span>
+    </a>
+
+    <a href="/reports" class="menu-item {% if active_page == 'reports' %}active{% endif %}">
+        <span class="icon">📈</span>
+        <span>របាយការណ៍</span>
+    </a>
+
+    <a href="/settings" class="menu-item {% if active_page == 'settings' %}active{% endif %}">
+        <span class="icon">⚙️</span>
+        <span>ការកំណត់</span>
+    </a>
+
+    <a href="/audit" class="menu-item {% if active_page == 'audit' %}active{% endif %}">
+        <span class="icon">📋</span>
+        <span>សវនៈកម្ម</span>
+    </a>
+</nav>
         <!-- ===== MINI STATS ===== -->
         <div class="mini-stats">
             <div class="mini-stat">
