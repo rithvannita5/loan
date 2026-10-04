@@ -1488,30 +1488,38 @@ def api_approve_disbursement():
     if not activity_ids:
         return jsonify({'error': 'No activities selected'}), 400
 
-    conn = db.get_db_connection()
-    cursor = conn.cursor()
-    approved_count = 0
+    try:
+        approved_count = 0
 
-    for activity_id in activity_ids:
-        activity = conn.execute('''
-            SELECT * FROM activities WHERE id = ? AND status = 'Pending'
-        ''', (activity_id,)).fetchone()
+        for activity_id in activity_ids:
+            try:
+                # ===== ពិនិត្យមើលថា Activity នេះមានស្រាប់ =====
+                activity = db.activities_col.find_one({'_id': int(activity_id)})
 
-        if activity:
-            cursor.execute('''
-                UPDATE activities SET status = 'Approved', updated_at = CURRENT_TIMESTAMP
-                WHERE id = ?
-            ''', (activity_id,))
-            approved_count += 1
+                if activity and activity.get('status') == 'Pending':
+                    db.activities_col.update_one(
+                        {'_id': int(activity_id)},
+                        {'$set': {
+                            'status': 'Approved',
+                            'updated_at': datetime.now()
+                        }}
+                    )
+                    approved_count += 1
+            except Exception as inner_e:
+                print(f"⚠️ Error approving activity {activity_id}: {inner_e}")
+                continue
 
-    conn.commit()
-    conn.close()
+        return jsonify({
+            'success': True,
+            'approved_count': approved_count,
+            'message': f'បានអនុម័ត {approved_count} ការទូរទាត់'
+        })
 
-    return jsonify({
-        'success': True,
-        'approved_count': approved_count,
-        'message': f'បានអនុម័ត {approved_count} ការទូរទាត់'
-    })
+    except Exception as e:
+        import traceback
+        print(f"❌ Error in /api/approve_disbursement: {e}")
+        print(traceback.format_exc())
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/edit_payment', methods=['POST'])
 def api_edit_payment():
