@@ -15,6 +15,7 @@
             min-height: 100vh;
         }
 
+        /* ===== SIDEBAR ===== */
         .sidebar {
             width: 260px;
             background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
@@ -42,13 +43,14 @@
         .menu-item.active { background: rgba(102,126,234,0.15); color: #fff; border-left-color: #667eea; }
         .menu-item .icon { font-size: 20px; margin-right: 14px; width: 28px; text-align: center; }
 
-        .main-content { margin-left: 260px; flex: 1; padding: 30px; min-height: 100vh; }
+        .main-content { margin-left: 260px; flex: 1; padding: 25px; min-height: 100vh; }
 
+        /* ===== TOP HEADER ===== */
         .top-header {
             display: flex; justify-content: space-between; align-items: center;
             background: #fff; padding: 18px 30px; border-radius: 15px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            margin-bottom: 25px; flex-wrap: wrap; gap: 15px;
+            margin-bottom: 20px; flex-wrap: wrap; gap: 15px;
         }
         .top-header h1 { font-size: 24px; color: #1a1a2e; }
         .top-header h1 span { color: #667eea; }
@@ -59,41 +61,274 @@
         .logout-btn { background: #e74c3c; color: #fff; border: none; padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 14px; text-decoration: none; }
         .logout-btn:hover { background: #c0392b; }
 
+        /* ===== STATS GRID (2 columns - USD & KHR) ===== */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 20px;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
         .stat-card {
             background: #fff;
-            padding: 25px 20px;
+            padding: 22px;
             border-radius: 15px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            text-align: center;
             transition: all 0.3s ease;
+            border-left: 4px solid #667eea;
+            position: relative;
+            overflow: hidden;
         }
-        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
-        .stat-card .stat-icon { font-size: 35px; margin-bottom: 10px; }
-        .stat-card .stat-number { font-size: 28px; font-weight: 700; color: #1a1a2e; }
-        .stat-card .stat-label { font-size: 14px; color: #888; margin-top: 5px; }
-        .stat-card.purple .stat-number { color: #667eea; }
-        .stat-card.green .stat-number { color: #27ae60; }
-        .stat-card.orange .stat-number { color: #f39c12; }
-        .stat-card.red .stat-number { color: #e74c3c; }
-        .stat-card.blue .stat-number { color: #3498db; }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        .stat-card .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .stat-card .stat-title {
+            font-size: 13px;
+            color: #888;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .stat-card .stat-icon {
+            font-size: 24px;
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .stat-card .stat-values {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .stat-card .stat-value-item {
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .stat-card .stat-value-item .currency {
+            font-size: 11px;
+            color: #888;
+            font-weight: 600;
+        }
+        .stat-card .stat-value-item .amount {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-top: 2px;
+        }
+
+        /* ===== COLOR VARIANTS ===== */
+        .stat-card.blue { border-left-color: #3498db; }
+        .stat-card.blue .stat-icon { background: rgba(52,152,219,0.1); color: #3498db; }
+        .stat-card.green { border-left-color: #27ae60; }
+        .stat-card.green .stat-icon { background: rgba(39,174,96,0.1); color: #27ae60; }
+        .stat-card.orange { border-left-color: #f39c12; }
+        .stat-card.orange .stat-icon { background: rgba(243,156,18,0.1); color: #f39c12; }
+        .stat-card.red { border-left-color: #e74c3c; }
+        .stat-card.red .stat-icon { background: rgba(231,76,60,0.1); color: #e74c3c; }
+        .stat-card.purple { border-left-color: #9b59b6; }
+        .stat-card.purple .stat-icon { background: rgba(155,89,182,0.1); color: #9b59b6; }
+        .stat-card.teal { border-left-color: #1abc9c; }
+        .stat-card.teal .stat-icon { background: rgba(26,188,156,0.1); color: #1abc9c; }
+
+        /* ===== MINI STATS ===== */
+        .mini-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .mini-stat {
+            background: #fff;
+            padding: 15px 18px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        .mini-stat .num { font-size: 22px; font-weight: 700; color: #1a1a2e; }
+        .mini-stat .lbl { font-size: 12px; color: #888; margin-top: 3px; }
+        .mini-stat .num.blue { color: #667eea; }
+        .mini-stat .num.green { color: #27ae60; }
+        .mini-stat .num.orange { color: #f39c12; }
+        .mini-stat .num.red { color: #e74c3c; }
+
+        /* ===== CALENDAR ===== */
+        .calendar-section {
+            background: #fff;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .calendar-header h3 {
+            font-size: 20px;
+            color: #1a1a2e;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .calendar-header h3 i { color: #667eea; }
+        .calendar-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .calendar-controls button {
+            background: #667eea;
+            color: #fff;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: 'Khmer OS', Arial, sans-serif;
+        }
+        .calendar-controls button:hover { background: #5a67d8; }
+        .calendar-controls select {
+            padding: 8px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Khmer OS', Arial, sans-serif;
+            background: #fff;
+            cursor: pointer;
+        }
+        .calendar-controls .month-year {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a1a2e;
+            min-width: 180px;
+            text-align: center;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+        .calendar-day-header {
+            text-align: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: #667eea;
+            padding: 10px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .calendar-day-header.sunday { color: #e74c3c; }
+        .calendar-day-header.saturday { color: #3498db; }
+
+        .calendar-day {
+            background: #fff;
+            border: 2px solid #f0f2f5;
+            border-radius: 10px;
+            padding: 8px;
+            min-height: 90px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .calendar-day:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102,126,234,0.2);
+        }
+        .calendar-day.empty {
+            background: #f8f9fa;
+            border-color: transparent;
+            cursor: default;
+        }
+        .calendar-day.empty:hover { transform: none; box-shadow: none; }
+        .calendar-day.today {
+            border-color: #667eea;
+            background: rgba(102,126,234,0.05);
+        }
+        .calendar-day.has-data {
+            background: linear-gradient(135deg, #fff 0%, #f0f4ff 100%);
+        }
+        .calendar-day .day-number {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 5px;
+        }
+        .calendar-day.today .day-number {
+            color: #667eea;
+            font-size: 16px;
+        }
+        .calendar-day .day-info {
+            font-size: 10px;
+            color: #555;
+            line-height: 1.5;
+        }
+        .calendar-day .day-info .badge {
+            display: inline-block;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 600;
+            margin: 1px 0;
+        }
+        .calendar-day .day-info .badge.loan {
+            background: #d4edda;
+            color: #155724;
+        }
+        .calendar-day .day-info .badge.collect {
+            background: #cce5ff;
+            color: #004085;
+        }
+        .calendar-day .day-info .badge.expense {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* ===== MONTHLY SUMMARY BAR ===== */
+        .monthly-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px dashed #e2e8f0;
+        }
+        .summary-item {
+            text-align: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .summary-item .lbl { font-size: 12px; color: #888; }
+        .summary-item .val { font-size: 16px; font-weight: 700; color: #1a1a2e; margin-top: 3px; }
+        .summary-item .val.green { color: #27ae60; }
+        .summary-item .val.blue { color: #3498db; }
+        .summary-item .val.red { color: #e74c3c; }
 
         /* ===== CHARTS ===== */
         .charts-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 25px;
-            margin-bottom: 25px;
+            gap: 20px;
+            margin-bottom: 20px;
         }
         .chart-card {
             background: #fff;
             border-radius: 15px;
-            padding: 25px;
+            padding: 22px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
         .chart-card h3 {
@@ -104,20 +339,18 @@
             border-bottom: 2px solid #f0f0f0;
         }
         .chart-card h3 i { color: #667eea; margin-right: 8px; }
-        .chart-container {
-            position: relative;
-            height: 280px;
-        }
+        .chart-container { position: relative; height: 260px; }
 
+        /* ===== RECENT SECTION ===== */
         .content-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
-            gap: 25px;
+            gap: 20px;
         }
         .card {
             background: #fff;
             border-radius: 15px;
-            padding: 25px;
+            padding: 22px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
         .card-header {
@@ -128,7 +361,7 @@
             padding-bottom: 10px;
             border-bottom: 2px solid #f0f0f0;
         }
-        .card-header h3 { font-size: 18px; color: #1a1a2e; margin: 0; }
+        .card-header h3 { font-size: 17px; color: #1a1a2e; margin: 0; }
         .card-header h3 i { color: #667eea; margin-right: 8px; }
         .view-all { color: #667eea; text-decoration: none; font-size: 13px; font-weight: 600; }
 
@@ -148,9 +381,9 @@
             padding: 12px 0; border-bottom: 1px solid #f0f0f0;
         }
         .notif-item:last-child { border-bottom: none; }
-        .notif-item .notif-icon { font-size: 24px; width: 36px; text-align: center; }
-        .notif-item .notif-text { flex: 1; font-size: 14px; color: #333; }
-        .notif-item .notif-time { font-size: 12px; color: #aaa; white-space: nowrap; }
+        .notif-item .notif-icon { font-size: 22px; width: 36px; text-align: center; }
+        .notif-item .notif-text { flex: 1; font-size: 13px; color: #333; }
+        .notif-item .notif-time { font-size: 11px; color: #aaa; white-space: nowrap; }
 
         .spinner {
             display: inline-block; width: 30px; height: 30px;
@@ -158,6 +391,58 @@
             border-radius: 50%; animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* ===== DAY DETAIL MODAL ===== */
+        .day-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .day-modal.active { display: flex; }
+        .day-modal-box {
+            background: #fff;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 100%;
+            padding: 25px;
+            animation: modalSlide 0.3s ease;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        @keyframes modalSlide {
+            from { opacity: 0; transform: translateY(-30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .day-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .day-modal-header h3 { font-size: 18px; color: #1a1a2e; }
+        .day-modal-close {
+            background: none; border: none; font-size: 28px;
+            cursor: pointer; color: #a0aec0;
+        }
+        .day-detail-item {
+            padding: 10px 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+        .day-detail-item .lbl { color: #666; }
+        .day-detail-item .val { font-weight: 700; color: #1a1a2e; }
 
         @media (max-width: 992px) {
             .charts-grid { grid-template-columns: 1fr; }
@@ -171,7 +456,9 @@
             .menu-item { padding: 15px 0; justify-content: center; }
             .menu-item .icon { margin-right: 0; font-size: 24px; }
             .main-content { margin-left: 70px; padding: 15px; }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .calendar-day { min-height: 60px; padding: 5px; }
+            .calendar-day .day-number { font-size: 12px; }
+            .calendar-day .day-info { display: none; }
         }
     </style>
 </head>
@@ -210,47 +497,166 @@
             </div>
         </div>
 
-        <!-- ===== STATS CARDS ===== -->
+        <!-- ===== MINI STATS ===== -->
+        <div class="mini-stats">
+            <div class="mini-stat">
+                <div class="num blue" id="miniLoans">0</div>
+                <div class="lbl">កម្ចីសរុប</div>
+            </div>
+            <div class="mini-stat">
+                <div class="num green" id="miniActive">0</div>
+                <div class="lbl">កម្ចីសកម្ម</div>
+            </div>
+            <div class="mini-stat">
+                <div class="num red" id="miniBad">0</div>
+                <div class="lbl">កម្ចីខូច</div>
+            </div>
+            <div class="mini-stat">
+                <div class="num orange" id="miniCustomers">0</div>
+                <div class="lbl">អតិថិជនសរុប</div>
+            </div>
+        </div>
+
+        <!-- ===== MAIN STATS (USD + KHR) ===== -->
         <div class="stats-grid">
-            <div class="stat-card purple">
-                <div class="stat-icon">👥</div>
-                <div class="stat-number" id="totalCustomers">0</div>
-                <div class="stat-label">អតិថិជនសរុប</div>
-            </div>
-            <div class="stat-card green">
-                <div class="stat-icon">💰</div>
-                <div class="stat-number" id="totalLoans">0</div>
-                <div class="stat-label">កម្ចីសរុប</div>
-            </div>
-            <div class="stat-card orange">
-                <div class="stat-icon">📊</div>
-                <div class="stat-number" id="activeLoans">0</div>
-                <div class="stat-label">កម្ចីសកម្ម</div>
-            </div>
-            <div class="stat-card red">
-                <div class="stat-icon">⚠️</div>
-                <div class="stat-number" id="badLoans">0</div>
-                <div class="stat-label">កម្ចីខូច</div>
-            </div>
+            <!-- ១. ទុនទំលាក់សរុប -->
             <div class="stat-card blue">
-                <div class="stat-icon">💵</div>
-                <div class="stat-number" id="totalAmountUSD">$0</div>
-                <div class="stat-label">ទឹកប្រាក់កម្ចី (USD)</div>
+                <div class="stat-header">
+                    <span class="stat-title">ទុនទំលាក់សរុប</span>
+                    <div class="stat-icon"><i class="fas fa-hand-holding-usd"></i></div>
+                </div>
+                <div class="stat-values">
+                    <div class="stat-value-item">
+                        <div class="currency">💵 USD</div>
+                        <div class="amount" id="disbUSD">$0.00</div>
+                    </div>
+                    <div class="stat-value-item">
+                        <div class="currency">🇰🇭 KHR</div>
+                        <div class="amount" id="disbKHR">៛ 0</div>
+                    </div>
+                </div>
             </div>
+
+            <!-- ២. ការប្រាក់សរុប -->
+            <div class="stat-card green">
+                <div class="stat-header">
+                    <span class="stat-title">ការប្រាក់សរុប</span>
+                    <div class="stat-icon"><i class="fas fa-percentage"></i></div>
+                </div>
+                <div class="stat-values">
+                    <div class="stat-value-item">
+                        <div class="currency">💵 USD</div>
+                        <div class="amount" id="interestUSD">$0.00</div>
+                    </div>
+                    <div class="stat-value-item">
+                        <div class="currency">🇰🇭 KHR</div>
+                        <div class="amount" id="interestKHR">៛ 0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ៣. ទឹកប្រាក់សងសរុប -->
+            <div class="stat-card teal">
+                <div class="stat-header">
+                    <span class="stat-title">ទឹកប្រាក់សងសរុប</span>
+                    <div class="stat-icon"><i class="fas fa-money-bill-wave"></i></div>
+                </div>
+                <div class="stat-values">
+                    <div class="stat-value-item">
+                        <div class="currency">💵 USD</div>
+                        <div class="amount" id="collectUSD">$0.00</div>
+                    </div>
+                    <div class="stat-value-item">
+                        <div class="currency">🇰🇭 KHR</div>
+                        <div class="amount" id="collectKHR">៛ 0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ៤. បំណុលសរុប (រួមការប្រាក់) -->
+            <div class="stat-card red">
+                <div class="stat-header">
+                    <span class="stat-title">បំណុលសរុប (រួមការប្រាក់)</span>
+                    <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                </div>
+                <div class="stat-values">
+                    <div class="stat-value-item">
+                        <div class="currency">💵 USD</div>
+                        <div class="amount" id="debtUSD">$0.00</div>
+                    </div>
+                    <div class="stat-value-item">
+                        <div class="currency">🇰🇭 KHR</div>
+                        <div class="amount" id="debtKHR">៛ 0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ៥. ចំណាយសរុប -->
             <div class="stat-card orange">
-                <div class="stat-icon">🇰🇭</div>
-                <div class="stat-number" id="totalAmountKHR">៛ 0</div>
-                <div class="stat-label">ទឹកប្រាក់កម្ចី (KHR)</div>
+                <div class="stat-header">
+                    <span class="stat-title">ចំណាយសរុប</span>
+                    <div class="stat-icon"><i class="fas fa-arrow-down"></i></div>
+                </div>
+                <div class="stat-values">
+                    <div class="stat-value-item" style="grid-column: 1 / -1;">
+                        <div class="currency">💵 USD</div>
+                        <div class="amount" id="expenseTotal">$0.00</div>
+                    </div>
+                </div>
             </div>
-            <div class="stat-card red">
-                <div class="stat-icon">📉</div>
-                <div class="stat-number" id="totalDebtUSD">$0</div>
-                <div class="stat-label">បំណុលសរុប (USD)</div>
+
+            <!-- ៦. ចំណូលសុទ្ធ -->
+            <div class="stat-card purple">
+                <div class="stat-header">
+                    <span class="stat-title">ចំណូលសុទ្ធ (ការប្រាក់ - ចំណាយ)</span>
+                    <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+                </div>
+                <div class="stat-values">
+                    <div class="stat-value-item" style="grid-column: 1 / -1;">
+                        <div class="currency">💵 USD</div>
+                        <div class="amount" id="netIncome">$0.00</div>
+                    </div>
+                </div>
             </div>
-            <div class="stat-card red">
-                <div class="stat-icon">📉</div>
-                <div class="stat-number" id="totalDebtKHR">៛ 0</div>
-                <div class="stat-label">បំណុលសរុប (KHR)</div>
+        </div>
+
+        <!-- ===== CALENDAR ===== -->
+        <div class="calendar-section">
+            <div class="calendar-header">
+                <h3><i class="fas fa-calendar-alt"></i> ប្រតិទិនប្រតិបត្តិការ</h3>
+                <div class="calendar-controls">
+                    <button onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i> ខែមុន</button>
+                    <select id="monthSelect" onchange="loadCalendar()">
+                        <option value="1">មករា</option>
+                        <option value="2">កុម្ភៈ</option>
+                        <option value="3">មីនា</option>
+                        <option value="4">មេសា</option>
+                        <option value="5">ឧសភា</option>
+                        <option value="6">មិថុនា</option>
+                        <option value="7">កក្កដា</option>
+                        <option value="8">សីហា</option>
+                        <option value="9">កញ្ញា</option>
+                        <option value="10">តុលា</option>
+                        <option value="11">វិច្ឆិកា</option>
+                        <option value="12">ធ្នូ</option>
+                    </select>
+                    <select id="yearSelect" onchange="loadCalendar()"></select>
+                    <button onclick="changeMonth(1)">ខែបន្ទាប់ <i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+
+            <div class="calendar-grid" id="calendarGrid">
+                <div class="calendar-day-header sunday">អាទិត្យ</div>
+                <div class="calendar-day-header">ច័ន្ទ</div>
+                <div class="calendar-day-header">អង្គារ</div>
+                <div class="calendar-day-header">ពុធ</div>
+                <div class="calendar-day-header">ព្រហស្បតិ៍</div>
+                <div class="calendar-day-header">សុក្រ</div>
+                <div class="calendar-day-header saturday">សៅរ៍</div>
+            </div>
+
+            <div class="monthly-summary" id="monthlySummary">
+                <!-- Dynamic -->
             </div>
         </div>
 
@@ -258,31 +664,23 @@
         <div class="charts-grid">
             <div class="chart-card">
                 <h3><i class="fas fa-chart-pie"></i> កម្ចីតាមស្ថានភាព</h3>
-                <div class="chart-container">
-                    <canvas id="loansByStatusChart"></canvas>
-                </div>
+                <div class="chart-container"><canvas id="loansByStatusChart"></canvas></div>
             </div>
             <div class="chart-card">
-                <h3><i class="fas fa-chart-bar"></i> កម្ចីតាមរូបិយប័ណ្ណ</h3>
-                <div class="chart-container">
-                    <canvas id="loansByCurrencyChart"></canvas>
-                </div>
+                <h3><i class="fas fa-chart-bar"></i> ប្រៀបធៀប USD vs KHR</h3>
+                <div class="chart-container"><canvas id="currencyCompareChart"></canvas></div>
             </div>
             <div class="chart-card">
                 <h3><i class="fas fa-chart-line"></i> កម្ចីប្រចាំខែ (6 ខែ)</h3>
-                <div class="chart-container">
-                    <canvas id="monthlyLoansChart"></canvas>
-                </div>
+                <div class="chart-container"><canvas id="monthlyLoansChart"></canvas></div>
             </div>
             <div class="chart-card">
-                <h3><i class="fas fa-chart-line"></i> ការប្រមូលប្រាក់ប្រចាំខែ</h3>
-                <div class="chart-container">
-                    <canvas id="monthlyCollectionsChart"></canvas>
-                </div>
+                <h3><i class="fas fa-chart-area"></i> ការប្រមូលប្រាក់ប្រចាំខែ</h3>
+                <div class="chart-container"><canvas id="monthlyCollectionsChart"></canvas></div>
             </div>
         </div>
 
-        <!-- ===== RECENT LOANS + ACTIVITIES ===== -->
+        <!-- ===== RECENT ===== -->
         <div class="content-grid">
             <div class="card">
                 <div class="card-header">
@@ -300,12 +698,7 @@
                             </tr>
                         </thead>
                         <tbody id="recentLoansBody">
-                            <tr>
-                                <td colspan="4" style="text-align:center; padding:20px; color:#888;">
-                                    <div class="spinner"></div>
-                                    <p style="margin-top:8px;">កំពុងផ្ទុក...</p>
-                                </td>
-                            </tr>
+                            <tr><td colspan="4" style="text-align:center; padding:20px;"><div class="spinner"></div></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -316,17 +709,28 @@
                     <h3><i class="fas fa-bell"></i> សកម្មភាពថ្មីៗ</h3>
                 </div>
                 <div id="activityList">
-                    <div style="text-align:center; padding:20px; color:#888;">
-                        <div class="spinner"></div>
-                        <p style="margin-top:8px;">កំពុងផ្ទុក...</p>
-                    </div>
+                    <div style="text-align:center; padding:20px;"><div class="spinner"></div></div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- ===== DAY DETAIL MODAL ===== -->
+    <div class="day-modal" id="dayModal">
+        <div class="day-modal-box">
+            <div class="day-modal-header">
+                <h3 id="dayModalTitle">📅 ព័ត៌មានថ្ងៃ</h3>
+                <button class="day-modal-close" onclick="closeDayModal()">&times;</button>
+            </div>
+            <div id="dayModalBody"></div>
+        </div>
+    </div>
+
     <script>
-        let loansByStatusChart, loansByCurrencyChart, monthlyLoansChart, monthlyCollectionsChart;
+        let currentYear = new Date().getFullYear();
+        let currentMonth = new Date().getMonth() + 1;
+
+        let loansByStatusChart, currencyCompareChart, monthlyLoansChart, monthlyCollectionsChart;
 
         // ===== FORMAT CURRENCY =====
         function fmtCurrency(amount, currency) {
@@ -338,38 +742,50 @@
             }
         }
 
-        // ===== LOAD DASHBOARD =====
-        async function loadDashboard() {
+        // ===== INIT YEAR SELECT =====
+        function initYearSelect() {
+            const select = document.getElementById('yearSelect');
+            const currentYear = new Date().getFullYear();
+            for (let y = currentYear - 3; y <= currentYear + 2; y++) {
+                const opt = document.createElement('option');
+                opt.value = y;
+                opt.textContent = y;
+                if (y === currentYear) opt.selected = true;
+                select.appendChild(opt);
+            }
+        }
+
+        // ===== LOAD FULL STATS =====
+        async function loadFullStats() {
             try {
-                // ===== Customers Count =====
-                const countRes = await fetch('/api/customers/count');
-                const countData = await countRes.json();
-                document.getElementById('totalCustomers').textContent = countData.count || 0;
+                const res = await fetch('/api/dashboard_full_stats');
+                if (!res.ok) throw new Error('Failed to load stats');
+                const s = await res.json();
 
-                // ===== Dashboard Stats =====
-                const statsRes = await fetch('/api/dashboard_stats');
-                if (!statsRes.ok) throw new Error('Failed to load stats');
-                const stats = await statsRes.json();
+                // ===== Mini Stats =====
+                document.getElementById('miniLoans').textContent = s.total_loans || 0;
+                document.getElementById('miniActive').textContent = s.active_loans || 0;
+                document.getElementById('miniBad').textContent = s.bad_loans || 0;
+                document.getElementById('miniCustomers').textContent = s.total_customers || 0;
 
-                document.getElementById('totalLoans').textContent = stats.total_loans || 0;
-                document.getElementById('activeLoans').textContent = stats.active_loans || 0;
-                document.getElementById('badLoans').textContent = stats.bad_loans || 0;
-                document.getElementById('totalAmountUSD').textContent = fmtCurrency(stats.total_amount_usd || 0, 'USD');
-                document.getElementById('totalAmountKHR').textContent = fmtCurrency(stats.total_amount_khr || 0, 'KHR');
-                document.getElementById('totalDebtUSD').textContent = fmtCurrency(stats.total_debt_usd || 0, 'USD');
-                document.getElementById('totalDebtKHR').textContent = fmtCurrency(stats.total_debt_khr || 0, 'KHR');
+                // ===== Main Stats =====
+                document.getElementById('disbUSD').textContent = fmtCurrency(s.total_disbursement_usd, 'USD');
+                document.getElementById('disbKHR').textContent = fmtCurrency(s.total_disbursement_khr, 'KHR');
+                document.getElementById('interestUSD').textContent = fmtCurrency(s.total_interest_usd, 'USD');
+                document.getElementById('interestKHR').textContent = fmtCurrency(s.total_interest_khr, 'KHR');
+                document.getElementById('collectUSD').textContent = fmtCurrency(s.total_collection_usd, 'USD');
+                document.getElementById('collectKHR').textContent = fmtCurrency(s.total_collection_khr, 'KHR');
+                document.getElementById('debtUSD').textContent = fmtCurrency(s.total_debt_usd, 'USD');
+                document.getElementById('debtKHR').textContent = fmtCurrency(s.total_debt_khr, 'KHR');
+                document.getElementById('expenseTotal').textContent = fmtCurrency(s.total_expense, 'USD');
 
-                // ===== Recent Loans =====
-                await loadRecentLoans();
-
-                // ===== Activities =====
-                await loadActivities();
-
-                // ===== Charts =====
-                await loadCharts();
+                const netIncome = s.net_income || 0;
+                const netEl = document.getElementById('netIncome');
+                netEl.textContent = fmtCurrency(netIncome, 'USD');
+                netEl.style.color = netIncome >= 0 ? '#27ae60' : '#e74c3c';
 
             } catch (error) {
-                console.error('Error loading dashboard:', error);
+                console.error('Error loading full stats:', error);
             }
         }
 
@@ -378,7 +794,7 @@
             const tbody = document.getElementById('recentLoansBody');
             try {
                 const res = await fetch('/api/loans?page=1&per_page=10');
-                if (!res.ok) throw new Error('Failed to load loans');
+                if (!res.ok) throw new Error('Failed');
                 const loans = await res.json();
 
                 if (!loans || loans.length === 0) {
@@ -388,25 +804,22 @@
 
                 const statusMap = {
                     'Approved': '<span class="status approved">សកម្ម</span>',
-                    'Pending': '<span class="status pending">កំពុងរង់ចាំ</span>',
+                    'Pending': '<span class="status pending">រង់ចាំ</span>',
                     'Completed': '<span class="status completed">រួចរាល់</span>',
                     'Bad Debt': '<span class="status bad_debt">កម្ចីខូច</span>'
                 };
 
-                tbody.innerHTML = loans.map(loan => {
-                    const currency = loan.currency || 'USD';
-                    return `
-                        <tr>
-                            <td>${loan.customer_name || 'មិនស្គាល់'}</td>
-                            <td>${fmtCurrency(loan.loan_amount || 0, currency)}</td>
-                            <td>${loan.loan_date || '-'}</td>
-                            <td>${statusMap[loan.status] || loan.status}</td>
-                        </tr>
-                    `;
-                }).join('');
+                tbody.innerHTML = loans.map(loan => `
+                    <tr>
+                        <td>${loan.customer_name || 'មិនស្គាល់'}</td>
+                        <td>${fmtCurrency(loan.loan_amount || 0, loan.currency || 'USD')}</td>
+                        <td>${loan.loan_date || '-'}</td>
+                        <td>${statusMap[loan.status] || loan.status}</td>
+                    </tr>
+                `).join('');
             } catch (error) {
-                console.error('Error loading recent loans:', error);
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px; color:#e74c3c;">❌ មានបញ្ហាក្នុងការផ្ទុកទិន្នន័យ</td></tr>`;
+                console.error('Error:', error);
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px; color:#e74c3c;">❌ មានបញ្ហា</td></tr>`;
             }
         }
 
@@ -415,7 +828,7 @@
             const container = document.getElementById('activityList');
             try {
                 const res = await fetch('/api/activities');
-                if (!res.ok) throw new Error('Failed to load activities');
+                if (!res.ok) throw new Error('Failed');
                 const activities = await res.json();
 
                 if (!activities || activities.length === 0) {
@@ -425,119 +838,253 @@
 
                 container.innerHTML = activities.slice(0, 5).map(a => {
                     let text = a.description || a.action;
-                    if (text.length > 60) text = text.substring(0, 60) + '...';
+                    if (text.length > 50) text = text.substring(0, 50) + '...';
                     return `
                         <div class="notif-item">
-                            <span class="notif-icon">${getActivityIcon(a.action)}</span>
+                            <span class="notif-icon">${getIcon(a.action)}</span>
                             <span class="notif-text">${text}</span>
-                            <span class="notif-time">${formatTime(a.created_at)}</span>
+                            <span class="notif-time">${fmtTime(a.created_at)}</span>
                         </div>
                     `;
                 }).join('');
             } catch (error) {
-                console.error('Error loading activities:', error);
+                console.error('Error:', error);
                 container.innerHTML = `<div style="text-align:center; padding:20px; color:#888;">📭 មិនមានសកម្មភាព</div>`;
             }
         }
 
-        // ===== GET ACTIVITY ICON =====
-        function getActivityIcon(action) {
+        function getIcon(action) {
             const icons = {
                 'create': '➕', 'create_customer': '👤', 'create_loan': '💰',
                 'update': '✏️', 'update_customer': '✏️', 'update_loan': '✏️',
                 'delete': '🗑️', 'collection_payment': '✅', 'update_loan_status': '🔄',
-                'approve': '✔️', 'reject': '❌', 'change_co': '👔'
+                'approve': '✔️', 'reject': '❌', 'change_co': '👔',
+                'create_expense': '💸', 'delete_expense': '🗑️'
             };
             return icons[action] || '📌';
         }
 
-        // ===== FORMAT TIME =====
-        function formatTime(timestamp) {
-            if (!timestamp) return 'ថ្មីៗ';
+        function fmtTime(ts) {
+            if (!ts) return 'ថ្មីៗ';
             try {
-                const date = new Date(timestamp);
-                const now = new Date();
-                const diff = Math.floor((now - date) / 1000);
+                const date = new Date(ts);
+                const diff = Math.floor((new Date() - date) / 1000);
                 if (diff < 60) return 'ថ្មីៗ';
                 if (diff < 3600) return Math.floor(diff / 60) + ' នាទី';
                 if (diff < 86400) return Math.floor(diff / 3600) + ' ម៉ោង';
                 return Math.floor(diff / 86400) + ' ថ្ងៃ';
-            } catch { return timestamp; }
+            } catch { return ts; }
+        }
+
+        // ===== CALENDAR =====
+        function changeMonth(delta) {
+            currentMonth += delta;
+            if (currentMonth > 12) { currentMonth = 1; currentYear++; }
+            if (currentMonth < 1) { currentMonth = 12; currentYear--; }
+            document.getElementById('monthSelect').value = currentMonth;
+            document.getElementById('yearSelect').value = currentYear;
+            loadCalendar();
+        }
+
+        async function loadCalendar() {
+            currentMonth = parseInt(document.getElementById('monthSelect').value);
+            currentYear = parseInt(document.getElementById('yearSelect').value);
+
+            try {
+                const res = await fetch(`/api/calendar_data?year=${currentYear}&month=${currentMonth}`);
+                if (!res.ok) throw new Error('Failed');
+                const data = await res.json();
+                renderCalendar(data);
+                renderMonthlySummary(data.summary);
+            } catch (error) {
+                console.error('Error loading calendar:', error);
+            }
+        }
+
+        function renderCalendar(data) {
+            const grid = document.getElementById('calendarGrid');
+            // ===== លុបថ្ងៃចាស់ (លើកលែង Header) =====
+            const headers = grid.querySelectorAll('.calendar-day-header');
+            grid.innerHTML = '';
+            headers.forEach(h => grid.appendChild(h));
+
+            // ===== បង្កើតថ្ងៃទទេសម្រាប់ថ្ងៃទី ១ =====
+            const firstDay = new Date(data.year, data.month - 1, 1);
+            const startDay = firstDay.getDay(); // 0=Sunday
+
+            for (let i = 0; i < startDay; i++) {
+                const empty = document.createElement('div');
+                empty.className = 'calendar-day empty';
+                grid.appendChild(empty);
+            }
+
+            // ===== បង្កើតថ្ងៃ =====
+            const today = new Date();
+            const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+            data.days.forEach(day => {
+                const dayEl = document.createElement('div');
+                dayEl.className = 'calendar-day';
+
+                if (day.date === todayStr) dayEl.classList.add('today');
+                if (day.loans_count > 0 || day.collections_usd > 0 || day.expenses > 0) {
+                    dayEl.classList.add('has-data');
+                }
+
+                let infoHtml = '';
+                if (day.loans_count > 0) {
+                    infoHtml += `<span class="badge loan">💰 ${day.loans_count}</span><br>`;
+                }
+                if (day.collections_usd > 0) {
+                    infoHtml += `<span class="badge collect">✅ ${fmtShort(day.collections_usd)}</span><br>`;
+                }
+                if (day.expenses > 0) {
+                    infoHtml += `<span class="badge expense">💸 ${fmtShort(day.expenses)}</span>`;
+                }
+
+                dayEl.innerHTML = `
+                    <div class="day-number">${day.day}</div>
+                    <div class="day-info">${infoHtml}</div>
+                `;
+
+                dayEl.onclick = () => openDayModal(day);
+                grid.appendChild(dayEl);
+            });
+        }
+
+        function fmtShort(amount) {
+            if (amount >= 1000000) return (amount / 1000000).toFixed(1) + 'M';
+            if (amount >= 1000) return (amount / 1000).toFixed(0) + 'K';
+            return amount.toFixed(0);
+        }
+
+        function renderMonthlySummary(summary) {
+            const container = document.getElementById('monthlySummary');
+            container.innerHTML = `
+                <div class="summary-item">
+                    <div class="lbl">កម្ចីក្នុងខែ</div>
+                    <div class="val blue">${summary.total_loans || 0}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="lbl">ទុនទំលាក់ (USD)</div>
+                    <div class="val blue">${fmtCurrency(summary.total_loans_usd || 0, 'USD')}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="lbl">ទុនទំលាក់ (KHR)</div>
+                    <div class="val blue">${fmtCurrency(summary.total_loans_khr || 0, 'KHR')}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="lbl">ការប្រមូល (USD)</div>
+                    <div class="val green">${fmtCurrency(summary.total_collections || 0, 'USD')}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="lbl">ចំណាយ (USD)</div>
+                    <div class="val red">${fmtCurrency(summary.total_expenses || 0, 'USD')}</div>
+                </div>
+            `;
+        }
+
+        function openDayModal(day) {
+            const modal = document.getElementById('dayModal');
+            document.getElementById('dayModalTitle').textContent = `📅 ថ្ងៃទី ${day.day} / ${currentMonth} / ${currentYear}`;
+
+            let html = '';
+            html += `<div class="day-detail-item"><span class="lbl">💰 កម្ចីថ្មី</span><span class="val">${day.loans_count} កម្ចី</span></div>`;
+            if (day.loans_amount_usd > 0) {
+                html += `<div class="day-detail-item"><span class="lbl">💵 ទុនទំលាក់ (USD)</span><span class="val">${fmtCurrency(day.loans_amount_usd, 'USD')}</span></div>`;
+            }
+            if (day.loans_amount_khr > 0) {
+                html += `<div class="day-detail-item"><span class="lbl">🇰🇭 ទុនទំលាក់ (KHR)</span><span class="val">${fmtCurrency(day.loans_amount_khr, 'KHR')}</span></div>`;
+            }
+            if (day.collections_usd > 0) {
+                html += `<div class="day-detail-item"><span class="lbl">✅ ការប្រមូល (USD)</span><span class="val" style="color:#27ae60;">${fmtCurrency(day.collections_usd, 'USD')}</span></div>`;
+            }
+            if (day.expenses > 0) {
+                html += `<div class="day-detail-item"><span class="lbl">💸 ចំណាយ</span><span class="val" style="color:#e74c3c;">${fmtCurrency(day.expenses, 'USD')}</span></div>`;
+            }
+
+            if (day.events && day.events.length > 0) {
+                html += `<div style="margin-top:15px; padding-top:15px; border-top:1px solid #e2e8f0;"><strong style="color:#667eea;">📋 ព្រឹត្តិការណ៍:</strong></div>`;
+                day.events.forEach(e => {
+                    if (e.type === 'loan') {
+                        html += `<div class="day-detail-item"><span class="lbl">💰 ${e.code}</span><span class="val">${fmtCurrency(e.amount, e.currency)}</span></div>`;
+                    } else if (e.type === 'expense') {
+                        html += `<div class="day-detail-item"><span class="lbl">💸 ${e.name}</span><span class="val" style="color:#e74c3c;">${fmtCurrency(e.amount, 'USD')}</span></div>`;
+                    }
+                });
+            }
+
+            if (html === '') {
+                html = '<div style="text-align:center; padding:20px; color:#888;">📭 គ្មានប្រតិបត្តិការ</div>';
+            }
+
+            document.getElementById('dayModalBody').innerHTML = html;
+            modal.classList.add('active');
+        }
+
+        function closeDayModal() {
+            document.getElementById('dayModal').classList.remove('active');
         }
 
         // ===== LOAD CHARTS =====
         async function loadCharts() {
             try {
                 const res = await fetch('/api/dashboard_charts');
-                if (!res.ok) throw new Error('Failed to load charts');
+                if (!res.ok) throw new Error('Failed');
                 const data = await res.json();
 
-                // ===== Chart 1: Loans by Status (Doughnut) =====
+                // ===== Chart 1: Loans by Status =====
                 const statusLabels = {
                     'Approved': 'សកម្ម', 'Pending': 'រង់ចាំ',
                     'Completed': 'រួចរាល់', 'Bad Debt': 'កម្ចីខូច', 'Rejected': 'បដិសេធ'
                 };
                 const statusData = data.loans_by_status || {};
                 const statusKeys = Object.keys(statusData);
-                const statusValues = statusKeys.map(k => statusData[k]);
-                const statusColors = ['#27ae60', '#f39c12', '#3498db', '#e74c3c', '#95a5a6'];
 
-                const ctx1 = document.getElementById('loansByStatusChart').getContext('2d');
                 if (loansByStatusChart) loansByStatusChart.destroy();
-                loansByStatusChart = new Chart(ctx1, {
+                loansByStatusChart = new Chart(document.getElementById('loansByStatusChart'), {
                     type: 'doughnut',
                     data: {
                         labels: statusKeys.map(k => statusLabels[k] || k),
                         datasets: [{
-                            data: statusValues,
-                            backgroundColor: statusColors.slice(0, statusKeys.length),
-                            borderWidth: 2,
-                            borderColor: '#fff'
+                            data: statusKeys.map(k => statusData[k]),
+                            backgroundColor: ['#27ae60', '#f39c12', '#3498db', '#e74c3c', '#95a5a6'],
+                            borderWidth: 2, borderColor: '#fff'
                         }]
                     },
                     options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { position: 'bottom', labels: { font: { family: 'Khmer OS' } } }
-                        }
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom' } }
                     }
                 });
 
-                // ===== Chart 2: Loans by Currency (Bar) =====
-                const currencyData = data.loans_by_currency || {};
-                const currKeys = Object.keys(currencyData);
-
-                const ctx2 = document.getElementById('loansByCurrencyChart').getContext('2d');
-                if (loansByCurrencyChart) loansByCurrencyChart.destroy();
-                loansByCurrencyChart = new Chart(ctx2, {
+                // ===== Chart 2: Currency Comparison =====
+                if (currencyCompareChart) currencyCompareChart.destroy();
+                currencyCompareChart = new Chart(document.getElementById('currencyCompareChart'), {
                     type: 'bar',
                     data: {
-                        labels: currKeys.length > 0 ? currKeys : ['មិនមាន'],
+                        labels: ['USD', 'KHR'],
                         datasets: [{
-                            label: 'ចំនួនកម្ចី',
-                            data: currKeys.map(k => currencyData[k].count),
+                            label: 'ទុនទំលាក់',
+                            data: [
+                                data.loans_by_currency?.USD?.total || 0,
+                                data.loans_by_currency?.KHR?.total || 0
+                            ],
                             backgroundColor: ['#3498db', '#f39c12'],
                             borderRadius: 8
                         }]
                     },
                     options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false }
-                        },
-                        scales: {
-                            y: { beginAtZero: true, ticks: { stepSize: 1 } }
-                        }
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: { y: { beginAtZero: true } }
                     }
                 });
 
-                // ===== Chart 3: Monthly Loans (Line) =====
+                // ===== Chart 3: Monthly Loans =====
                 const monthlyLoans = data.monthly_loans || [];
-                const ctx3 = document.getElementById('monthlyLoansChart').getContext('2d');
                 if (monthlyLoansChart) monthlyLoansChart.destroy();
-                monthlyLoansChart = new Chart(ctx3, {
+                monthlyLoansChart = new Chart(document.getElementById('monthlyLoansChart'), {
                     type: 'line',
                     data: {
                         labels: monthlyLoans.map(m => m.month),
@@ -546,52 +1093,35 @@
                             data: monthlyLoans.map(m => m.count),
                             borderColor: '#667eea',
                             backgroundColor: 'rgba(102,126,234,0.1)',
-                            tension: 0.4,
-                            fill: true,
-                            pointBackgroundColor: '#667eea',
-                            pointRadius: 5
+                            tension: 0.4, fill: true, pointRadius: 5
                         }]
                     },
                     options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false }
-                        },
-                        scales: {
-                            y: { beginAtZero: true, ticks: { stepSize: 1 } }
-                        }
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
                     }
                 });
 
-                // ===== Chart 4: Monthly Collections (Line) =====
-                const monthlyCollections = data.monthly_collections || [];
-                const ctx4 = document.getElementById('monthlyCollectionsChart').getContext('2d');
+                // ===== Chart 4: Monthly Collections =====
+                const monthlyCols = data.monthly_collections || [];
                 if (monthlyCollectionsChart) monthlyCollectionsChart.destroy();
-                monthlyCollectionsChart = new Chart(ctx4, {
+                monthlyCollectionsChart = new Chart(document.getElementById('monthlyCollectionsChart'), {
                     type: 'line',
                     data: {
-                        labels: monthlyCollections.map(m => m.month),
+                        labels: monthlyCols.map(m => m.month),
                         datasets: [{
-                            label: 'ទឹកប្រាក់ប្រមូល',
-                            data: monthlyCollections.map(m => m.total),
+                            label: 'ការប្រមូល',
+                            data: monthlyCols.map(m => m.total),
                             borderColor: '#27ae60',
                             backgroundColor: 'rgba(39,174,96,0.1)',
-                            tension: 0.4,
-                            fill: true,
-                            pointBackgroundColor: '#27ae60',
-                            pointRadius: 5
+                            tension: 0.4, fill: true, pointRadius: 5
                         }]
                     },
                     options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false }
-                        },
-                        scales: {
-                            y: { beginAtZero: true }
-                        }
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: { y: { beginAtZero: true } }
                     }
                 });
 
@@ -600,10 +1130,33 @@
             }
         }
 
-        // ===== AUTO REFRESH =====
+        // ===== CLOSE MODAL ON OVERLAY CLICK =====
+        document.getElementById('dayModal').addEventListener('click', function(e) {
+            if (e.target === this) closeDayModal();
+        });
+
+        // ===== ESC KEY =====
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeDayModal();
+        });
+
+        // ===== INIT =====
         document.addEventListener('DOMContentLoaded', function() {
-            loadDashboard();
-            setInterval(loadDashboard, 60000);
+            initYearSelect();
+            document.getElementById('monthSelect').value = currentMonth;
+            document.getElementById('yearSelect').value = currentYear;
+
+            loadFullStats();
+            loadRecentLoans();
+            loadActivities();
+            loadCalendar();
+            loadCharts();
+
+            setInterval(() => {
+                loadFullStats();
+                loadRecentLoans();
+                loadActivities();
+            }, 60000);
         });
     </script>
 
