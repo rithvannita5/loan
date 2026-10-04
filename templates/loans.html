@@ -791,6 +791,7 @@
                 const response = await fetch(`/api/loans/${loanId}`);
                 if (!response.ok) throw new Error('Network error');
                 const loan = await response.json();
+                console.log('✅ Loan data:', loan);
 
                 const officersResponse = await fetch('/api/officers');
                 const officers = await officersResponse.json();
