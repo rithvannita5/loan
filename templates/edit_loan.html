@@ -374,12 +374,6 @@
                 <input type="number" id="service_fee" placeholder="0" step="0.01" min="0" value="{{ loan.service_fee or 0 }}">
             </div>
 
-            <!-- 14. ថ្ងៃខែស្នើបង់ -->
-            <div class="form-group">
-                <label>ថ្ងៃខែស្នើបង់</label>
-                <input type="date" id="due_date" value="{{ loan.due_date or '' }}">
-            </div>
-
             <!-- 15. វគ្គ -->
             <div class="form-group">
                 <label>វគ្គ</label>
@@ -416,6 +410,13 @@
                 <input type="date" id="loan_date" value="{{ loan.loan_date or '' }}">
             </div>
 
+            <!-- 14. ថ្ងៃខែស្នើបង់ -->
+            <div class="form-group">
+                <label>ថ្ងៃខែស្នើបង់</label>
+                <input type="date" id="due_date" value="{{ loan.due_date or '' }}">
+            </div>
+
+            
             <!-- 21. មន្ត្រី CO -->
             <div class="form-group">
                 <label>មន្ត្រី CO</label>
