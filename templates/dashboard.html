@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - ប្រព័ន្ធកម្ចី</title>
+    <title>បេឡា - ប្រព័ន្ធកម្ចី</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -25,32 +24,39 @@
             height: 100vh;
             overflow-y: auto;
             box-shadow: 4px 0 20px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
             z-index: 1000;
         }
         .sidebar-brand { text-align: center; padding: 20px 15px 30px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 20px; }
         .sidebar-brand .logo { font-size: 32px; display: block; margin-bottom: 5px; }
-        .sidebar-brand h2 { font-size: 20px; font-weight: 700; color: #fff; }
+        .sidebar-brand h2 { font-size: 20px; font-weight: 700; color: #fff; letter-spacing: 1px; }
         .sidebar-brand h2 span { color: #667eea; }
         .sidebar-brand p { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 3px; }
+
         .menu-label { padding: 10px 25px 5px; font-size: 11px; text-transform: uppercase; color: rgba(255,255,255,0.3); letter-spacing: 2px; font-weight: 600; }
+        
+        /* ===== FIX MENU CLICK ===== */
         .menu-item {
             display: flex; align-items: center; padding: 13px 25px;
             color: rgba(255,255,255,0.6); text-decoration: none;
             transition: all 0.3s ease; border-left: 3px solid transparent;
-            cursor: pointer; font-size: 15px;
+            cursor: pointer; font-size: 15px; font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif;
+            position: relative;
+            z-index: 1;
         }
         .menu-item:hover { background: rgba(255,255,255,0.05); color: #fff; border-left-color: #667eea; }
         .menu-item.active { background: rgba(102,126,234,0.15); color: #fff; border-left-color: #667eea; }
         .menu-item .icon { font-size: 20px; margin-right: 14px; width: 28px; text-align: center; }
+        .menu-item .badge { margin-left: auto; background: #e74c3c; color: #fff; font-size: 11px; padding: 2px 10px; border-radius: 20px; }
 
-        .main-content { margin-left: 260px; flex: 1; padding: 25px; min-height: 100vh; }
+        /* ===== MAIN CONTENT ===== */
+        .main-content { margin-left: 260px; flex: 1; padding: 30px; min-height: 100vh; }
 
-        /* ===== TOP HEADER ===== */
         .top-header {
             display: flex; justify-content: space-between; align-items: center;
             background: #fff; padding: 18px 30px; border-radius: 15px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            margin-bottom: 20px; flex-wrap: wrap; gap: 15px;
+            margin-bottom: 25px; flex-wrap: wrap; gap: 15px;
         }
         .top-header h1 { font-size: 24px; color: #1a1a2e; }
         .top-header h1 span { color: #667eea; }
@@ -58,284 +64,160 @@
         .user-info .avatar { width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 22px; font-weight: 700; }
         .user-info .name { font-weight: 600; color: #333; }
         .user-info .role { font-size: 12px; color: #888; }
-        .logout-btn { background: #e74c3c; color: #fff; border: none; padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 14px; text-decoration: none; }
-        .logout-btn:hover { background: #c0392b; }
+        .logout-btn { background: #e74c3c; color: #fff; border: none; padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 14px; transition: all 0.3s ease; font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif; text-decoration: none; }
+        .logout-btn:hover { background: #c0392b; transform: scale(1.02); }
 
-        /* ===== MINI STATS ===== */
-        .mini-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        .mini-stat {
+        /* ===== FILTER BAR ===== */
+        .filter-bar {
             background: #fff;
-            padding: 15px 18px;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            text-align: center;
-        }
-        .mini-stat .num { font-size: 22px; font-weight: 700; color: #1a1a2e; }
-        .mini-stat .lbl { font-size: 12px; color: #888; margin-top: 3px; }
-        .mini-stat .num.blue { color: #667eea; }
-        .mini-stat .num.green { color: #27ae60; }
-        .mini-stat .num.orange { color: #f39c12; }
-        .mini-stat .num.red { color: #e74c3c; }
-
-        /* ===== STATS GRID (USD + KHR) ===== */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-        .stat-card {
-            background: #fff;
-            padding: 22px;
+            padding: 20px 25px;
             border-radius: 15px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
-            border-left: 4px solid #667eea;
-        }
-        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
-        .stat-card .stat-header {
+            margin-bottom: 20px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: flex-end;
         }
-        .stat-card .stat-title {
+        .filter-group {
+            flex: 1;
+            min-width: 180px;
+        }
+        .filter-group label {
+            display: block;
             font-size: 13px;
-            color: #888;
             font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            color: #555;
+            margin-bottom: 5px;
         }
-        .stat-card .stat-icon {
-            font-size: 24px;
-            width: 44px;
-            height: 44px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .stat-card .stat-values {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        .stat-card .stat-value-item {
-            padding: 8px 12px;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }
-        .stat-card .stat-value-item .currency {
-            font-size: 11px;
-            color: #888;
-            font-weight: 600;
-        }
-        .stat-card .stat-value-item .amount {
-            font-size: 16px;
-            font-weight: 700;
-            color: #1a1a2e;
-            margin-top: 2px;
-        }
-
-        .stat-card.blue { border-left-color: #3498db; }
-        .stat-card.blue .stat-icon { background: rgba(52,152,219,0.1); color: #3498db; }
-        .stat-card.green { border-left-color: #27ae60; }
-        .stat-card.green .stat-icon { background: rgba(39,174,96,0.1); color: #27ae60; }
-        .stat-card.orange { border-left-color: #f39c12; }
-        .stat-card.orange .stat-icon { background: rgba(243,156,18,0.1); color: #f39c12; }
-        .stat-card.red { border-left-color: #e74c3c; }
-        .stat-card.red .stat-icon { background: rgba(231,76,60,0.1); color: #e74c3c; }
-        .stat-card.purple { border-left-color: #9b59b6; }
-        .stat-card.purple .stat-icon { background: rgba(155,89,182,0.1); color: #9b59b6; }
-        .stat-card.teal { border-left-color: #1abc9c; }
-        .stat-card.teal .stat-icon { background: rgba(26,188,156,0.1); color: #1abc9c; }
-
-        /* ===== MONTH REPORT ===== */
-        .calendar-section {
-            background: #fff;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-        }
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #f0f0f0;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        .calendar-header h3 {
-            font-size: 20px;
-            color: #1a1a2e;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 0;
-        }
-        .calendar-header h3 i { color: #667eea; }
-        .calendar-controls {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .calendar-controls button {
-            background: #667eea;
-            color: #fff;
-            border: none;
-            padding: 9px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            font-family: 'Khmer OS', Arial, sans-serif;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .calendar-controls button:hover {
-            background: #5a67d8;
-            transform: translateY(-2px);
-        }
-        .calendar-controls select {
-            padding: 9px 12px;
+        .filter-group input, .filter-group select {
+            width: 100%;
+            padding: 10px 14px;
             border: 2px solid #e2e8f0;
             border-radius: 8px;
             font-size: 14px;
-            font-family: 'Khmer OS', Arial, sans-serif;
-            background: #fff;
-            cursor: pointer;
-            min-width: 110px;
+            font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif;
+            background: #f8f9fa;
             transition: all 0.3s;
         }
-        .calendar-controls select:focus {
+        .filter-group input:focus, .filter-group select:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
         }
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
 
-        /* ===== MONTHLY SUMMARY ===== */
-        .monthly-summary {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        .summary-item {
-            text-align: center;
-            padding: 15px 12px;
-            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-            border-radius: 10px;
-            border: 2px solid #f0f2f5;
-            transition: all 0.3s ease;
-        }
-        .summary-item:hover {
-            border-color: #667eea;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102,126,234,0.1);
-        }
-        .summary-item .lbl {
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-        .summary-item .lbl i { margin-right: 3px; }
-        .summary-item .val {
-            font-size: 18px;
-            font-weight: 700;
-            color: #1a1a2e;
-        }
-        .summary-item .val.blue { color: #3498db; }
-        .summary-item .val.green { color: #27ae60; }
-        .summary-item .val.red { color: #e74c3c; }
-
-        /* ===== DAILY TABLE ===== */
-        .table-responsive { overflow-x: auto; }
-        .daily-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-        .daily-table th {
-            background: #f8f9fa;
-            padding: 12px 10px;
-            text-align: left;
-            color: #555;
-            font-weight: 700;
-            border-bottom: 2px solid #e0e0e0;
-            font-size: 12px;
-            white-space: nowrap;
-        }
-        .daily-table td {
-            padding: 10px;
-            border-bottom: 1px solid #f0f0f0;
-            color: #333;
-            font-size: 13px;
-        }
-        .daily-table tr:hover td { background: #f8f9fa; }
-        .daily-table .day-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            background: #667eea;
-            color: #fff;
+        .btn {
+            padding: 10px 20px;
+            border: none;
             border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5a67d8; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(102,126,234,0.4); }
+        .btn-success { background: #27ae60; color: white; }
+        .btn-success:hover { background: #219a52; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(39,174,96,0.4); }
+        .btn-success:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-warning { background: #f39c12; color: white; }
+        .btn-warning:hover { background: #d68910; transform: translateY(-2px); }
+        .btn-danger { background: #e74c3c; color: white; }
+        .btn-danger:hover { background: #c0392b; transform: translateY(-2px); }
+        .btn-secondary { background: #e2e8f0; color: #2d3748; }
+        .btn-secondary:hover { background: #cbd5e0; }
+        .btn-sm { padding: 5px 12px; font-size: 12px; }
+
+        /* ===== TABLE ===== */
+        .table-wrapper {
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 5px 0;
+            overflow: hidden;
+        }
+        .table-scroll { overflow-x: auto; overflow-y: auto; max-height: 500px; padding: 0 5px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1000px; }
+        table thead { position: sticky; top: 0; z-index: 10; }
+        table th {
+            text-align: left; padding: 12px 10px; background: #e9ecef; color: #333;
+            font-weight: 700; white-space: nowrap; font-size: 12px; border-bottom: 2px solid #dee2e6;
+        }
+        table td { padding: 10px; border-bottom: 1px solid #f0f0f0; color: #333; vertical-align: middle; }
+        table tbody tr:hover { background: #f8f9ff; }
+        table tbody tr:nth-child(even) { background: #fafafa; }
+        table tbody tr:nth-child(even):hover { background: #f0f2ff; }
+
+        .status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status.pending { background: #fff3cd; color: #856404; }
+        .status.approved { background: #d4edda; color: #155724; }
+
+        .checkbox-custom {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #e2e8f0;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .summary-footer {
+            background: #fff;
+            padding: 15px 25px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .summary-footer .total {
+            font-size: 20px;
             font-weight: 700;
-            font-size: 13px;
-            min-width: 40px;
-            text-align: center;
-        }
-        .daily-table .empty-day {
-            text-align: center;
-            padding: 30px;
-            color: #888;
-        }
-
-        /* ===== CHARTS ===== */
-        .charts-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-        .chart-card {
-            background: #fff;
-            border-radius: 15px;
-            padding: 22px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        .chart-card h3 {
             color: #1a1a2e;
-            font-size: 16px;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #f0f0f0;
         }
-        .chart-card h3 i { color: #667eea; margin-right: 8px; }
-        .chart-container { position: relative; height: 260px; }
+        .summary-footer .total span { color: #667eea; }
+        .summary-footer .count { font-size: 14px; color: #888; }
 
-        /* ===== RECENT SECTION ===== */
-        .content-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 20px;
-        }
-        .card {
+        /* ===== EXPENSE SECTION ===== */
+        .expense-section {
+            margin-top: 25px;
             background: #fff;
             border-radius: 15px;
-            padding: 22px;
+            padding: 20px 25px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
-        .card-header {
+        .expense-section .section-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -343,65 +225,41 @@
             padding-bottom: 10px;
             border-bottom: 2px solid #f0f0f0;
         }
-        .card-header h3 { font-size: 17px; color: #1a1a2e; margin: 0; }
-        .card-header h3 i { color: #667eea; margin-right: 8px; }
-        .view-all { color: #667eea; text-decoration: none; font-size: 13px; font-weight: 600; }
-
-        table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        table th { text-align: left; padding: 10px; background: #f8f9fa; color: #555; font-weight: 600; border-bottom: 2px solid #e0e0e0; font-size: 12px; }
-        table td { padding: 10px; border-bottom: 1px solid #f0f0f0; color: #333; font-size: 13px; }
-        table tr:hover td { background: #f8f9fa; }
-
-        .status { padding: 3px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block; }
-        .status.approved { background: #d4edda; color: #155724; }
-        .status.pending { background: #fff3cd; color: #856404; }
-        .status.completed { background: #cce5ff; color: #004085; }
-        .status.bad_debt { background: #f8d7da; color: #721c24; }
-
-        .notif-item {
-            display: flex; align-items: center; gap: 12px;
-            padding: 12px 0; border-bottom: 1px solid #f0f0f0;
+        .expense-section .section-header h3 {
+            color: #e74c3c;
+            font-size: 18px;
         }
-        .notif-item:last-child { border-bottom: none; }
-        .notif-item .notif-icon { font-size: 22px; width: 36px; text-align: center; }
-        .notif-item .notif-text { flex: 1; font-size: 13px; color: #333; }
-        .notif-item .notif-time { font-size: 11px; color: #aaa; white-space: nowrap; }
+        .expense-section .section-header h3 i { margin-right: 10px; }
 
-        .spinner {
-            display: inline-block; width: 30px; height: 30px;
-            border: 3px solid #e2e8f0; border-top: 3px solid #667eea;
-            border-radius: 50%; animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* ===== DAY DETAIL MODAL ===== */
-        .day-modal {
+        /* ===== MODAL ===== */
+        .modal-overlay {
             display: none;
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
             z-index: 9999;
             justify-content: center;
             align-items: center;
             padding: 20px;
         }
-        .day-modal.active { display: flex; }
-        .day-modal-box {
-            background: #fff;
+        .modal-overlay.active { display: flex; }
+        .modal-box {
+            background: white;
             border-radius: 16px;
             max-width: 500px;
             width: 100%;
-            padding: 25px;
+            padding: 30px;
             animation: modalSlide 0.3s ease;
-            max-height: 80vh;
-            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
         @keyframes modalSlide {
             from { opacity: 0; transform: translateY(-30px) scale(0.95); }
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
-        .day-modal-header {
+        .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -409,68 +267,148 @@
             padding-bottom: 15px;
             border-bottom: 2px solid #e2e8f0;
         }
-        .day-modal-header h3 { font-size: 18px; color: #1a1a2e; }
-        .day-modal-close {
+        .modal-header h3 { font-size: 20px; color: #2d3748; }
+        .modal-close {
             background: none; border: none; font-size: 28px;
-            cursor: pointer; color: #a0aec0;
+            cursor: pointer; color: #a0aec0; transition: all 0.3s; padding: 0 5px;
         }
-        .day-detail-item {
-            padding: 10px 12px;
-            background: #f8f9fa;
+        .modal-close:hover { color: #fc8181; transform: rotate(90deg); }
+        .modal-body .form-group { margin-bottom: 15px; }
+        .modal-body .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+        .modal-body .form-group label .required { color: #e74c3c; }
+        .modal-body .form-group input, .modal-body .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e2e8f0;
             border-radius: 8px;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 13px;
+            font-size: 14px;
+            font-family: 'Khmer OS','Noto Sans Khmer',Arial,sans-serif;
+            transition: all 0.3s; height: 44px;
         }
-        .day-detail-item .lbl { color: #666; }
-        .day-detail-item .val { font-weight: 700; color: #1a1a2e; }
+        .modal-body .form-group input:focus, .modal-body .form-group select:focus {
+            outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
 
-        @media (max-width: 992px) {
-            .charts-grid { grid-template-columns: 1fr; }
-            .content-grid { grid-template-columns: 1fr; }
+        /* ===== BADGE ===== */
+        .badge {
+            display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
         }
+        .badge-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .sidebar { width: 70px; padding: 15px 0; }
             .sidebar-brand h2, .sidebar-brand p, .menu-label,
-            .menu-item span:not(.icon) { display: none; }
+            .menu-item span:not(.icon), .menu-item .badge { display: none; }
             .sidebar-brand .logo { font-size: 28px; }
             .menu-item { padding: 15px 0; justify-content: center; }
             .menu-item .icon { margin-right: 0; font-size: 24px; }
             .main-content { margin-left: 70px; padding: 15px; }
-            .calendar-header { flex-direction: column; align-items: stretch; }
-            .calendar-controls { justify-content: center; }
+            .top-header h1 { font-size: 18px; }
+            .user-info .name, .user-info .role { display: none; }
+            .filter-bar { flex-direction: column; }
+            .filter-group { min-width: 100%; }
+            .filter-actions { width: 100%; }
+            .filter-actions .btn { flex: 1; justify-content: center; }
+            .summary-footer { flex-direction: column; text-align: center; }
+            .expense-section .section-header { flex-direction: column; gap: 10px; }
+            .modal-box { padding: 20px; margin: 10px; }
         }
+        .table-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+        .table-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .table-scroll::-webkit-scrollbar-thumb { background: #667eea; border-radius: 10px; }
+        .table-scroll::-webkit-scrollbar-thumb:hover { background: #764ba2; }
     </style>
 </head>
 <body>
 
+    <!-- ===== SIDEBAR ===== -->
     <nav class="sidebar">
         <div class="sidebar-brand">
             <span class="logo">🏦</span>
             <h2>កម្ចី<span>Plus</span></h2>
             <p>ប្រព័ន្ធគ្រប់គ្រងកម្ចី</p>
         </div>
+
         <div class="menu-label">មុខម្ហូប</div>
-        <a href="/dashboard" class="menu-item active"><span class="icon">📊</span><span>Dashboard</span></a>
-        <a href="/customers" class="menu-item"><span class="icon">👤</span><span>អតិថិជន</span></a>
-        <a href="/loans" class="menu-item"><span class="icon">💰</span><span>កម្ចី</span></a>
-        <a href="/loans/bad" class="menu-item"><span class="icon">⚠️</span><span>កម្ចីខូច</span></a>
-        <a href="/pawn" class="menu-item"><span class="icon">🏠</span><span>បញ្ចាំ</span></a>
-        <a href="/payments" class="menu-item"><span class="icon">📱</span><span>ទូរទាត់</span></a>
-        <a href="/collection" class="menu-item"><span class="icon">💵</span><span>ប្រមូលប្រាក់</span></a>
-        <a href="/disbursement" class="menu-item"><span class="icon">📢</span><span>បេឡា</span></a>
-        <a href="/reports" class="menu-item"><span class="icon">📈</span><span>របាយការណ៍</span></a>
-        <a href="/settings" class="menu-item"><span class="icon">⚙️</span><span>ការកំណត់</span></a>
-        <a href="/audit" class="menu-item"><span class="icon">📋</span><span>សវនៈកម្ម</span></a>
+
+        <a href="/dashboard" class="menu-item">
+            <span class="icon">📊</span>
+            <span>Dashboard</span>
+        </a>
+
+        <a href="/customers" class="menu-item">
+            <span class="icon">👤</span>
+            <span>អតិថិជន</span>
+        </a>
+
+        <a href="/loans" class="menu-item">
+            <span class="icon">💰</span>
+            <span>កម្ចី</span>
+        </a>
+
+        <a href="/loans/bad" class="menu-item">
+            <span class="icon">⚠️</span>
+            <span>កម្ចីខូច</span>
+        </a>
+
+        <a href="/pawn" class="menu-item">
+            <span class="icon">🏠</span>
+            <span>បញ្ចាំ</span>
+        </a>
+
+        <a href="/payments" class="menu-item">
+            <span class="icon">📱</span>
+            <span>ទូរទាត់</span>
+        </a>
+
+        <a href="/collection" class="menu-item">
+            <span class="icon">💵</span>
+            <span>ប្រមូលប្រាក់</span>
+        </a>
+
+        <a href="/disbursement" class="menu-item active">
+            <span class="icon">📢</span>
+            <span>បេឡា</span>
+        </a>
+
+        <a href="/reports" class="menu-item">
+            <span class="icon">📈</span>
+            <span>របាយការណ៍</span>
+        </a>
+
+        <a href="/settings" class="menu-item">
+            <span class="icon">⚙️</span>
+            <span>ការកំណត់</span>
+        </a>
+
+        <a href="/audit" class="menu-item">
+            <span class="icon">📋</span>
+            <span>សវនៈកម្ម</span>
+        </a>
     </nav>
 
+    <!-- ===== MAIN CONTENT ===== -->
     <div class="main-content">
+
         <div class="top-header">
-            <h1>📊 <span>Dashboard</span></h1>
+            <h1>📢 <span>បេឡា</span></h1>
             <div class="user-info">
                 <div>
-                    <div class="name">ស្វាគមន៍, <span>{{ username }}</span></div>
+                    <div class="name">ស្វាគមន៍, <span id="usernameDisplay">{{ username }}</span></div>
                     <div class="role">អ្នកគ្រប់គ្រងប្រព័ន្ធ</div>
                 </div>
                 <div class="avatar">{{ username[0] if username else 'អ' }}</div>
@@ -478,204 +416,113 @@
             </div>
         </div>
 
-        <!-- ===== MINI STATS ===== -->
-        <div class="mini-stats">
-            <div class="mini-stat">
-                <div class="num blue" id="miniLoans">0</div>
-                <div class="lbl">កម្ចីសរុប</div>
+        <!-- ===== FILTER BAR ===== -->
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label><i class="fas fa-user-tie"></i> មន្ត្រី CO</label>
+                <select id="filter_co_officer">
+                    <option value="">-- ទាំងអស់ --</option>
+                </select>
             </div>
-            <div class="mini-stat">
-                <div class="num green" id="miniActive">0</div>
-                <div class="lbl">កម្ចីសកម្ម</div>
+            <div class="filter-group">
+                <label><i class="fas fa-calendar-start"></i> ចាប់ពីថ្ងៃ</label>
+                <input type="date" id="filter_date_from">
             </div>
-            <div class="mini-stat">
-                <div class="num red" id="miniBad">0</div>
-                <div class="lbl">កម្ចីខូច</div>
+            <div class="filter-group">
+                <label><i class="fas fa-calendar-end"></i> ដល់ថ្ងៃ</label>
+                <input type="date" id="filter_date_to">
             </div>
-            <div class="mini-stat">
-                <div class="num orange" id="miniCustomers">0</div>
-                <div class="lbl">អតិថិជនសរុប</div>
-            </div>
-        </div>
-
-        <!-- ===== MAIN STATS (USD + KHR) ===== -->
-        <div class="stats-grid">
-            <div class="stat-card blue">
-                <div class="stat-header">
-                    <span class="stat-title">ទុនទំលាក់សរុប</span>
-                    <div class="stat-icon"><i class="fas fa-hand-holding-usd"></i></div>
-                </div>
-                <div class="stat-values">
-                    <div class="stat-value-item">
-                        <div class="currency">💵 USD</div>
-                        <div class="amount" id="disbUSD">$0.00</div>
-                    </div>
-                    <div class="stat-value-item">
-                        <div class="currency">🇰🇭 KHR</div>
-                        <div class="amount" id="disbKHR">៛ 0</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="stat-card green">
-                <div class="stat-header">
-                    <span class="stat-title">ការប្រាក់សរុប</span>
-                    <div class="stat-icon"><i class="fas fa-percentage"></i></div>
-                </div>
-                <div class="stat-values">
-                    <div class="stat-value-item">
-                        <div class="currency">💵 USD</div>
-                        <div class="amount" id="interestUSD">$0.00</div>
-                    </div>
-                    <div class="stat-value-item">
-                        <div class="currency">🇰🇭 KHR</div>
-                        <div class="amount" id="interestKHR">៛ 0</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="stat-card teal">
-                <div class="stat-header">
-                    <span class="stat-title">ទឹកប្រាក់សងសរុប</span>
-                    <div class="stat-icon"><i class="fas fa-money-bill-wave"></i></div>
-                </div>
-                <div class="stat-values">
-                    <div class="stat-value-item">
-                        <div class="currency">💵 USD</div>
-                        <div class="amount" id="collectUSD">$0.00</div>
-                    </div>
-                    <div class="stat-value-item">
-                        <div class="currency">🇰🇭 KHR</div>
-                        <div class="amount" id="collectKHR">៛ 0</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="stat-card red">
-                <div class="stat-header">
-                    <span class="stat-title">បំណុលសរុប (រួមការប្រាក់)</span>
-                    <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
-                </div>
-                <div class="stat-values">
-                    <div class="stat-value-item">
-                        <div class="currency">💵 USD</div>
-                        <div class="amount" id="debtUSD">$0.00</div>
-                    </div>
-                    <div class="stat-value-item">
-                        <div class="currency">🇰🇭 KHR</div>
-                        <div class="amount" id="debtKHR">៛ 0</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="stat-card orange">
-                <div class="stat-header">
-                    <span class="stat-title">ចំណាយសរុប</span>
-                    <div class="stat-icon"><i class="fas fa-arrow-down"></i></div>
-                </div>
-                <div class="stat-values">
-                    <div class="stat-value-item" style="grid-column: 1 / -1;">
-                        <div class="currency">💵 USD</div>
-                        <div class="amount" id="expenseTotal">$0.00</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="stat-card purple">
-                <div class="stat-header">
-                    <span class="stat-title">ចំណូលសុទ្ធ</span>
-                    <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
-                </div>
-                <div class="stat-values">
-                    <div class="stat-value-item" style="grid-column: 1 / -1;">
-                        <div class="currency">💵 USD</div>
-                        <div class="amount" id="netIncome">$0.00</div>
-                    </div>
-                </div>
+            <div class="filter-actions">
+                <button class="btn btn-primary" onclick="applyFilters()">
+                    <i class="fas fa-search"></i> ស្វែងរក
+                </button>
+                <button class="btn btn-warning" onclick="resetFilters()">
+                    <i class="fas fa-undo"></i> កំណត់ឡើងវិញ
+                </button>
             </div>
         </div>
 
-        <!-- ===== MONTH REPORT ===== -->
-        <div class="calendar-section">
-            <div class="calendar-header">
-                <h3><i class="fas fa-calendar-alt"></i> របាយការណ៍ប្រចាំខែ</h3>
-                <div class="calendar-controls">
-                    <button onclick="changeMonth(-1)" title="ខែមុន">
-                        <i class="fas fa-chevron-left"></i>
+        <!-- ===== TABLE ===== -->
+        <div class="table-wrapper">
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:40px;">
+                                <input type="checkbox" id="selectAll" onchange="toggleAllCheckboxes()" class="checkbox-custom">
+                            </th>
+                            <th>#</th>
+                            <th>លេខកម្ចី</th>
+                            <th>អតិថិជន</th>
+                            <th>មន្ត្រី CO</th>
+                            <th>ទឹកប្រាក់</th>
+                            <th>រូបិយប័ណ្ណ</th>
+                            <th>កាលបរិច្ឆេទ</th>
+                            <th>ស្ថានភាព</th>
+                        </tr>
+                    </thead>
+                    <tbody id="disbursementBody">
+                        <tr>
+                            <td colspan="9" style="text-align:center; padding:40px; color:#888;">
+                                <div class="spinner"></div>
+                                <p style="margin-top:8px;">កំពុងផ្ទុកទិន្នន័យ...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ===== SUMMARY FOOTER ===== -->
+        <div class="summary-footer">
+            <div>
+                <span class="count"><i class="fas fa-file-invoice"></i> ចំនួន: <strong id="totalCount">0</strong> ការទូរទាត់</span>
+            </div>
+            <div>
+                <span class="total"><i class="fas fa-money-bill-wave"></i> សរុបទឹកប្រាក់:
+                    <span id="totalAmountUSD">$0.00</span> |
+                    <span id="totalAmountKHR">៛ 0</span>
+                </span>
+            </div>
+            <div>
+                <button class="btn btn-success" id="approveBtn" onclick="approveSelected()" disabled>
+                    <i class="fas fa-check-circle"></i> អនុម័ត (Approve)
+                </button>
+            </div>
+        </div>
+
+        <!-- ===== EXPENSES SECTION ===== -->
+        <div class="expense-section">
+            <div class="section-header">
+                <h3><i class="fas fa-arrow-down"></i> បញ្ជីចំណាយ (Expenses)</h3>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <button class="btn btn-primary btn-sm" onclick="showExpenseForm()">
+                        <i class="fas fa-plus"></i> បន្ថែមចំណាយ
                     </button>
-                    <select id="monthSelect" onchange="loadCalendar()">
-                        <option value="1">មករា</option>
-                        <option value="2">កុម្ភៈ</option>
-                        <option value="3">មីនា</option>
-                        <option value="4">មេសា</option>
-                        <option value="5">ឧសភា</option>
-                        <option value="6">មិថុនា</option>
-                        <option value="7">កក្កដា</option>
-                        <option value="8">សីហា</option>
-                        <option value="9">កញ្ញា</option>
-                        <option value="10">តុលា</option>
-                        <option value="11">វិច្ឆិកា</option>
-                        <option value="12">ធ្នូ</option>
-                    </select>
-                    <select id="yearSelect" onchange="loadCalendar()"></select>
-                    <button onclick="changeMonth(1)" title="ខែបន្ទាប់">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
-                    <button onclick="setCurrentMonth()" style="background:#27ae60;" title="ខែបច្ចុប្បន្ន">
-                        <i class="fas fa-calendar-day"></i> ថ្ងៃនេះ
+                    <button class="btn btn-warning btn-sm" onclick="loadExpenses()">
+                        <i class="fas fa-sync"></i> បង្ហាញចំណាយ
                     </button>
                 </div>
             </div>
 
-            <div class="monthly-summary">
-                <div class="summary-item">
-                    <div class="lbl"><i class="fas fa-file-invoice"></i> កម្ចីក្នុងខែ</div>
-                    <div class="val blue" id="summaryLoanCount">0</div>
-                </div>
-                <div class="summary-item">
-                    <div class="lbl"><i class="fas fa-hand-holding-usd"></i> ទុនទំលាក់ (USD)</div>
-                    <div class="val blue" id="summaryLoanUSD">$0.00</div>
-                </div>
-                <div class="summary-item">
-                    <div class="lbl"><i class="fas fa-hand-holding-usd"></i> ទុនទំលាក់ (KHR)</div>
-                    <div class="val blue" id="summaryLoanKHR">៛ 0</div>
-                </div>
-                <div class="summary-item">
-                    <div class="lbl"><i class="fas fa-money-bill-wave"></i> ការប្រមូល (USD)</div>
-                    <div class="val green" id="summaryCollectUSD">$0.00</div>
-                </div>
-                <div class="summary-item">
-                    <div class="lbl"><i class="fas fa-money-bill-wave"></i> ការប្រមូល (KHR)</div>
-                    <div class="val green" id="summaryCollectKHR">៛ 0</div>
-                </div>
-                <div class="summary-item">
-                    <div class="lbl"><i class="fas fa-arrow-down"></i> ចំណាយ (USD)</div>
-                    <div class="val red" id="summaryExpense">$0.00</div>
-                </div>
-            </div>
-
-            <div style="margin-top:20px;">
-                <h4 style="font-size:14px; color:#667eea; margin-bottom:12px;">
-                    <i class="fas fa-list"></i> បំបែកតាមថ្ងៃ (ថ្ងៃដែលមានប្រតិបត្តិការ)
-                </h4>
-                <div class="table-responsive">
-                    <table class="daily-table">
+            <div class="table-wrapper">
+                <div class="table-scroll">
+                    <table>
                         <thead>
                             <tr>
-                                <th>ថ្ងៃទី</th>
-                                <th>កម្ចីថ្មី</th>
-                                <th>ទុនទំលាក់ (USD)</th>
-                                <th>ទុនទំលាក់ (KHR)</th>
-                                <th>ការប្រមូល (USD)</th>
-                                <th>ចំណាយ (USD)</th>
+                                <th>#</th>
+                                <th>ឈ្មោះ</th>
+                                <th>ប្រភេទ</th>
+                                <th>ទឹកប្រាក់</th>
+                                <th>កាលបរិច្ឆេទ</th>
+                                <th>កំណត់ចំណាំ</th>
                                 <th>សកម្មភាព</th>
                             </tr>
                         </thead>
-                        <tbody id="dailyBreakdownBody">
+                        <tbody id="expenseBody">
                             <tr>
-                                <td colspan="7" style="text-align:center; padding:30px; color:#888;">
-                                    <div class="spinner"></div>
-                                    <p style="margin-top:8px;">កំពុងផ្ទុក...</p>
+                                <td colspan="7" style="text-align:center; padding:20px; color:#888;">
+                                    <i class="fas fa-spinner fa-spin"></i> កំពុងផ្ទុក...
                                 </td>
                             </tr>
                         </tbody>
@@ -684,488 +531,530 @@
             </div>
         </div>
 
-        <!-- ===== CHARTS ===== -->
-        <div class="charts-grid">
-            <div class="chart-card">
-                <h3><i class="fas fa-chart-pie"></i> កម្ចីតាមស្ថានភាព</h3>
-                <div class="chart-container"><canvas id="loansByStatusChart"></canvas></div>
-            </div>
-            <div class="chart-card">
-                <h3><i class="fas fa-chart-bar"></i> ប្រៀបធៀប USD vs KHR</h3>
-                <div class="chart-container"><canvas id="currencyCompareChart"></canvas></div>
-            </div>
-            <div class="chart-card">
-                <h3><i class="fas fa-chart-line"></i> កម្ចីប្រចាំខែ (6 ខែ)</h3>
-                <div class="chart-container"><canvas id="monthlyLoansChart"></canvas></div>
-            </div>
-            <div class="chart-card">
-                <h3><i class="fas fa-chart-area"></i> ការប្រមូលប្រាក់ប្រចាំខែ</h3>
-                <div class="chart-container"><canvas id="monthlyCollectionsChart"></canvas></div>
-            </div>
-        </div>
-
-        <!-- ===== RECENT ===== -->
-        <div class="content-grid">
-            <div class="card">
-                <div class="card-header">
-                    <h3><i class="fas fa-file-invoice-dollar"></i> កម្ចីថ្មីៗ</h3>
-                    <a href="/loans" class="view-all">មើលទាំងអស់ →</a>
-                </div>
-                <div style="overflow-x: auto;">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>អតិថិជន</th>
-                                <th>ទឹកប្រាក់</th>
-                                <th>កាលបរិច្ឆេទ</th>
-                                <th>ស្ថានភាព</th>
-                            </tr>
-                        </thead>
-                        <tbody id="recentLoansBody">
-                            <tr><td colspan="4" style="text-align:center; padding:20px;"><div class="spinner"></div></td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <h3><i class="fas fa-bell"></i> សកម្មភាពថ្មីៗ</h3>
-                </div>
-                <div id="activityList">
-                    <div style="text-align:center; padding:20px;"><div class="spinner"></div></div>
-                </div>
-            </div>
-        </div>
     </div>
 
-    <!-- ===== DAY DETAIL MODAL ===== -->
-    <div class="day-modal" id="dayModal">
-        <div class="day-modal-box">
-            <div class="day-modal-header">
-                <h3 id="dayModalTitle">📅 ព័ត៌មានថ្ងៃ</h3>
-                <button class="day-modal-close" onclick="closeDayModal()">&times;</button>
+    <!-- ===== EXPENSE MODAL ===== -->
+    <div class="modal-overlay" id="expenseModal">
+        <div class="modal-box">
+            <div class="modal-header" style="border-bottom-color:#e74c3c;">
+                <h3 style="color:#e74c3c;"><i class="fas fa-arrow-down"></i> <span id="expenseModalTitle">បន្ថែមចំណាយ</span></h3>
+                <button class="modal-close" onclick="closeExpenseModal()">&times;</button>
             </div>
-            <div id="dayModalBody"></div>
+            <div class="modal-body">
+                <form id="expenseForm" onsubmit="saveExpense(event)">
+                    <input type="hidden" id="expense_id" value="">
+
+                    <div class="form-group">
+                        <label>ឈ្មោះចំណាយ <span class="required">*</span></label>
+                        <input type="text" id="expense_name" required placeholder="ឧ. ថ្លៃអគ្គិសនី">
+                    </div>
+
+                    <div class="form-group">
+                        <label>ទឹកប្រាក់ <span class="required">*</span></label>
+                        <input type="number" id="expense_amount" step="0.01" required placeholder="0.00">
+                    </div>
+
+                    <div class="form-group">
+                        <label>ប្រភេទ</label>
+                        <select id="expense_category">
+                            <option value="">-- ជ្រើសរើស --</option>
+                            <option value="ថ្លៃអគ្គិសនី">ថ្លៃអគ្គិសនី</option>
+                            <option value="ថ្លៃទឹក">ថ្លៃទឹក</option>
+                            <option value="ថ្លៃអ៊ីនធឺណិត">ថ្លៃអ៊ីនធឺណិត</option>
+                            <option value="ប្រាក់ខែ">ប្រាក់ខែ</option>
+                            <option value="ថ្លៃជួល">ថ្លៃជួល</option>
+                            <option value="សម្ភារៈការិយាល័យ">សម្ភារៈការិយាល័យ</option>
+                            <option value="ថ្លៃដឹកជញ្ជូន">ថ្លៃដឹកជញ្ជូន</option>
+                            <option value="អាហារ">អាហារ</option>
+                            <option value="ផ្សេងៗ">ផ្សេងៗ</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>កាលបរិច្ឆេទ</label>
+                        <input type="date" id="expense_date">
+                    </div>
+
+                    <div class="form-group">
+                        <label>កំណត់ចំណាំ</label>
+                        <input type="text" id="expense_description" placeholder="កំណត់ចំណាំបន្ថែម...">
+                    </div>
+
+                    <div style="display:flex; gap:10px; margin-top:20px;">
+                        <button type="submit" class="btn btn-primary" style="flex:1; justify-content:center; padding:12px; background:#e74c3c;">
+                            <i class="fas fa-save"></i> រក្សាទុក
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="closeExpenseModal()" style="flex:1; justify-content:center; padding:12px;">
+                            <i class="fas fa-times"></i> បោះបង់
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
     <script>
-        let currentYear = new Date().getFullYear();
-        let currentMonth = new Date().getMonth() + 1;
+        // ============================================================
+        // ===== DISBURSEMENT FUNCTIONS =====
+        // ============================================================
 
-        let loansByStatusChart, currencyCompareChart, monthlyLoansChart, monthlyCollectionsChart;
+        let allPayments = [];
+        let filteredPayments = [];
+        let selectedIds = new Set();
 
         // ===== FORMAT CURRENCY =====
-        function fmtCurrency(amount, currency) {
-            if (amount === null || amount === undefined) amount = 0;
+        function formatCurrency(amount, currency) {
+            if (amount === null || amount === undefined || isNaN(amount)) return currency === 'KHR' ? '៛ 0' : '$ 0.00';
             if (currency === 'KHR') {
-                return '៛ ' + (Math.round(amount / 100) * 100).toLocaleString('en-US');
+                const rounded = Math.round(amount / 100) * 100;
+                return '៛ ' + rounded.toLocaleString('en-US');
             } else {
-                return '$ ' + amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                return '$ ' + amount.toFixed(2);
             }
         }
 
-        // ===== INIT YEAR SELECT =====
-        function initYearSelect() {
-            const select = document.getElementById('yearSelect');
-            const y = new Date().getFullYear();
-            for (let year = y - 3; year <= y + 2; year++) {
-                const opt = document.createElement('option');
-                opt.value = year;
-                opt.textContent = year;
-                if (year === y) opt.selected = true;
-                select.appendChild(opt);
-            }
-        }
-
-        // ===== LOAD FULL STATS =====
-        async function loadFullStats() {
+        // ===== LOAD OFFICERS FOR FILTER =====
+        async function loadOfficers() {
             try {
-                const res = await fetch('/api/dashboard_full_stats');
-                if (!res.ok) throw new Error('Failed');
-                const s = await res.json();
+                const response = await fetch('/api/officers');
+                if (!response.ok) throw new Error('Failed to load officers');
+                const officers = await response.json();
 
-                document.getElementById('miniLoans').textContent = s.total_loans || 0;
-                document.getElementById('miniActive').textContent = s.active_loans || 0;
-                document.getElementById('miniBad').textContent = s.bad_loans || 0;
-                document.getElementById('miniCustomers').textContent = s.total_customers || 0;
-
-                document.getElementById('disbUSD').textContent = fmtCurrency(s.total_disbursement_usd, 'USD');
-                document.getElementById('disbKHR').textContent = fmtCurrency(s.total_disbursement_khr, 'KHR');
-                document.getElementById('interestUSD').textContent = fmtCurrency(s.total_interest_usd, 'USD');
-                document.getElementById('interestKHR').textContent = fmtCurrency(s.total_interest_khr, 'KHR');
-                document.getElementById('collectUSD').textContent = fmtCurrency(s.total_collection_usd, 'USD');
-                document.getElementById('collectKHR').textContent = fmtCurrency(s.total_collection_khr, 'KHR');
-                document.getElementById('debtUSD').textContent = fmtCurrency(s.total_debt_usd, 'USD');
-                document.getElementById('debtKHR').textContent = fmtCurrency(s.total_debt_khr, 'KHR');
-                document.getElementById('expenseTotal').textContent = fmtCurrency(s.total_expense, 'USD');
-
-                const net = s.net_income || 0;
-                const netEl = document.getElementById('netIncome');
-                netEl.textContent = fmtCurrency(net, 'USD');
-                netEl.style.color = net >= 0 ? '#27ae60' : '#e74c3c';
+                const select = document.getElementById('filter_co_officer');
+                select.innerHTML = '<option value="">-- ទាំងអស់ --</option>';
+                officers.forEach(officer => {
+                    const option = document.createElement('option');
+                    option.value = officer.name;
+                    option.textContent = `${officer.code} - ${officer.name}`;
+                    select.appendChild(option);
+                });
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Error loading officers:', error);
             }
         }
 
-        // ===== LOAD RECENT LOANS =====
-        async function loadRecentLoans() {
-            const tbody = document.getElementById('recentLoansBody');
+        // ===== LOAD DISBURSEMENT DATA =====
+        async function loadDisbursement() {
+            const tbody = document.getElementById('disbursementBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="9" style="text-align:center; padding:40px; color:#888;">
+                        <div class="spinner"></div>
+                        <p style="margin-top:8px;">កំពុងផ្ទុកទិន្នន័យ...</p>
+                    </td>
+                </tr>
+            `;
+
             try {
-                const res = await fetch('/api/loans?page=1&per_page=10');
-                if (!res.ok) throw new Error('Failed');
-                const loans = await res.json();
-
-                if (!loans || loans.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px; color:#888;">📭 មិនមានកម្ចី</td></tr>`;
-                    return;
-                }
-
-                const statusMap = {
-                    'Approved': '<span class="status approved">សកម្ម</span>',
-                    'Pending': '<span class="status pending">រង់ចាំ</span>',
-                    'Completed': '<span class="status completed">រួចរាល់</span>',
-                    'Bad Debt': '<span class="status bad_debt">កម្ចីខូច</span>'
-                };
-
-                tbody.innerHTML = loans.map(loan => `
+                const response = await fetch('/api/disbursement');
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+                allPayments = data;
+                filteredPayments = [...allPayments];
+                renderTable(filteredPayments);
+                updateSummary(filteredPayments);
+            } catch (error) {
+                console.error('Error loading disbursement:', error);
+                tbody.innerHTML = `
                     <tr>
-                        <td>${loan.customer_name || 'មិនស្គាល់'}</td>
-                        <td>${fmtCurrency(loan.loan_amount || 0, loan.currency || 'USD')}</td>
-                        <td>${loan.loan_date || '-'}</td>
-                        <td>${statusMap[loan.status] || loan.status}</td>
+                        <td colspan="9" style="text-align:center; padding:40px; color:#e74c3c;">
+                            <i class="fas fa-exclamation-circle" style="font-size:48px; display:block; margin-bottom:10px;"></i>
+                            មានបញ្ហាក្នុងការផ្ទុកទិន្នន័យ<br>
+                            <small style="color:#888;">${error.message}</small>
+                        </td>
                     </tr>
-                `).join('');
-            } catch (error) {
-                console.error('Error:', error);
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px; color:#e74c3c;">❌ មានបញ្ហា</td></tr>`;
-            }
-        }
-
-        // ===== LOAD ACTIVITIES =====
-        async function loadActivities() {
-            const container = document.getElementById('activityList');
-            try {
-                const res = await fetch('/api/activities');
-                if (!res.ok) throw new Error('Failed');
-                const activities = await res.json();
-
-                if (!activities || activities.length === 0) {
-                    container.innerHTML = `<div style="text-align:center; padding:20px; color:#888;">📭 មិនមានសកម្មភាព</div>`;
-                    return;
-                }
-
-                container.innerHTML = activities.slice(0, 5).map(a => {
-                    let text = a.description || a.action;
-                    if (text.length > 50) text = text.substring(0, 50) + '...';
-                    return `
-                        <div class="notif-item">
-                            <span class="notif-icon">${getIcon(a.action)}</span>
-                            <span class="notif-text">${text}</span>
-                            <span class="notif-time">${fmtTime(a.created_at)}</span>
-                        </div>
-                    `;
-                }).join('');
-            } catch (error) {
-                console.error('Error:', error);
-                container.innerHTML = `<div style="text-align:center; padding:20px; color:#888;">📭 មិនមានសកម្មភាព</div>`;
-            }
-        }
-
-        function getIcon(action) {
-            const icons = {
-                'create': '➕', 'create_customer': '👤', 'create_loan': '💰',
-                'update': '✏️', 'update_customer': '✏️', 'update_loan': '✏️',
-                'delete': '🗑️', 'collection_payment': '✅', 'update_loan_status': '🔄',
-                'approve': '✔️', 'reject': '❌', 'change_co': '👔',
-                'create_expense': '💸', 'delete_expense': '🗑️'
-            };
-            return icons[action] || '📌';
-        }
-
-        function fmtTime(ts) {
-            if (!ts) return 'ថ្មីៗ';
-            try {
-                const date = new Date(ts);
-                const diff = Math.floor((new Date() - date) / 1000);
-                if (diff < 60) return 'ថ្មីៗ';
-                if (diff < 3600) return Math.floor(diff / 60) + ' នាទី';
-                if (diff < 86400) return Math.floor(diff / 3600) + ' ម៉ោង';
-                return Math.floor(diff / 86400) + ' ថ្ងៃ';
-            } catch { return ts; }
-        }
-
-        // ===== CALENDAR / MONTH REPORT =====
-        function changeMonth(delta) {
-            currentMonth += delta;
-            if (currentMonth > 12) { currentMonth = 1; currentYear++; }
-            if (currentMonth < 1) { currentMonth = 12; currentYear--; }
-            document.getElementById('monthSelect').value = currentMonth;
-            document.getElementById('yearSelect').value = currentYear;
-            loadCalendar();
-        }
-
-        function setCurrentMonth() {
-            const now = new Date();
-            currentYear = now.getFullYear();
-            currentMonth = now.getMonth() + 1;
-            document.getElementById('monthSelect').value = currentMonth;
-            document.getElementById('yearSelect').value = currentYear;
-            loadCalendar();
-        }
-
-        async function loadCalendar() {
-            currentMonth = parseInt(document.getElementById('monthSelect').value);
-            currentYear = parseInt(document.getElementById('yearSelect').value);
-
-            try {
-                const res = await fetch(`/api/calendar_data?year=${currentYear}&month=${currentMonth}`);
-                if (!res.ok) throw new Error('Failed');
-                const data = await res.json();
-                renderMonthlySummary(data.summary);
-                renderDailyBreakdown(data.days);
-            } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('dailyBreakdownBody').innerHTML = `
-                    <tr><td colspan="7" style="text-align:center; padding:30px; color:#e74c3c;">❌ មានបញ្ហាក្នុងការផ្ទុកទិន្នន័យ</td></tr>
                 `;
             }
         }
 
-        function renderMonthlySummary(summary) {
-            document.getElementById('summaryLoanCount').textContent = summary.total_loans || 0;
-            document.getElementById('summaryLoanUSD').textContent = fmtCurrency(summary.total_loans_usd || 0, 'USD');
-            document.getElementById('summaryLoanKHR').textContent = fmtCurrency(summary.total_loans_khr || 0, 'KHR');
-            document.getElementById('summaryCollectUSD').textContent = fmtCurrency(summary.total_collections_usd || summary.total_collections || 0, 'USD');
-            document.getElementById('summaryCollectKHR').textContent = fmtCurrency(summary.total_collections_khr || 0, 'KHR');
-            document.getElementById('summaryExpense').textContent = fmtCurrency(summary.total_expenses || 0, 'USD');
-        }
+        // ===== RENDER TABLE =====
+        function renderTable(data) {
+            const tbody = document.getElementById('disbursementBody');
+            tbody.innerHTML = '';
 
-        function renderDailyBreakdown(days) {
-            const tbody = document.getElementById('dailyBreakdownBody');
-
-            const activeDays = days.filter(d =>
-                d.loans_count > 0 ||
-                d.collections_usd > 0 ||
-                d.collections_khr > 0 ||
-                d.expenses > 0 ||
-                (d.events && d.events.length > 0)
-            );
-
-            if (activeDays.length === 0) {
+            if (!data || data.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="7" class="empty-day">
-                            <i class="fas fa-inbox" style="font-size:40px; display:block; margin-bottom:10px; color:#e2e8f0;"></i>
-                            📭 មិនមានប្រតិបត្តិការក្នុងខែនេះ
+                        <td colspan="9" style="text-align:center; padding:40px; color:#888;">
+                            <i class="fas fa-receipt" style="font-size:48px; display:block; margin-bottom:10px;"></i>
+                            មិនមានការទូរទាត់ដែលកំពុងរង់ចាំ
                         </td>
                     </tr>
                 `;
                 return;
             }
 
-            tbody.innerHTML = activeDays.map(day => `
-                <tr>
-                    <td><span class="day-badge">${day.day}</span></td>
-                    <td>${day.loans_count > 0 ? `<strong style="color:#27ae60;">${day.loans_count} កម្ចី</strong>` : '-'}</td>
-                    <td>${day.loans_amount_usd > 0 ? `<strong style="color:#3498db;">${fmtCurrency(day.loans_amount_usd, 'USD')}</strong>` : '-'}</td>
-                    <td>${day.loans_amount_khr > 0 ? `<strong style="color:#f39c12;">${fmtCurrency(day.loans_amount_khr, 'KHR')}</strong>` : '-'}</td>
-                    <td>${day.collections_usd > 0 ? `<strong style="color:#27ae60;">${fmtCurrency(day.collections_usd, 'USD')}</strong>` : '-'}</td>
-                    <td>${day.expenses > 0 ? `<strong style="color:#e74c3c;">${fmtCurrency(day.expenses, 'USD')}</strong>` : '-'}</td>
+            data.forEach((item, index) => {
+                const isPending = item.status === 'Pending' || !item.status;
+                const row = document.createElement('tr');
+                const currency = item.currency || 'USD';
+                const amount = item.amount || 0;
+
+                let formattedAmount = '';
+                if (currency === 'KHR') {
+                    const rounded = Math.round(amount / 100) * 100;
+                    formattedAmount = '៛ ' + rounded.toLocaleString('en-US');
+                } else {
+                    formattedAmount = '$ ' + amount.toFixed(2);
+                }
+
+                row.innerHTML = `
                     <td>
-                        <button onclick='openDayModal(${JSON.stringify(day).replace(/'/g, "\\'")})'
-                                style="background:#667eea; color:#fff; border:none; padding:5px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-family:inherit;">
-                            <i class="fas fa-eye"></i> មើល
-                        </button>
+                        ${isPending ? `<input type="checkbox" class="checkbox-custom row-checkbox" data-id="${item.id}" onchange="updateSelected()">` : '-'}
                     </td>
-                </tr>
-            `).join('');
+                    <td>${index + 1}</td>
+                    <td><strong>${item.loan_code || '-'}</strong></td>
+                    <td>${item.customer_name || '-'}</td>
+                    <td>${item.co_officer || '-'}</td>
+                    <td><strong style="color:#27ae60;">${formattedAmount}</strong></td>
+                    <td><span class="badge ${currency === 'KHR' ? 'badge-warning' : 'badge-info'}">${currency}</span></td>
+                    <td>${item.created_at || '-'}</td>
+                    <td>
+                        ${isPending
+                            ? '<span class="status pending"><i class="fas fa-clock"></i> កំពុងរង់ចាំ</span>'
+                            : '<span class="status approved"><i class="fas fa-check-circle"></i> បានអនុម័ត</span>'
+                        }
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
         }
 
-        function openDayModal(day) {
-            const modal = document.getElementById('dayModal');
-            document.getElementById('dayModalTitle').textContent = `📅 ថ្ងៃទី ${day.day} / ${currentMonth} / ${currentYear}`;
+        // ===== TOGGLE ALL CHECKBOXES =====
+        function toggleAllCheckboxes() {
+            const selectAll = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            checkboxes.forEach(cb => {
+                cb.checked = selectAll.checked;
+            });
+            updateSelected();
+        }
 
-            let html = '';
+        // ===== UPDATE SELECTED IDs =====
+        function updateSelected() {
+            selectedIds.clear();
+            document.querySelectorAll('.row-checkbox:checked').forEach(cb => {
+                selectedIds.add(parseInt(cb.dataset.id));
+            });
+            document.getElementById('approveBtn').disabled = selectedIds.size === 0;
+        }
 
-            if (day.loans_count > 0) {
-                html += `<div class="day-detail-item"><span class="lbl">💰 កម្ចីថ្មី</span><span class="val">${day.loans_count} កម្ចី</span></div>`;
-            }
-            if (day.loans_amount_usd > 0) {
-                html += `<div class="day-detail-item"><span class="lbl">💵 ទុនទំលាក់ (USD)</span><span class="val" style="color:#3498db;">${fmtCurrency(day.loans_amount_usd, 'USD')}</span></div>`;
-            }
-            if (day.loans_amount_khr > 0) {
-                html += `<div class="day-detail-item"><span class="lbl">🇰🇭 ទុនទំលាក់ (KHR)</span><span class="val" style="color:#f39c12;">${fmtCurrency(day.loans_amount_khr, 'KHR')}</span></div>`;
-            }
-            if (day.collections_usd > 0) {
-                html += `<div class="day-detail-item"><span class="lbl">✅ ការប្រមូល (USD)</span><span class="val" style="color:#27ae60;">${fmtCurrency(day.collections_usd, 'USD')}</span></div>`;
-            }
-            if (day.collections_khr > 0) {
-                html += `<div class="day-detail-item"><span class="lbl">✅ ការប្រមូល (KHR)</span><span class="val" style="color:#27ae60;">${fmtCurrency(day.collections_khr, 'KHR')}</span></div>`;
-            }
-            if (day.expenses > 0) {
-                html += `<div class="day-detail-item"><span class="lbl">💸 ចំណាយ</span><span class="val" style="color:#e74c3c;">${fmtCurrency(day.expenses, 'USD')}</span></div>`;
-            }
+        // ===== UPDATE SUMMARY =====
+        function updateSummary(data) {
+            let totalUSD = 0;
+            let totalKHR = 0;
+            let count = 0;
 
-            if (day.events && day.events.length > 0) {
-                html += `<div style="margin-top:15px; padding-top:15px; border-top:1px solid #e2e8f0;">
-                    <strong style="color:#667eea; display:block; margin-bottom:10px;">
-                        <i class="fas fa-list"></i> ព្រឹត្តិការណ៍:
-                    </strong>
-                </div>`;
-                day.events.forEach(e => {
-                    if (e.type === 'loan') {
-                        html += `<div class="day-detail-item"><span class="lbl">💰 ${e.code}</span><span class="val">${fmtCurrency(e.amount, e.currency)}</span></div>`;
-                    } else if (e.type === 'expense') {
-                        html += `<div class="day-detail-item"><span class="lbl">💸 ${e.name}</span><span class="val" style="color:#e74c3c;">${fmtCurrency(e.amount, 'USD')}</span></div>`;
+            data.forEach(item => {
+                if (item.status === 'Pending' || !item.status) {
+                    const amount = item.amount || 0;
+                    const currency = item.currency || 'USD';
+
+                    if (currency === 'KHR') {
+                        totalKHR += amount;
+                    } else {
+                        totalUSD += amount;
                     }
-                });
-            }
+                    count++;
+                }
+            });
 
-            if (html === '') {
-                html = '<div style="text-align:center; padding:20px; color:#888;">📭 គ្មានប្រតិបត្តិការ</div>';
-            }
+            document.getElementById('totalCount').textContent = count;
+            document.getElementById('totalAmountUSD').textContent = '$ ' + totalUSD.toFixed(2);
 
-            document.getElementById('dayModalBody').innerHTML = html;
-            modal.classList.add('active');
+            const roundedKHR = Math.round(totalKHR / 100) * 100;
+            document.getElementById('totalAmountKHR').textContent = '៛ ' + roundedKHR.toLocaleString('en-US');
         }
 
-        function closeDayModal() {
-            document.getElementById('dayModal').classList.remove('active');
+        // ===== APPLY FILTERS =====
+        function applyFilters() {
+            const coOfficer = document.getElementById('filter_co_officer').value;
+            const dateFrom = document.getElementById('filter_date_from').value;
+            const dateTo = document.getElementById('filter_date_to').value;
+
+            filteredPayments = allPayments.filter(item => {
+                if (coOfficer && item.co_officer !== coOfficer) return false;
+                if (dateFrom && item.created_at) {
+                    const itemDate = item.created_at.split(' ')[0];
+                    if (itemDate < dateFrom) return false;
+                }
+                if (dateTo && item.created_at) {
+                    const itemDate = item.created_at.split(' ')[0];
+                    if (itemDate > dateTo) return false;
+                }
+                return true;
+            });
+
+            renderTable(filteredPayments);
+            updateSummary(filteredPayments);
+            document.getElementById('selectAll').checked = false;
+            selectedIds.clear();
+            document.getElementById('approveBtn').disabled = true;
         }
 
-        // ===== LOAD CHARTS =====
-        async function loadCharts() {
+        // ===== RESET FILTERS =====
+        function resetFilters() {
+            document.getElementById('filter_co_officer').value = '';
+            document.getElementById('filter_date_from').value = '';
+            document.getElementById('filter_date_to').value = '';
+            filteredPayments = [...allPayments];
+            renderTable(filteredPayments);
+            updateSummary(filteredPayments);
+            document.getElementById('selectAll').checked = false;
+            selectedIds.clear();
+            document.getElementById('approveBtn').disabled = true;
+        }
+
+        // ===== APPROVE SELECTED =====
+        async function approveSelected() {
+            if (selectedIds.size === 0) {
+                alert('សូមជ្រើសរើសការទូរទាត់យ៉ាងហោចណាស់មួយ!');
+                return;
+            }
+
+            if (!confirm(`តើអ្នកចង់អនុម័តការទូរទាត់ចំនួន ${selectedIds.size} នេះមែនទេ?`)) {
+                return;
+            }
+
+            const approveBtn = document.getElementById('approveBtn');
+            const originalText = approveBtn.innerHTML;
+            approveBtn.disabled = true;
+            approveBtn.innerHTML = '⏳ កំពុងដំណើរការ...';
+
             try {
-                const res = await fetch('/api/dashboard_charts');
-                if (!res.ok) throw new Error('Failed');
-                const data = await res.json();
-
-                // ===== Chart 1: Loans by Status =====
-                const statusLabels = {
-                    'Approved': 'សកម្ម', 'Pending': 'រង់ចាំ',
-                    'Completed': 'រួចរាល់', 'Bad Debt': 'កម្ចីខូច', 'Rejected': 'បដិសេធ'
-                };
-                const statusData = data.loans_by_status || {};
-                const statusKeys = Object.keys(statusData);
-
-                if (loansByStatusChart) loansByStatusChart.destroy();
-                loansByStatusChart = new Chart(document.getElementById('loansByStatusChart'), {
-                    type: 'doughnut',
-                    data: {
-                        labels: statusKeys.map(k => statusLabels[k] || k),
-                        datasets: [{
-                            data: statusKeys.map(k => statusData[k]),
-                            backgroundColor: ['#27ae60', '#f39c12', '#3498db', '#e74c3c', '#95a5a6'],
-                            borderWidth: 2, borderColor: '#fff'
-                        }]
-                    },
-                    options: {
-                        responsive: true, maintainAspectRatio: false,
-                        plugins: { legend: { position: 'bottom' } }
-                    }
+                const response = await fetch('/api/approve_disbursement', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        activity_ids: Array.from(selectedIds)
+                    })
                 });
 
-                // ===== Chart 2: Currency Comparison =====
-                if (currencyCompareChart) currencyCompareChart.destroy();
-                currencyCompareChart = new Chart(document.getElementById('currencyCompareChart'), {
-                    type: 'bar',
-                    data: {
-                        labels: ['USD', 'KHR'],
-                        datasets: [{
-                            label: 'ទុនទំលាក់',
-                            data: [
-                                data.loans_by_currency?.USD?.total || 0,
-                                data.loans_by_currency?.KHR?.total || 0
-                            ],
-                            backgroundColor: ['#3498db', '#f39c12'],
-                            borderRadius: 8
-                        }]
-                    },
-                    options: {
-                        responsive: true, maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: { y: { beginAtZero: true } }
-                    }
-                });
+                const result = await response.json();
 
-                // ===== Chart 3: Monthly Loans =====
-                const monthlyLoans = data.monthly_loans || [];
-                if (monthlyLoansChart) monthlyLoansChart.destroy();
-                monthlyLoansChart = new Chart(document.getElementById('monthlyLoansChart'), {
-                    type: 'line',
-                    data: {
-                        labels: monthlyLoans.map(m => m.month),
-                        datasets: [{
-                            label: 'ចំនួនកម្ចី',
-                            data: monthlyLoans.map(m => m.count),
-                            borderColor: '#667eea',
-                            backgroundColor: 'rgba(102,126,234,0.1)',
-                            tension: 0.4, fill: true, pointRadius: 5
-                        }]
-                    },
-                    options: {
-                        responsive: true, maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
-                    }
-                });
-
-                // ===== Chart 4: Monthly Collections =====
-                const monthlyCols = data.monthly_collections || [];
-                if (monthlyCollectionsChart) monthlyCollectionsChart.destroy();
-                monthlyCollectionsChart = new Chart(document.getElementById('monthlyCollectionsChart'), {
-                    type: 'line',
-                    data: {
-                        labels: monthlyCols.map(m => m.month),
-                        datasets: [{
-                            label: 'ការប្រមូល',
-                            data: monthlyCols.map(m => m.total),
-                            borderColor: '#27ae60',
-                            backgroundColor: 'rgba(39,174,96,0.1)',
-                            tension: 0.4, fill: true, pointRadius: 5
-                        }]
-                    },
-                    options: {
-                        responsive: true, maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: { y: { beginAtZero: true } }
-                    }
-                });
-
+                if (result.success) {
+                    alert(`✅ បានអនុម័តការទូរទាត់ចំនួន ${result.approved_count} រួចរាល់!`);
+                    selectedIds.clear();
+                    document.getElementById('approveBtn').disabled = true;
+                    document.getElementById('selectAll').checked = false;
+                    loadDisbursement();
+                } else {
+                    alert('❌ ' + (result.error || 'មានបញ្ហា!'));
+                }
             } catch (error) {
                 console.error('Error:', error);
+                alert('❌ មានបញ្ហាក្នុងការភ្ជាប់ទៅម៉ាស៊ីនមេ!');
+            } finally {
+                approveBtn.disabled = false;
+                approveBtn.innerHTML = originalText;
             }
         }
 
-        // ===== MODAL CLOSE =====
-        document.getElementById('dayModal').addEventListener('click', function(e) {
-            if (e.target === this) closeDayModal();
+        // ============================================================
+        // ===== EXPENSES FUNCTIONS =====
+        // ============================================================
+
+        // ===== LOAD EXPENSES =====
+        async function loadExpenses() {
+            const tbody = document.getElementById('expenseBody');
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:20px; color:#888;">
+                <i class="fas fa-spinner fa-spin"></i> កំពុងផ្ទុក...
+            </td></tr>`;
+
+            try {
+                const response = await fetch('/api/expenses');
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const expenses = await response.json();
+
+                if (!Array.isArray(expenses)) {
+                    throw new Error('ទិន្នន័យមិនត្រឹមត្រូវ');
+                }
+
+                if (expenses.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color:#888;">
+                        <i class="fas fa-inbox" style="font-size:32px; display:block; margin-bottom:10px;"></i>
+                        មិនមានចំណាយ
+                    </td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = expenses.map((exp, index) => `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td><strong>${exp.name || '-'}</strong></td>
+                        <td><span class="badge badge-warning">${exp.category || '-'}</span></td>
+                        <td><strong style="color:#e74c3c;">${formatCurrency(exp.amount || 0, 'USD')}</strong></td>
+                        <td>${exp.expense_date || '-'}</td>
+                        <td>${exp.description || '-'}</td>
+                        <td>
+                            <button class="btn btn-primary btn-sm" onclick="editExpense(${exp.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteExpense(${exp.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+
+            } catch (error) {
+                console.error('Error loading expenses:', error);
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align:center; padding:30px; color:#e74c3c;">
+                            <i class="fas fa-exclamation-circle" style="font-size:32px; display:block; margin-bottom:10px;"></i>
+                            ❌ ${error.message || 'មានបញ្ហាក្នុងការផ្ទុកទិន្នន័យ'}
+                            <br>
+                            <small style="color:#888; font-size:12px;">សូមពិនិត្យមើល Connection ឬ Reload ទំព័រ</small>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // ===== SHOW EXPENSE FORM =====
+        function showExpenseForm() {
+            document.getElementById('expense_id').value = '';
+            document.getElementById('expenseForm').reset();
+            document.getElementById('expenseModalTitle').textContent = 'បន្ថែមចំណាយ';
+
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('expense_date').value = today;
+
+            document.getElementById('expenseModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // ===== EDIT EXPENSE =====
+        async function editExpense(expenseId) {
+            try {
+                const response = await fetch(`/api/expenses/${expenseId}`);
+                if (!response.ok) throw new Error('Network error');
+                const exp = await response.json();
+
+                document.getElementById('expense_id').value = exp.id;
+                document.getElementById('expense_name').value = exp.name;
+                document.getElementById('expense_amount').value = exp.amount;
+                document.getElementById('expense_category').value = exp.category || '';
+                document.getElementById('expense_date').value = exp.expense_date || '';
+                document.getElementById('expense_description').value = exp.description || '';
+                document.getElementById('expenseModalTitle').textContent = 'កែប្រែចំណាយ';
+
+                document.getElementById('expenseModal').classList.add('active');
+                document.body.style.overflow = 'hidden';
+
+            } catch (error) {
+                console.error('Error loading expense:', error);
+                alert('❌ មានបញ្ហាក្នុងការផ្ទុកទិន្នន័យ!');
+            }
+        }
+
+        // ===== SAVE EXPENSE =====
+        async function saveExpense(event) {
+            event.preventDefault();
+
+            const id = document.getElementById('expense_id').value;
+            const data = {
+                name: document.getElementById('expense_name').value.trim(),
+                amount: parseFloat(document.getElementById('expense_amount').value),
+                category: document.getElementById('expense_category').value,
+                expense_date: document.getElementById('expense_date').value,
+                description: document.getElementById('expense_description').value.trim()
+            };
+
+            if (!data.name || !data.amount) {
+                alert('សូមបំពេញឈ្មោះ និងចំនួនទឹកប្រាក់!');
+                return;
+            }
+
+            const submitBtn = document.querySelector('#expenseForm button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '⏳ កំពុងដំណើរការ...';
+
+            try {
+                const url = id ? `/api/expenses/${id}` : '/api/expenses';
+                const method = id ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('✅ ' + (id ? 'កែប្រែចំណាយជោគជ័យ!' : 'បន្ថែមចំណាយជោគជ័យ!'));
+                    closeExpenseModal();
+                    loadExpenses();
+                } else {
+                    alert('❌ ' + (result.error || 'មានបញ្ហា!'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ មានបញ្ហាក្នុងការភ្ជាប់ទៅម៉ាស៊ីនមេ!');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        }
+
+        // ===== DELETE EXPENSE =====
+        async function deleteExpense(expenseId) {
+            if (!confirm('តើអ្នកចង់លុបចំណាយនេះមែនទេ?')) return;
+
+            try {
+                const response = await fetch(`/api/expenses/${expenseId}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('✅ បានលុបចំណាយរួចរាល់!');
+                    loadExpenses();
+                } else {
+                    alert('❌ ' + (result.error || 'មានបញ្ហា!'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ មានបញ្ហាក្នុងការភ្ជាប់ទៅម៉ាស៊ីនមេ!');
+            }
+        }
+
+        // ===== CLOSE EXPENSE MODAL =====
+        function closeExpenseModal() {
+            document.getElementById('expenseModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // ===== CLOSE MODAL ON OVERLAY CLICK =====
+        document.getElementById('expenseModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeExpenseModal();
+            }
         });
 
+        // ===== CLOSE MODAL ON ESCAPE KEY =====
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') closeDayModal();
+            if (e.key === 'Escape') {
+                closeExpenseModal();
+            }
         });
 
-        // ===== INIT =====
+        // ============================================================
+        // ===== INITIAL LOAD =====
+        // ============================================================
+
         document.addEventListener('DOMContentLoaded', function() {
-            initYearSelect();
-            document.getElementById('monthSelect').value = currentMonth;
-            document.getElementById('yearSelect').value = currentYear;
-
-            loadFullStats();
-            loadRecentLoans();
-            loadActivities();
-            loadCalendar();
-            loadCharts();
-
-            setInterval(() => {
-                loadFullStats();
-                loadRecentLoans();
-                loadActivities();
-            }, 60000);
+            loadOfficers();
+            loadDisbursement();
+            loadExpenses();
         });
     </script>
 
