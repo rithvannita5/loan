@@ -351,7 +351,7 @@
         </div>
         <div class="menu-label">មុខម្ហូប</div>
 
-        <a href="/dashboard" class="menu-item active">
+        <a href="/dashboard" class="menu-item">
             <span class="icon">📊</span>
             <span>Dashboard</span>
         </a>
@@ -932,6 +932,59 @@ function formatCurrency(amount, currency) {
             loadOfficers();
             loadPayments();
         });
+        // ============================================================
+// ===== AUTO HIGHLIGHT ACTIVE MENU =====
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+    // ===== ទាញយក URL បច្ចុប្បន្ន =====
+    const currentPath = window.location.pathname;
+    
+    console.log('📍 Current path:', currentPath);
+    
+    // ===== លុប active ទាំងអស់ចេញជាមុន =====
+    document.querySelectorAll('.sidebar .menu-item').forEach(function(item) {
+        item.classList.remove('active');
+    });
+    
+    // ===== កំណត់ active តាម URL =====
+    const menuItems = document.querySelectorAll('.sidebar .menu-item');
+    
+    menuItems.forEach(function(item) {
+        const href = item.getAttribute('href');
+        
+        if (!href || href === '#') return;
+        
+        // ===== ឆែកមើលថា URL ត្រូវគ្នាឬអត់ =====
+        let isActive = false;
+        
+        // ករណី ១: URL ដូចគ្នាទាំងស្រុង
+        if (currentPath === href) {
+            isActive = true;
+        }
+        // ករណី ២: Sub path (ឧ. /loans/bad ត្រូវនឹង /loans)
+        else if (href !== '/' && currentPath.startsWith(href + '/')) {
+            isActive = true;
+        }
+        // ករណី ៣: Root path
+        else if (href === '/' && currentPath === '/') {
+            isActive = true;
+        }
+        
+        if (isActive) {
+            item.classList.add('active');
+            console.log('✅ Activated:', href);
+        }
+    });
+    
+    // ===== ករណីពិសេស: បើគ្មានមេនុយ Active ត្រូវកំណត់ Dashboard =====
+    const activeMenu = document.querySelector('.sidebar .menu-item.active');
+    if (!activeMenu && currentPath !== '/login') {
+        const dashboardItem = document.querySelector('.sidebar .menu-item[href="/dashboard"]');
+        if (dashboardItem) {
+            dashboardItem.classList.add('active');
+        }
+    }
+});
     </script>
 
 </body>
