@@ -1278,6 +1278,212 @@ def get_dashboard_charts_data():
     }
 
 # ============================================================
+# ===== DASHBOARD ADVANCED FUNCTIONS =====
+# ============================================================
+
+def get_dashboard_full_stats():
+    """ទាញយកស្ថិតិពេញលេញសម្រាប់ Dashboard"""
+    from datetime import datetime, timedelta
+
+    # ===== ១. ទុនទំលាក់សរុប (Disbursement) =====
+    pipeline_disb_usd = [
+        {'$match': {'currency': 'USD'}},
+        {'$group': {'_id': None, 'total': {'$sum': '$loan_amount'}}}
+    ]
+    disb_usd = list(loans_col.aggregate(pipeline_disb_usd))
+    total_disbursement_usd = disb_usd[0]['total'] if disb_usd else 0
+
+    pipeline_disb_khr = [
+        {'$match': {'currency': 'KHR'}},
+        {'$group': {'_id': None, 'total': {'$sum': '$loan_amount'}}}
+    ]
+    disb_khr = list(loans_col.aggregate(pipeline_disb_khr))
+    total_disbursement_khr = disb_khr[0]['total'] if disb_khr else 0
+
+    # ===== ២. ការប្រាក់សរុប (Total Interest) =====
+    pipeline_interest_usd = [
+        {'$match': {'currency': 'USD'}},
+        {'$group': {'_id': None, 'total': {'$sum': '$total_interest'}}}
+    ]
+    interest_usd = list(loans_col.aggregate(pipeline_interest_usd))
+    total_interest_usd = interest_usd[0]['total'] if interest_usd else 0
+
+    pipeline_interest_khr = [
+        {'$match': {'currency': 'KHR'}},
+        {'$group': {'_id': None, 'total': {'$sum': '$total_interest'}}}
+    ]
+    interest_khr = list(loans_col.aggregate(pipeline_interest_khr))
+    total_interest_khr = interest_khr[0]['total'] if interest_khr else 0
+
+    # ===== ៣. ទឹកប្រាក់សងសរុប (Total Collected) =====
+    pipeline_collect_usd = [
+        {'$match': {'currency': 'USD'}},
+        {'$group': {'_id': None, 'total': {'$sum': '$amount_paid'}}}
+    ]
+    collect_usd = list(loans_col.aggregate(pipeline_collect_usd))
+    total_collection_usd = collect_usd[0]['total'] if collect_usd else 0
+
+    pipeline_collect_khr = [
+        {'$match': {'currency': 'KHR'}},
+        {'$group': {'_id': None, 'total': {'$sum': '$amount_paid'}}}
+    ]
+    collect_khr = list(loans_col.aggregate(pipeline_collect_khr))
+    total_collection_khr = collect_khr[0]['total'] if collect_khr else 0
+
+    # ===== ៤. បំណុលសរុបរួមការប្រាក់ (Total Debt with Interest) =====
+    pipeline_debt_usd = [
+        {'$match': {'currency': 'USD', 'status': {'$nin': ['Completed', 'Rejected']}}},
+        {'$group': {'_id': None, 'total': {'$sum': '$remaining_balance'}}}
+    ]
+    debt_usd = list(loans_col.aggregate(pipeline_debt_usd))
+    total_debt_usd = debt_usd[0]['total'] if debt_usd else 0
+
+    pipeline_debt_khr = [
+        {'$match': {'currency': 'KHR', 'status': {'$nin': ['Completed', 'Rejected']}}},
+        {'$group': {'_id': None, 'total': {'$sum': '$remaining_balance'}}}
+    ]
+    debt_khr = list(loans_col.aggregate(pipeline_debt_khr))
+    total_debt_khr = debt_khr[0]['total'] if debt_khr else 0
+
+    # ===== ៥. ចំណាយសរុប (Total Expense) =====
+    pipeline_expense = [
+        {'$group': {'_id': None, 'total': {'$sum': '$amount'}}}
+    ]
+    expense_result = list(expenses_col.aggregate(pipeline_expense))
+    total_expense = expense_result[0]['total'] if expense_result else 0
+
+    # ===== ៦. ចំណូលសុទ្ធ (Net Income) =====
+    net_income = (total_interest_usd + total_interest_khr) - total_expense
+
+    return {
+        'total_disbursement_usd': total_disbursement_usd or 0,
+        'total_disbursement_khr': total_disbursement_khr or 0,
+        'total_interest_usd': total_interest_usd or 0,
+        'total_interest_khr': total_interest_khr or 0,
+        'total_collection_usd': total_collection_usd or 0,
+        'total_collection_khr': total_collection_khr or 0,
+        'total_debt_usd': total_debt_usd or 0,
+        'total_debt_khr': total_debt_khr or 0,
+        'total_expense': total_expense or 0,
+        'net_income': net_income or 0,
+        'total_loans': loans_col.count_documents({}),
+        'active_loans': loans_col.count_documents({'status': {'$in': ['Approved', 'Pending']}}),
+        'bad_loans': loans_col.count_documents({'status': 'Bad Debt'}),
+        'total_customers': customers_col.count_documents({})
+    }
+
+
+def get_calendar_data(year, month):
+    """ទាញយកទិន្នន័យសម្រាប់ Calendar តាមខែ/ឆ្នាំ"""
+    from datetime import datetime, timedelta
+
+    # ===== ថ្ងៃទី ១ និងចុងក្រោយនៃខែ =====
+    first_day = datetime(year, month, 1)
+    if month == 12:
+        last_day = datetime(year + 1, 1, 1) - timedelta(days=1)
+    else:
+        last_day = datetime(year, month + 1, 1) - timedelta(days=1)
+
+    start_str = first_day.strftime('%Y-%m-%d')
+    end_str = last_day.strftime('%Y-%m-%d')
+
+    # ===== ១. កម្ចីថ្មីក្នុងខែ =====
+    loans_in_month = list(loans_col.find({
+        'loan_date': {'$gte': start_str, '$lte': end_str}
+    }))
+
+    # ===== ២. ការប្រមូលប្រាក់ក្នុងខែ =====
+    payments_in_month = list(payment_history_col.find({
+        '$expr': {
+            '$and': [
+                {'$gte': [{'$dateToString': {'format': '%Y-%m-%d', 'date': '$created_at'}}, start_str]},
+                {'$lte': [{'$dateToString': {'format': '%Y-%m-%d', 'date': '$created_at'}}, end_str]}
+            ]
+        }
+    }))
+
+    # ===== ៣. ចំណាយក្នុងខែ =====
+    expenses_in_month = list(expenses_col.find({
+        'expense_date': {'$gte': start_str, '$lte': end_str}
+    }))
+
+    # ===== ៤. បង្កើត Daily Summary =====
+    daily_data = {}
+    current = first_day
+    while current <= last_day:
+        date_str = current.strftime('%Y-%m-%d')
+        daily_data[date_str] = {
+            'date': date_str,
+            'day': current.day,
+            'loans_count': 0,
+            'loans_amount_usd': 0,
+            'loans_amount_khr': 0,
+            'collections_usd': 0,
+            'collections_khr': 0,
+            'expenses': 0,
+            'events': []
+        }
+        current += timedelta(days=1)
+
+    # ===== បន្ថែមកម្ចី =====
+    for loan in loans_in_month:
+        date_str = loan.get('loan_date', '')
+        if date_str in daily_data:
+            daily_data[date_str]['loans_count'] += 1
+            if loan.get('currency') == 'USD':
+                daily_data[date_str]['loans_amount_usd'] += loan.get('loan_amount', 0)
+            else:
+                daily_data[date_str]['loans_amount_khr'] += loan.get('loan_amount', 0)
+
+    # ===== បន្ថែមការប្រមូល =====
+    for payment in payments_in_month:
+        created = payment.get('created_at')
+        if created:
+            date_str = created.strftime('%Y-%m-%d') if hasattr(created, 'strftime') else str(created)[:10]
+            if date_str in daily_data:
+                amount = payment.get('amount', 0)
+                # ===== ពិនិត្យ currency =====
+                daily_data[date_str]['collections_usd'] += amount
+
+    # ===== បន្ថែមចំណាយ =====
+    for exp in expenses_in_month:
+        date_str = exp.get('expense_date', '')
+        if date_str in daily_data:
+            daily_data[date_str]['expenses'] += exp.get('amount', 0)
+            daily_data[date_str]['events'].append({
+                'type': 'expense',
+                'name': exp.get('name', ''),
+                'amount': exp.get('amount', 0)
+            })
+
+    # ===== បន្ថែមព្រឹត្តិការណ៍កម្ចី =====
+    for loan in loans_in_month:
+        date_str = loan.get('loan_date', '')
+        if date_str in daily_data:
+            daily_data[date_str]['events'].append({
+                'type': 'loan',
+                'code': loan.get('loan_code', ''),
+                'amount': loan.get('loan_amount', 0),
+                'currency': loan.get('currency', 'USD')
+            })
+
+    # ===== សរុបខែ =====
+    monthly_summary = {
+        'total_loans': len(loans_in_month),
+        'total_loans_usd': sum(l.get('loan_amount', 0) for l in loans_in_month if l.get('currency') == 'USD'),
+        'total_loans_khr': sum(l.get('loan_amount', 0) for l in loans_in_month if l.get('currency') == 'KHR'),
+        'total_collections': sum(p.get('amount', 0) for p in payments_in_month),
+        'total_expenses': sum(e.get('amount', 0) for e in expenses_in_month),
+    }
+
+    return {
+        'year': year,
+        'month': month,
+        'days': list(daily_data.values()),
+        'summary': monthly_summary
+    }
+
+# ============================================================
 # ===== INITIALIZATION =====
 # ============================================================
 
