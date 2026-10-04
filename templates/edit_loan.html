@@ -129,6 +129,7 @@
             transform: none;
         }
 
+        /* ===== SCHEDULE TABLE ENHANCED ===== */
         .schedule-table {
             margin-top: 30px;
             overflow-x: auto;
@@ -139,22 +140,51 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 14px;
+            min-width: 800px;
         }
         .schedule-table th {
-            background: #e9ecef;
-            color: #333;
-            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            padding: 14px 12px;
             text-align: center;
-            border-bottom: 2px solid #dee2e6;
+            font-weight: 700;
+            font-size: 13px;
+            white-space: nowrap;
+            border-bottom: none;
+        }
+        .schedule-table th:first-child {
+            border-top-left-radius: 14px;
+        }
+        .schedule-table th:last-child {
+            border-top-right-radius: 14px;
         }
         .schedule-table td {
-            padding: 10px 12px;
+            padding: 12px;
             text-align: center;
             border-bottom: 1px solid #f0f0f0;
+            color: #333;
+            font-size: 13px;
         }
         .schedule-table tr:hover td {
             background: #f8f9ff;
         }
+        .schedule-table tr:nth-child(even) td {
+            background: #fafafa;
+        }
+        .schedule-table tr:nth-child(even):hover td {
+            background: #f0f2ff;
+        }
+        .schedule-table tr:last-child td {
+            border-bottom: none;
+        }
+        .schedule-table tbody tr:last-child td {
+            background: #fff9e6;
+            font-weight: 700;
+        }
+        .schedule-table tbody tr:last-child:hover td {
+            background: #fff3cc;
+        }
+
         .summary {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -438,19 +468,20 @@
 
     <!-- Schedule Table -->
     <div id="scheduleContainer" style="display:none;" class="schedule-table">
-    <table>
-        <thead>
-            <tr>
-                <th>វគ្គ</th>
-                <th>កាលបរិច្ឆេទ</th>
-                <th>ប្រាក់ដើម</th>
-                <th>ការប្រាក់</th>
-                <th>ទឹកប្រាក់បង់</th>
-                <th>សមតុល្យ</th>
-            </tr>
-        </thead>
-        <tbody id="scheduleBody"></tbody>
-    </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>វគ្គ</th>
+                    <th>កាលបរិច្ឆេទ</th>
+                    <th>ប្រាក់ដើម</th>
+                    <th>ការប្រាក់</th>
+                    <th>ទឹកប្រាក់បង់</th>
+                    <th>សមតុល្យ</th>
+                </tr>
+            </thead>
+            <tbody id="scheduleBody"></tbody>
+        </table>
+    </div>
 </div>
 
 <script>
@@ -593,7 +624,6 @@
             const currency = document.getElementById('currency').value;
             const durationType = document.getElementById('duration_type').value;
 
-            // ===== គណនាចំនួនថ្ងៃ =====
             let totalDays = durationNum;
             if (durationType === 'សប្តាហ៍') totalDays = durationNum * 7;
             else if (durationType === '2 សប្តាហ៍') totalDays = durationNum * 14;
@@ -654,42 +684,42 @@
         }
     }
 
-    // ===== RENDER SCHEDULE =====
+    // ===== RENDER SCHEDULE (បង្ហាញ ៦ ជួរ) =====
     function renderSchedule(schedule, currency) {
-    const container = document.getElementById('scheduleContainer');
-    const tbody = document.getElementById('scheduleBody');
-    tbody.innerHTML = '';
+        const container = document.getElementById('scheduleContainer');
+        const tbody = document.getElementById('scheduleBody');
+        tbody.innerHTML = '';
 
-    if (!schedule || schedule.length === 0) {
-        container.style.display = 'none';
-        return;
-    }
-
-    container.style.display = 'block';
-
-    schedule.forEach((item, index) => {
-        const tr = document.createElement('tr');
-
-        // ===== Format កាលបរិច្ឆេទ =====
-        let dueDate = item.due_date || '-';
-        if (dueDate !== '-') {
-            try {
-                const d = new Date(dueDate + 'T00:00:00');
-                dueDate = d.toLocaleDateString('km-KH');
-            } catch (e) {}
+        if (!schedule || schedule.length === 0) {
+            container.style.display = 'none';
+            return;
         }
 
-        tr.innerHTML = `
-            <td><strong>${item.period}</strong></td>
-            <td>${dueDate}</td>
-            <td>${formatCurrency(item.principal || 0, currency)}</td>
-            <td>${formatCurrency(item.interest || 0, currency)}</td>
-            <td><strong style="color:#27ae60;">${formatCurrency(item.payment || 0, currency)}</strong></td>
-            <td><strong style="color:#e74c3c;">${formatCurrency(item.balance || 0, currency)}</strong></td>
-        `;
-        tbody.appendChild(tr);
-    });
-}
+        container.style.display = 'block';
+
+        schedule.forEach((item, index) => {
+            const tr = document.createElement('tr');
+
+            // ===== Format កាលបរិច្ឆេទ =====
+            let dueDate = item.due_date || '-';
+            if (dueDate !== '-') {
+                try {
+                    const d = new Date(dueDate + 'T00:00:00');
+                    dueDate = d.toLocaleDateString('km-KH');
+                } catch (e) {}
+            }
+
+            tr.innerHTML = `
+                <td><strong>${item.period}</strong></td>
+                <td>${dueDate}</td>
+                <td>${formatCurrency(item.principal || 0, currency)}</td>
+                <td>${formatCurrency(item.interest || 0, currency)}</td>
+                <td><strong style="color:#27ae60;">${formatCurrency(item.payment || 0, currency)}</strong></td>
+                <td><strong style="color:#e74c3c;">${formatCurrency(item.balance || 0, currency)}</strong></td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
 
     // ===== FORMAT CURRENCY =====
     function formatCurrency(amount, currency) {
@@ -704,9 +734,7 @@
         }
     }
 
-    // ============================================================
-    // ===== UPDATE LOAN (កែត្រឹមត្រូវ - គណនាការប្រាក់ឡើងវិញ) =====
-    // ============================================================
+    // ===== UPDATE LOAN =====
     async function updateLoan() {
         if (isSubmitting) return;
 
@@ -732,19 +760,15 @@
             const purpose = document.getElementById('purpose').value;
             const status = document.getElementById('status').value;
 
-            // ===== គណនាចំនួនថ្ងៃ =====
             let totalDays = durationNum;
             if (durationType === 'សប្តាហ៍') totalDays = durationNum * 7;
             else if (durationType === '2 សប្តាហ៍') totalDays = durationNum * 14;
             else if (durationType === 'ខែ') totalDays = durationNum * 30;
 
-            // ============================================================
             // ===== គណនាការប្រាក់ត្រឹមត្រូវ =====
-            // ============================================================
             let totalInterest = loanAmount * (interestRate / 100) * totalDays;
             let totalAmount = loanAmount + totalInterest;
 
-            // ===== បង្គត់តាមរូបិយប័ណ្ណ =====
             if (currency === 'KHR') {
                 totalInterest = Math.round(totalInterest / 100) * 100;
                 totalAmount = Math.round(totalAmount / 100) * 100;
@@ -753,7 +777,6 @@
                 totalAmount = Math.round(totalAmount * 100) / 100;
             }
 
-            // ===== ទាញយក amount_paid ដើម =====
             let amountPaid = {{ loan.amount_paid or 0 }};
             let remainingBalance = totalAmount - amountPaid;
 
@@ -762,15 +785,6 @@
             } else {
                 remainingBalance = Math.round(remainingBalance * 100) / 100;
             }
-
-            console.log('📊 Update Loan Calculation:');
-            console.log('   Amount:', loanAmount);
-            console.log('   Rate:', interestRate, '%');
-            console.log('   Days:', totalDays);
-            console.log('   Interest:', totalInterest);
-            console.log('   Total:', totalAmount);
-            console.log('   Paid:', amountPaid);
-            console.log('   Remaining:', remainingBalance);
 
             const data = {
                 id: loanId,
@@ -828,9 +842,7 @@
         const className = type === 'success' ? 'alert-success' : type === 'info' ? 'alert-info' : 'alert-error';
         alertDiv.innerHTML = `<div class="alert ${className}">${message}</div>`;
 
-        if (window.alertTimeout) {
-            clearTimeout(window.alertTimeout);
-        }
+        if (window.alertTimeout) clearTimeout(window.alertTimeout);
         window.alertTimeout = setTimeout(() => {
             alertDiv.innerHTML = '';
         }, 5000);
@@ -838,10 +850,8 @@
 
     // ===== EVENT LISTENERS =====
     document.addEventListener('DOMContentLoaded', function() {
-        // ===== កំណត់ Loan Code =====
         document.getElementById('loan_code').value = '{{ loan.loan_code }}';
 
-        // ===== កំណត់ Customer Code =====
         const customerCode = '{{ customer.code if customer else "" }}';
         if (customerCode) {
             document.getElementById('customer_search').value = customerCode;
@@ -849,7 +859,6 @@
 
         loadOfficers();
 
-        // ===== Search Customer on Enter =====
         document.getElementById('customer_search').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
@@ -857,7 +866,6 @@
             }
         });
 
-        // ===== Clear on Blur =====
         document.getElementById('customer_search').addEventListener('blur', function() {
             if (!this.value) {
                 clearAllCustomerFields();
@@ -865,7 +873,6 @@
             }
         });
 
-        // ===== Auto Calculate on Input Change =====
         let calcTimeout;
         const fields = ['loan_amount', 'interest_rate', 'duration_num', 'duration_type', 'calc_type', 'service_fee', 'currency'];
         fields.forEach(id => {
