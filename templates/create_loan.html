@@ -128,6 +128,7 @@
             transform: none;
         }
 
+        /* ===== SCHEDULE TABLE ENHANCED ===== */
         .schedule-table {
             margin-top: 30px;
             overflow-x: auto;
@@ -138,22 +139,51 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 14px;
+            min-width: 800px;
         }
         .schedule-table th {
-            background: #e9ecef;
-            color: #333;
-            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            padding: 14px 12px;
             text-align: center;
-            border-bottom: 2px solid #dee2e6;
+            font-weight: 700;
+            font-size: 13px;
+            white-space: nowrap;
+            border-bottom: none;
+        }
+        .schedule-table th:first-child {
+            border-top-left-radius: 14px;
+        }
+        .schedule-table th:last-child {
+            border-top-right-radius: 14px;
         }
         .schedule-table td {
-            padding: 10px 12px;
+            padding: 12px;
             text-align: center;
             border-bottom: 1px solid #f0f0f0;
+            color: #333;
+            font-size: 13px;
         }
         .schedule-table tr:hover td {
             background: #f8f9ff;
         }
+        .schedule-table tr:nth-child(even) td {
+            background: #fafafa;
+        }
+        .schedule-table tr:nth-child(even):hover td {
+            background: #f0f2ff;
+        }
+        .schedule-table tr:last-child td {
+            border-bottom: none;
+        }
+        .schedule-table tbody tr:last-child td {
+            background: #fff9e6;
+            font-weight: 700;
+        }
+        .schedule-table tbody tr:last-child:hover td {
+            background: #fff3cc;
+        }
+
         .summary {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -241,7 +271,7 @@
 
     <form id="loanForm" onsubmit="return false;">
         <div class="form-grid">
-            <!-- 1. លេខកូដកម្ចី (ស្វ័យប្រវត្តិ) -->
+            <!-- 1. លេខកូដកម្ចី -->
             <div class="form-group">
                 <label>លេខកូដកម្ចី <span class="required">*</span></label>
                 <input type="text" id="loan_code" readonly placeholder="កំពុងផ្ទុក...">
@@ -262,7 +292,7 @@
                 <input type="hidden" id="customer_id" value="">
             </div>
 
-            <!-- 3. ឈ្មោះអតិថិជន (ស្វ័យប្រវត្តិ) -->
+            <!-- 3. ឈ្មោះអតិថិជន -->
             <div class="form-group">
                 <label>ឈ្មោះអតិថិជន <span class="required">*</span></label>
                 <input type="text" id="customer_name_display" readonly
@@ -270,19 +300,19 @@
                        placeholder="បង្ហាញដោយស្វ័យប្រវត្តិ">
             </div>
 
-            <!-- 4. ភេទ (ស្វ័យប្រវត្តិ) -->
+            <!-- 4. ភេទ -->
             <div class="form-group">
                 <label>ភេទ</label>
                 <input type="text" id="gender" readonly style="background:#e9ecef; cursor:not-allowed;">
             </div>
 
-            <!-- 5. លេខទូរស័ព្ទ (ស្វ័យប្រវត្តិ) -->
+            <!-- 5. លេខទូរស័ព្ទ -->
             <div class="form-group">
                 <label>លេខទូរស័ព្ទ</label>
                 <input type="text" id="phone" readonly style="background:#e9ecef; cursor:not-allowed;">
             </div>
 
-            <!-- 6. អសយដ្ឋាន (ស្វ័យប្រវត្តិ) -->
+            <!-- 6. អសយដ្ឋាន -->
             <div class="form-group">
                 <label>អសយដ្ឋាន</label>
                 <input type="text" id="address" readonly style="background:#e9ecef; cursor:not-allowed;">
@@ -349,31 +379,31 @@
                 <input type="date" id="due_date">
             </div>
 
-            <!-- 15. វគ្គ (បំណងខ្ចី) -->
+            <!-- 15. វគ្គ -->
             <div class="form-group">
                 <label>វគ្គ</label>
                 <input type="text" id="purpose" placeholder="បំណងខ្ចី">
             </div>
 
-            <!-- 16. ឈ្មោះអ្នកធានា (ស្វ័យប្រវត្តិ) -->
+            <!-- 16. ឈ្មោះអ្នកធានា -->
             <div class="form-group">
                 <label>ឈ្មោះអ្នកធានា</label>
                 <input type="text" id="guarantor_name" readonly style="background:#e9ecef; cursor:not-allowed;">
             </div>
 
-            <!-- 17. ភេទអ្នកធានា (ស្វ័យប្រវត្តិ) -->
+            <!-- 17. ភេទអ្នកធានា -->
             <div class="form-group">
                 <label>ភេទ (អ្នកធានា)</label>
                 <input type="text" id="guarantor_gender" readonly style="background:#e9ecef; cursor:not-allowed;">
             </div>
 
-            <!-- 18. លេខទូរស័ព្ទអ្នកធានា (ស្វ័យប្រវត្តិ) -->
+            <!-- 18. លេខទូរស័ព្ទអ្នកធានា -->
             <div class="form-group">
                 <label>លេខទូរស័ព្ទ (អ្នកធានា)</label>
                 <input type="text" id="guarantor_phone" readonly style="background:#e9ecef; cursor:not-allowed;">
             </div>
 
-            <!-- 19. អសយដ្ឋានអ្នកធានា (ស្វ័យប្រវត្តិ) -->
+            <!-- 19. អសយដ្ឋានអ្នកធានា -->
             <div class="form-group">
                 <label>អសយដ្ឋាន (អ្នកធានា)</label>
                 <input type="text" id="guarantor_address" readonly style="background:#e9ecef; cursor:not-allowed;">
@@ -425,19 +455,20 @@
 
     <!-- Schedule Table -->
     <div id="scheduleContainer" style="display:none;" class="schedule-table">
-    <table>
-        <thead>
-            <tr>
-                <th>វគ្គ</th>
-                <th>កាលបរិច្ឆេទ</th>
-                <th>ប្រាក់ដើម</th>
-                <th>ការប្រាក់</th>
-                <th>ទឹកប្រាក់បង់</th>
-                <th>សមតុល្យ</th>
-            </tr>
-        </thead>
-        <tbody id="scheduleBody"></tbody>
-    </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>វគ្គ</th>
+                    <th>កាលបរិច្ឆេទ</th>
+                    <th>ប្រាក់ដើម</th>
+                    <th>ការប្រាក់</th>
+                    <th>ទឹកប្រាក់បង់</th>
+                    <th>សមតុល្យ</th>
+                </tr>
+            </thead>
+            <tbody id="scheduleBody"></tbody>
+        </table>
+    </div>
 </div>
 
 <script>
@@ -473,8 +504,6 @@
             }
         } catch (error) {
             console.error('Error loading officers:', error);
-            const select = document.getElementById('co_officer');
-            select.innerHTML = '<option value="">-- មិនអាចផ្ទុកទិន្នន័យ --</option>';
         }
     }
 
@@ -489,7 +518,6 @@
             return;
         }
 
-        // ===== ពិនិត្យថាតើជា Code ដែលមានក្នុង Datalist =====
         const datalist = document.getElementById('customer_list');
         let found = false;
         for (let option of datalist.options) {
@@ -504,7 +532,6 @@
             return;
         }
 
-        // ===== បើមិនឃើញ ស្វែងរកតាម API =====
         try {
             const response = await fetch(`/api/search_customers?q=${encodeURIComponent(value)}&limit=5`);
             if (!response.ok) throw new Error('Network response was not ok');
@@ -527,15 +554,11 @@
 
     // ===== FILL CUSTOMER FIELDS =====
     function fillCustomerFields(customer) {
-        console.log('📋 Filling customer data:', customer);
-
         document.getElementById('customer_id').value = customer.id || '';
         document.getElementById('customer_name_display').value = customer.name || '';
         document.getElementById('gender').value = customer.gender || '';
         document.getElementById('phone').value = customer.phone || '';
         document.getElementById('address').value = customer.address || '';
-
-        // ===== ព័ត៌មានអ្នកធានា =====
         document.getElementById('guarantor_name').value = customer.guarantor_name || '';
         document.getElementById('guarantor_gender').value = customer.guarantor_gender || '';
         document.getElementById('guarantor_phone').value = customer.guarantor_phone || '';
@@ -550,11 +573,8 @@
             const results = await response.json();
 
             if (results && results.length > 0) {
-                const customer = results[0];
-                fillCustomerFields(customer);
+                fillCustomerFields(results[0]);
                 setDefaultDates();
-            } else {
-                console.warn('⚠️ No customer found for code:', code);
             }
         } catch (error) {
             console.error('Error loading customer by code:', error);
@@ -589,21 +609,15 @@
         }
     }
 
-    // ===== GENERATE LOAN CODE (បានកែ - ដំណើរការត្រឹមត្រូវ) =====
+    // ===== GENERATE LOAN CODE =====
     async function generateLoanCode() {
         const loanCodeInput = document.getElementById('loan_code');
         loanCodeInput.value = 'កំពុងផ្ទុក...';
 
         try {
-            console.log('🔄 Fetching loan code...');
             const response = await fetch('/api/generate_loan_code');
-
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const data = await response.json();
-            console.log('✅ Loan code received:', data);
 
             if (data.loan_code) {
                 loanCodeInput.value = data.loan_code;
@@ -614,7 +628,6 @@
             }
         } catch (error) {
             console.error('❌ Error generating loan code:', error);
-            // ===== Fallback: បង្កើតលេខកូដដោយខ្លួនឯង =====
             const fallbackCode = 'LN-' + String(Date.now()).slice(-4);
             loanCodeInput.value = fallbackCode;
         }
@@ -702,48 +715,48 @@
         }
     }
 
-    // ===== RENDER SCHEDULE =====
+    // ===== RENDER SCHEDULE (បង្ហាញ ៦ ជួរ) =====
     function renderSchedule(schedule, currency) {
-    const container = document.getElementById('scheduleContainer');
-    const tbody = document.getElementById('scheduleBody');
-    tbody.innerHTML = '';
+        const container = document.getElementById('scheduleContainer');
+        const tbody = document.getElementById('scheduleBody');
+        tbody.innerHTML = '';
 
-    if (!schedule || schedule.length === 0) {
-        container.style.display = 'none';
-        return;
-    }
-
-    container.style.display = 'block';
-
-    schedule.forEach((item, index) => {
-        const tr = document.createElement('tr');
-
-        // ===== Format កាលបរិច្ឆេទ =====
-        let dueDate = item.due_date || '-';
-        if (dueDate !== '-') {
-            try {
-                const d = new Date(dueDate + 'T00:00:00');
-                dueDate = d.toLocaleDateString('km-KH');
-            } catch (e) {}
+        if (!schedule || schedule.length === 0) {
+            container.style.display = 'none';
+            return;
         }
 
-        tr.innerHTML = `
-            <td><strong>${item.period}</strong></td>
-            <td>${dueDate}</td>
-            <td>${formatCurrency(item.principal || 0, currency)}</td>
-            <td>${formatCurrency(item.interest || 0, currency)}</td>
-            <td><strong style="color:#27ae60;">${formatCurrency(item.payment || 0, currency)}</strong></td>
-            <td><strong style="color:#e74c3c;">${formatCurrency(item.balance || 0, currency)}</strong></td>
-        `;
-        tbody.appendChild(tr);
-    });
-}
+        container.style.display = 'block';
+
+        schedule.forEach((item, index) => {
+            const tr = document.createElement('tr');
+
+            // ===== Format កាលបរិច្ឆេទ =====
+            let dueDate = item.due_date || '-';
+            if (dueDate !== '-') {
+                try {
+                    const d = new Date(dueDate + 'T00:00:00');
+                    dueDate = d.toLocaleDateString('km-KH');
+                } catch (e) {}
+            }
+
+            tr.innerHTML = `
+                <td><strong>${item.period}</strong></td>
+                <td>${dueDate}</td>
+                <td>${formatCurrency(item.principal || 0, currency)}</td>
+                <td>${formatCurrency(item.interest || 0, currency)}</td>
+                <td><strong style="color:#27ae60;">${formatCurrency(item.payment || 0, currency)}</strong></td>
+                <td><strong style="color:#e74c3c;">${formatCurrency(item.balance || 0, currency)}</strong></td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
     // ===== FORMAT CURRENCY =====
     function formatCurrency(amount, currency) {
         if (amount === null || amount === undefined || isNaN(amount)) {
             return currency === 'KHR' ? '៛ 0' : '$ 0.00';
         }
-
         if (currency === 'KHR') {
             const rounded = Math.round(amount / 100) * 100;
             return '៛ ' + rounded.toLocaleString('en-US');
@@ -754,126 +767,115 @@
 
     // ===== SUBMIT LOAN =====
     async function submitLoan() {
-    if (isSubmitting) return;
+        if (isSubmitting) return;
 
-    const submitBtn = document.getElementById('submitBtn');
-    const originalText = submitBtn.innerHTML;
+        const submitBtn = document.getElementById('submitBtn');
+        const originalText = submitBtn.innerHTML;
 
-    isSubmitting = true;
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '⏳ <span class="spinner"></span> កំពុងរក្សាទុក...';
+        isSubmitting = true;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '⏳ <span class="spinner"></span> កំពុងរក្សាទុក...';
 
-    try {
-        const customerId = document.getElementById('customer_id').value;
-        const loanAmount = parseFloat(document.getElementById('loan_amount').value) || 0;
-        const currency = document.getElementById('currency').value;
-        const interestRate = parseFloat(document.getElementById('interest_rate').value) || 0;
-        const durationNum = parseInt(document.getElementById('duration_num').value) || 1;
-        const durationType = document.getElementById('duration_type').value;
-        const calcType = parseInt(document.getElementById('calc_type').value) || 1;
-        const serviceFee = parseFloat(document.getElementById('service_fee').value) || 0;
-        const loanDate = document.getElementById('loan_date').value;
-        const dueDate = document.getElementById('due_date').value;
-        const coOfficer = document.getElementById('co_officer').value;
-        const purpose = document.getElementById('purpose').value;
-        const loanCode = document.getElementById('loan_code').value;
+        try {
+            const customerId = document.getElementById('customer_id').value;
+            const loanAmount = parseFloat(document.getElementById('loan_amount').value) || 0;
+            const currency = document.getElementById('currency').value;
+            const interestRate = parseFloat(document.getElementById('interest_rate').value) || 0;
+            const durationNum = parseInt(document.getElementById('duration_num').value) || 1;
+            const durationType = document.getElementById('duration_type').value;
+            const calcType = parseInt(document.getElementById('calc_type').value) || 1;
+            const serviceFee = parseFloat(document.getElementById('service_fee').value) || 0;
+            const loanDate = document.getElementById('loan_date').value;
+            const dueDate = document.getElementById('due_date').value;
+            const coOfficer = document.getElementById('co_officer').value;
+            const purpose = document.getElementById('purpose').value;
+            const loanCode = document.getElementById('loan_code').value;
 
-        // ===== គណនាចំនួនថ្ងៃ =====
-        let totalDays = durationNum;
-        if (durationType === 'សប្តាហ៍') totalDays = durationNum * 7;
-        else if (durationType === '2 សប្តាហ៍') totalDays = durationNum * 14;
-        else if (durationType === 'ខែ') totalDays = durationNum * 30;
+            let totalDays = durationNum;
+            if (durationType === 'សប្តាហ៍') totalDays = durationNum * 7;
+            else if (durationType === '2 សប្តាហ៍') totalDays = durationNum * 14;
+            else if (durationType === 'ខែ') totalDays = durationNum * 30;
 
-        // ============================================================
-        // ===== គណនាការប្រាក់ត្រឹមត្រូវ (មិន Override ពី Schedule) =====
-        // ============================================================
-        let totalInterest = loanAmount * (interestRate / 100) * totalDays;
-        let totalAmount = loanAmount + totalInterest;
-        let remainingBalance = totalAmount;
+            // ===== គណនាការប្រាក់ត្រឹមត្រូវ =====
+            let totalInterest = loanAmount * (interestRate / 100) * totalDays;
+            let totalAmount = loanAmount + totalInterest;
+            let remainingBalance = totalAmount;
 
-        // ===== បង្គត់តាមរូបិយប័ណ្ណ =====
-        if (currency === 'KHR') {
-            totalInterest = Math.round(totalInterest / 100) * 100;
-            totalAmount = Math.round(totalAmount / 100) * 100;
-            remainingBalance = totalAmount;
-        } else {
-            totalInterest = Math.round(totalInterest * 100) / 100;
-            totalAmount = Math.round(totalAmount * 100) / 100;
-            remainingBalance = totalAmount;
+            if (currency === 'KHR') {
+                totalInterest = Math.round(totalInterest / 100) * 100;
+                totalAmount = Math.round(totalAmount / 100) * 100;
+                remainingBalance = totalAmount;
+            } else {
+                totalInterest = Math.round(totalInterest * 100) / 100;
+                totalAmount = Math.round(totalAmount * 100) / 100;
+                remainingBalance = totalAmount;
+            }
+
+            const data = {
+                customer_id: parseInt(customerId),
+                loan_code: loanCode,
+                loan_amount: loanAmount,
+                currency: currency,
+                interest_rate: interestRate,
+                duration_num: totalDays,
+                duration_type: durationType,
+                calc_type: calcType,
+                service_fee: serviceFee,
+                service_fee_amount: loanAmount * serviceFee / 100,
+                insurance_fee: 0,
+                insurance_amount: 0,
+                loan_date: loanDate,
+                due_date: dueDate,
+                co_officer: coOfficer,
+                purpose: purpose,
+                total_interest: totalInterest,
+                total_amount: totalAmount,
+                amount_paid: 0,
+                remaining_balance: remainingBalance,
+                status: 'Pending'
+            };
+
+            if (!customerId || loanAmount <= 0) {
+                showAlert('សូមជ្រើសរើសអតិថិជន និងបញ្ចូលទឹកប្រាក់កម្ចី!', 'error');
+                return;
+            }
+
+            const response = await fetch('/api/create_loan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showAlert('✅ បង្កើតកម្ចីថ្មីជោគជ័យ!', 'success');
+                document.getElementById('loan_amount').value = '';
+                document.getElementById('interest_rate').value = '0';
+                document.getElementById('duration_num').value = '1';
+                document.getElementById('service_fee').value = '0';
+                document.getElementById('purpose').value = '';
+                scheduleData = [];
+                document.getElementById('summary').style.display = 'none';
+                document.getElementById('scheduleContainer').style.display = 'none';
+
+                await generateLoanCode();
+
+                setTimeout(() => {
+                    window.location.href = '/loans';
+                }, 2000);
+            } else {
+                showAlert('❌ ' + (result.error || 'មានបញ្ហាក្នុងការបង្កើតកម្ចី!'), 'error');
+            }
+        } catch (error) {
+            console.error('Error submitting loan:', error);
+            showAlert('❌ មានបញ្ហាក្នុងការភ្ជាប់ទៅម៉ាស៊ីនមេ!', 'error');
+        } finally {
+            isSubmitting = false;
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
         }
-
-        console.log('📊 Loan Calculation:');
-        console.log('   Amount:', loanAmount);
-        console.log('   Rate:', interestRate, '%');
-        console.log('   Days:', totalDays);
-        console.log('   Interest:', totalInterest);
-        console.log('   Total:', totalAmount);
-
-        const data = {
-            customer_id: parseInt(customerId),
-            loan_code: loanCode,
-            loan_amount: loanAmount,
-            currency: currency,
-            interest_rate: interestRate,
-            duration_num: totalDays,
-            duration_type: durationType,
-            calc_type: calcType,
-            service_fee: serviceFee,
-            service_fee_amount: loanAmount * serviceFee / 100,
-            insurance_fee: 0,
-            insurance_amount: 0,
-            loan_date: loanDate,
-            due_date: dueDate,
-            co_officer: coOfficer,
-            purpose: purpose,
-            total_interest: totalInterest,
-            total_amount: totalAmount,
-            amount_paid: 0,
-            remaining_balance: remainingBalance,
-            status: 'Pending'
-        };
-
-        if (!customerId || loanAmount <= 0) {
-            showAlert('សូមជ្រើសរើសអតិថិជន និងបញ្ចូលទឹកប្រាក់កម្ចី!', 'error');
-            return;
-        }
-
-        const response = await fetch('/api/create_loan', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            showAlert('✅ បង្កើតកម្ចីថ្មីជោគជ័យ!', 'success');
-            document.getElementById('loan_amount').value = '';
-            document.getElementById('interest_rate').value = '0';
-            document.getElementById('duration_num').value = '1';
-            document.getElementById('service_fee').value = '0';
-            document.getElementById('purpose').value = '';
-            scheduleData = [];
-            document.getElementById('summary').style.display = 'none';
-            document.getElementById('scheduleContainer').style.display = 'none';
-
-            await generateLoanCode();
-
-            setTimeout(() => {
-                window.location.href = '/loans';
-            }, 2000);
-        } else {
-            showAlert('❌ ' + (result.error || 'មានបញ្ហាក្នុងការបង្កើតកម្ចី!'), 'error');
-        }
-    } catch (error) {
-        console.error('Error submitting loan:', error);
-        showAlert('❌ មានបញ្ហាក្នុងការភ្ជាប់ទៅម៉ាស៊ីនមេ!', 'error');
-    } finally {
-        isSubmitting = false;
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
     }
-}
 
     // ===== SHOW ALERT =====
     function showAlert(message, type) {
@@ -881,10 +883,7 @@
         const className = type === 'success' ? 'alert-success' : type === 'info' ? 'alert-info' : 'alert-error';
         alertDiv.innerHTML = `<div class="alert ${className}">${message}</div>`;
 
-        if (window.alertTimeout) {
-            clearTimeout(window.alertTimeout);
-        }
-
+        if (window.alertTimeout) clearTimeout(window.alertTimeout);
         window.alertTimeout = setTimeout(() => {
             alertDiv.innerHTML = '';
         }, 5000);
@@ -892,12 +891,10 @@
 
     // ===== EVENT LISTENERS =====
     document.addEventListener('DOMContentLoaded', function() {
-        // ===== Generate Loan Code ភ្លាមៗ =====
         generateLoanCode();
         setDefaultDates();
         loadOfficers();
 
-        // ===== Search Customer on Enter =====
         document.getElementById('customer_search').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
@@ -905,7 +902,6 @@
             }
         });
 
-        // ===== Clear on Blur =====
         document.getElementById('customer_search').addEventListener('blur', function() {
             if (!this.value) {
                 clearAllCustomerFields();
@@ -913,7 +909,6 @@
             }
         });
 
-        // ===== Auto Calculate on Input Change =====
         let calcTimeout;
         const fields = ['loan_amount', 'interest_rate', 'duration_num', 'duration_type', 'calc_type', 'service_fee', 'currency'];
         fields.forEach(id => {
@@ -938,7 +933,6 @@
             }
         });
 
-        // ===== Recalculate Loan Code ពេល Focus =====
         document.getElementById('loan_code').addEventListener('focus', function() {
             if (!this.value || this.value === 'កំពុងផ្ទុក...') {
                 generateLoanCode();
