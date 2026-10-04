@@ -26,48 +26,23 @@
             overflow-y: auto;
             box-shadow: 4px 0 20px rgba(0,0,0,0.2);
             z-index: 1000;
-            top: 0;
-            left: 0;
         }
         .sidebar-brand { text-align: center; padding: 20px 15px 30px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 20px; }
         .sidebar-brand .logo { font-size: 32px; display: block; margin-bottom: 5px; }
         .sidebar-brand h2 { font-size: 20px; font-weight: 700; color: #fff; }
         .sidebar-brand h2 span { color: #667eea; }
         .sidebar-brand p { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 3px; }
-
         .menu-label { padding: 10px 25px 5px; font-size: 11px; text-transform: uppercase; color: rgba(255,255,255,0.3); letter-spacing: 2px; font-weight: 600; }
-
-        /* ===== MENU ITEM (FIX CLICK) ===== */
         .menu-item {
-            display: flex;
-            align-items: center;
-            padding: 13px 25px;
-            color: rgba(255,255,255,0.6);
-            text-decoration: none;
-            transition: all 0.3s ease;
-            border-left: 3px solid transparent;
-            cursor: pointer;
-            font-size: 15px;
-            font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif;
-            position: relative;
-            z-index: 2;
-            background: transparent;
-            width: 100%;
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
+            display: flex; align-items: center; padding: 13px 25px;
+            color: rgba(255,255,255,0.6); text-decoration: none;
+            transition: all 0.3s ease; border-left: 3px solid transparent;
+            cursor: pointer; font-size: 15px;
         }
         .menu-item:hover { background: rgba(255,255,255,0.05); color: #fff; border-left-color: #667eea; }
         .menu-item.active { background: rgba(102,126,234,0.15); color: #fff; border-left-color: #667eea; }
+        .menu-item .icon { font-size: 20px; margin-right: 14px; width: 28px; text-align: center; }
 
-        .menu-item .icon,
-        .menu-item span {
-            pointer-events: none;
-        }
-        .menu-item .icon { font-size: 20px; margin-right: 14px; width: 28px; text-align: center; flex-shrink: 0; }
-        .menu-item .badge { margin-left: auto; background: #e74c3c; color: #fff; font-size: 11px; padding: 2px 10px; border-radius: 20px; pointer-events: none; }
-
-        /* ===== MAIN CONTENT ===== */
         .main-content { margin-left: 260px; flex: 1; padding: 25px; min-height: 100vh; }
 
         /* ===== TOP HEADER ===== */
@@ -86,28 +61,7 @@
         .logout-btn { background: #e74c3c; color: #fff; border: none; padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 14px; text-decoration: none; }
         .logout-btn:hover { background: #c0392b; }
 
-        /* ===== MINI STATS ===== */
-        .mini-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        .mini-stat {
-            background: #fff;
-            padding: 15px 18px;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            text-align: center;
-        }
-        .mini-stat .num { font-size: 22px; font-weight: 700; color: #1a1a2e; }
-        .mini-stat .lbl { font-size: 12px; color: #888; margin-top: 3px; }
-        .mini-stat .num.blue { color: #667eea; }
-        .mini-stat .num.green { color: #27ae60; }
-        .mini-stat .num.orange { color: #f39c12; }
-        .mini-stat .num.red { color: #e74c3c; }
-
-        /* ===== STATS GRID ===== */
+        /* ===== STATS GRID (2 columns - USD & KHR) ===== */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -121,6 +75,8 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             transition: all 0.3s ease;
             border-left: 4px solid #667eea;
+            position: relative;
+            overflow: hidden;
         }
         .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
         .stat-card .stat-header {
@@ -167,6 +123,7 @@
             margin-top: 2px;
         }
 
+        /* ===== COLOR VARIANTS ===== */
         .stat-card.blue { border-left-color: #3498db; }
         .stat-card.blue .stat-icon { background: rgba(52,152,219,0.1); color: #3498db; }
         .stat-card.green { border-left-color: #27ae60; }
@@ -180,7 +137,28 @@
         .stat-card.teal { border-left-color: #1abc9c; }
         .stat-card.teal .stat-icon { background: rgba(26,188,156,0.1); color: #1abc9c; }
 
-        /* ===== MONTH REPORT ===== */
+        /* ===== MINI STATS ===== */
+        .mini-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .mini-stat {
+            background: #fff;
+            padding: 15px 18px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        .mini-stat .num { font-size: 22px; font-weight: 700; color: #1a1a2e; }
+        .mini-stat .lbl { font-size: 12px; color: #888; margin-top: 3px; }
+        .mini-stat .num.blue { color: #667eea; }
+        .mini-stat .num.green { color: #27ae60; }
+        .mini-stat .num.orange { color: #f39c12; }
+        .mini-stat .num.red { color: #e74c3c; }
+
+        /* ===== CALENDAR ===== */
         .calendar-section {
             background: #fff;
             border-radius: 15px;
@@ -193,8 +171,6 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #f0f0f0;
             flex-wrap: wrap;
             gap: 15px;
         }
@@ -204,126 +180,143 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            margin: 0;
         }
         .calendar-header h3 i { color: #667eea; }
         .calendar-controls {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             align-items: center;
-            flex-wrap: wrap;
         }
         .calendar-controls button {
             background: #667eea;
             color: #fff;
             border: none;
-            padding: 9px 14px;
+            padding: 8px 15px;
             border-radius: 8px;
             cursor: pointer;
             font-size: 14px;
             transition: all 0.3s ease;
             font-family: 'Khmer OS', Arial, sans-serif;
-            display: flex;
-            align-items: center;
-            gap: 5px;
         }
-        .calendar-controls button:hover {
-            background: #5a67d8;
-            transform: translateY(-2px);
-        }
+        .calendar-controls button:hover { background: #5a67d8; }
         .calendar-controls select {
-            padding: 9px 12px;
+            padding: 8px 15px;
             border: 2px solid #e2e8f0;
             border-radius: 8px;
             font-size: 14px;
             font-family: 'Khmer OS', Arial, sans-serif;
             background: #fff;
             cursor: pointer;
-            min-width: 110px;
-            transition: all 0.3s;
         }
-        .calendar-controls select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        .calendar-controls .month-year {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a1a2e;
+            min-width: 180px;
+            text-align: center;
         }
 
-        /* ===== MONTHLY SUMMARY ===== */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+        .calendar-day-header {
+            text-align: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: #667eea;
+            padding: 10px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .calendar-day-header.sunday { color: #e74c3c; }
+        .calendar-day-header.saturday { color: #3498db; }
+
+        .calendar-day {
+            background: #fff;
+            border: 2px solid #f0f2f5;
+            border-radius: 10px;
+            padding: 8px;
+            min-height: 90px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .calendar-day:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102,126,234,0.2);
+        }
+        .calendar-day.empty {
+            background: #f8f9fa;
+            border-color: transparent;
+            cursor: default;
+        }
+        .calendar-day.empty:hover { transform: none; box-shadow: none; }
+        .calendar-day.today {
+            border-color: #667eea;
+            background: rgba(102,126,234,0.05);
+        }
+        .calendar-day.has-data {
+            background: linear-gradient(135deg, #fff 0%, #f0f4ff 100%);
+        }
+        .calendar-day .day-number {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 5px;
+        }
+        .calendar-day.today .day-number {
+            color: #667eea;
+            font-size: 16px;
+        }
+        .calendar-day .day-info {
+            font-size: 10px;
+            color: #555;
+            line-height: 1.5;
+        }
+        .calendar-day .day-info .badge {
+            display: inline-block;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 600;
+            margin: 1px 0;
+        }
+        .calendar-day .day-info .badge.loan {
+            background: #d4edda;
+            color: #155724;
+        }
+        .calendar-day .day-info .badge.collect {
+            background: #cce5ff;
+            color: #004085;
+        }
+        .calendar-day .day-info .badge.expense {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* ===== MONTHLY SUMMARY BAR ===== */
         .monthly-summary {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 12px;
-            margin-bottom: 20px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px dashed #e2e8f0;
         }
         .summary-item {
             text-align: center;
-            padding: 15px 12px;
-            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-            border-radius: 10px;
-            border: 2px solid #f0f2f5;
-            transition: all 0.3s ease;
-        }
-        .summary-item:hover {
-            border-color: #667eea;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102,126,234,0.1);
-        }
-        .summary-item .lbl {
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-        .summary-item .lbl i { margin-right: 3px; }
-        .summary-item .val {
-            font-size: 18px;
-            font-weight: 700;
-            color: #1a1a2e;
-        }
-        .summary-item .val.blue { color: #3498db; }
-        .summary-item .val.green { color: #27ae60; }
-        .summary-item .val.red { color: #e74c3c; }
-
-        /* ===== DAILY TABLE ===== */
-        .table-responsive { overflow-x: auto; }
-        .daily-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-        .daily-table th {
+            padding: 12px;
             background: #f8f9fa;
-            padding: 12px 10px;
-            text-align: left;
-            color: #555;
-            font-weight: 700;
-            border-bottom: 2px solid #e0e0e0;
-            font-size: 12px;
-            white-space: nowrap;
+            border-radius: 10px;
         }
-        .daily-table td {
-            padding: 10px;
-            border-bottom: 1px solid #f0f0f0;
-            color: #333;
-            font-size: 13px;
-        }
-        .daily-table tr:hover td { background: #f8f9fa; }
-        .daily-table .day-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            background: #667eea;
-            color: #fff;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 13px;
-            min-width: 40px;
-            text-align: center;
-        }
-        .daily-table .empty-day {
-            text-align: center;
-            padding: 30px;
-            color: #888;
-        }
+        .summary-item .lbl { font-size: 12px; color: #888; }
+        .summary-item .val { font-size: 16px; font-weight: 700; color: #1a1a2e; margin-top: 3px; }
+        .summary-item .val.green { color: #27ae60; }
+        .summary-item .val.blue { color: #3498db; }
+        .summary-item .val.red { color: #e74c3c; }
 
         /* ===== CHARTS ===== */
         .charts-grid {
@@ -451,7 +444,6 @@
         .day-detail-item .lbl { color: #666; }
         .day-detail-item .val { font-weight: 700; color: #1a1a2e; }
 
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 992px) {
             .charts-grid { grid-template-columns: 1fr; }
             .content-grid { grid-template-columns: 1fr; }
@@ -459,99 +451,52 @@
         @media (max-width: 768px) {
             .sidebar { width: 70px; padding: 15px 0; }
             .sidebar-brand h2, .sidebar-brand p, .menu-label,
-            .menu-item span:not(.icon), .menu-item .badge { display: none; }
+            .menu-item span:not(.icon) { display: none; }
             .sidebar-brand .logo { font-size: 28px; }
             .menu-item { padding: 15px 0; justify-content: center; }
             .menu-item .icon { margin-right: 0; font-size: 24px; }
             .main-content { margin-left: 70px; padding: 15px; }
-            .calendar-header { flex-direction: column; align-items: stretch; }
-            .calendar-controls { justify-content: center; }
+            .calendar-day { min-height: 60px; padding: 5px; }
+            .calendar-day .day-number { font-size: 12px; }
+            .calendar-day .day-info { display: none; }
         }
     </style>
 </head>
 <body>
 
-    <!-- ===== SIDEBAR ===== -->
-<nav class="sidebar">
-    <div class="sidebar-brand">
-        <span class="logo">🏦</span>
-        <h2>កម្ចី<span>Plus</span></h2>
-        <p>ប្រព័ន្ធគ្រប់គ្រងកម្ចី</p>
-    </div>
+    <nav class="sidebar">
+        <div class="sidebar-brand">
+            <span class="logo">🏦</span>
+            <h2>កម្ចី<span>Plus</span></h2>
+            <p>ប្រព័ន្ធគ្រប់គ្រងកម្ចី</p>
+        </div>
+        <div class="menu-label">មុខម្ហូប</div>
+        <a href="/dashboard" class="menu-item active"><span class="icon">📊</span><span>Dashboard</span></a>
+        <a href="/customers" class="menu-item"><span class="icon">👤</span><span>អតិថិជន</span></a>
+        <a href="/loans" class="menu-item"><span class="icon">💰</span><span>កម្ចី</span></a>
+        <a href="/loans/bad" class="menu-item"><span class="icon">⚠️</span><span>កម្ចីខូច</span></a>
+        <a href="/pawn" class="menu-item"><span class="icon">🏠</span><span>បញ្ចាំ</span></a>
+        <a href="/payments" class="menu-item"><span class="icon">📱</span><span>ទូរទាត់</span></a>
+        <a href="/collection" class="menu-item"><span class="icon">💵</span><span>ប្រមូលប្រាក់</span></a>
+        <a href="/disbursement" class="menu-item"><span class="icon">📢</span><span>បេឡា</span></a>
+        <a href="/reports" class="menu-item"><span class="icon">📈</span><span>របាយការណ៍</span></a>
+        <a href="/settings" class="menu-item"><span class="icon">⚙️</span><span>ការកំណត់</span></a>
+        <a href="/audit" class="menu-item"><span class="icon">📋</span><span>សវនៈកម្ម</span></a>
+    </nav>
 
-    <div class="menu-label">មុខម្ហូប</div>
+    <div class="main-content">
+        <div class="top-header">
+            <h1>📊 <span>Dashboard</span></h1>
+            <div class="user-info">
+                <div>
+                    <div class="name">ស្វាគមន៍, <span>{{ username }}</span></div>
+                    <div class="role">អ្នកគ្រប់គ្រងប្រព័ន្ធ</div>
+                </div>
+                <div class="avatar">{{ username[0] if username else 'អ' }}</div>
+                <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> ចាកចេញ</a>
+            </div>
+        </div>
 
-    <a href="/dashboard" class="menu-item {% if active_page == 'dashboard' %}active{% endif %}">
-        <span class="icon">📊</span>
-        <span>Dashboard</span>
-    </a>
-
-    <a href="/customers" class="menu-item {% if active_page == 'customers' %}active{% endif %}">
-        <span class="icon">👤</span>
-        <span>អតិថិជន</span>
-    </a>
-
-    <a href="/loans" class="menu-item {% if active_page == 'loans' %}active{% endif %}">
-        <span class="icon">💰</span>
-        <span>កម្ចី</span>
-    </a>
-
-    <a href="/loans/bad" class="menu-item {% if active_page == 'loans_bad' %}active{% endif %}">
-        <span class="icon">⚠️</span>
-        <span>កម្ចីខូច</span>
-    </a>
-
-    <a href="/pawn" class="menu-item {% if active_page == 'pawn' %}active{% endif %}">
-        <span class="icon">🏠</span>
-        <span>បញ្ចាំ</span>
-    </a>
-
-    <a href="/payments" class="menu-item {% if active_page == 'payments' %}active{% endif %}">
-        <span class="icon">📱</span>
-        <span>ទូរទាត់</span>
-    </a>
-
-    <!-- ===== COLLECTION WITH SUBMENU ===== -->
-    <div class="menu-item menu-parent {% if active_page in ['collection', 'collection_good', 'collection_late', 'collection_bad'] %}active{% endif %}" onclick="toggleCollectionSubmenu(event)">
-        <span class="icon">💵</span>
-        <span>ប្រមូលប្រាក់</span>
-        <span class="arrow" id="collectionArrow">▼</span>
-    </div>
-    <div class="submenu-container" id="collectionSubmenu">
-        <a href="/collection_good" class="menu-item submenu-item {% if active_page == 'collection_good' %}active{% endif %}">
-            <span class="icon">✅</span>
-            <span>កម្ចីល្អ</span>
-        </a>
-        <a href="/collection_late" class="menu-item submenu-item {% if active_page == 'collection_late' %}active{% endif %}">
-            <span class="icon">⏰</span>
-            <span>កម្ចីយឺត</span>
-        </a>
-        <a href="/collection_bad" class="menu-item submenu-item {% if active_page == 'collection_bad' %}active{% endif %}">
-            <span class="icon">❌</span>
-            <span>កម្ចីខូច</span>
-        </a>
-    </div>
-
-    <a href="/disbursement" class="menu-item {% if active_page == 'disbursement' %}active{% endif %}">
-        <span class="icon">📢</span>
-        <span>បេឡា</span>
-    </a>
-
-    <a href="/reports" class="menu-item {% if active_page == 'reports' %}active{% endif %}">
-        <span class="icon">📈</span>
-        <span>របាយការណ៍</span>
-    </a>
-
-    <a href="/settings" class="menu-item {% if active_page == 'settings' %}active{% endif %}">
-        <span class="icon">⚙️</span>
-        <span>ការកំណត់</span>
-    </a>
-
-    <a href="/audit" class="menu-item {% if active_page == 'audit' %}active{% endif %}">
-        <span class="icon">📋</span>
-        <span>សវនៈកម្ម</span>
-    </a>
-</nav>
         <!-- ===== MINI STATS ===== -->
         <div class="mini-stats">
             <div class="mini-stat">
@@ -572,8 +517,9 @@
             </div>
         </div>
 
-        <!-- ===== MAIN STATS ===== -->
+        <!-- ===== MAIN STATS (USD + KHR) ===== -->
         <div class="stats-grid">
+            <!-- ១. ទុនទំលាក់សរុប -->
             <div class="stat-card blue">
                 <div class="stat-header">
                     <span class="stat-title">ទុនទំលាក់សរុប</span>
@@ -591,6 +537,7 @@
                 </div>
             </div>
 
+            <!-- ២. ការប្រាក់សរុប -->
             <div class="stat-card green">
                 <div class="stat-header">
                     <span class="stat-title">ការប្រាក់សរុប</span>
@@ -608,6 +555,7 @@
                 </div>
             </div>
 
+            <!-- ៣. ទឹកប្រាក់សងសរុប -->
             <div class="stat-card teal">
                 <div class="stat-header">
                     <span class="stat-title">ទឹកប្រាក់សងសរុប</span>
@@ -625,6 +573,7 @@
                 </div>
             </div>
 
+            <!-- ៤. បំណុលសរុប (រួមការប្រាក់) -->
             <div class="stat-card red">
                 <div class="stat-header">
                     <span class="stat-title">បំណុលសរុប (រួមការប្រាក់)</span>
@@ -642,6 +591,7 @@
                 </div>
             </div>
 
+            <!-- ៥. ចំណាយសរុប -->
             <div class="stat-card orange">
                 <div class="stat-header">
                     <span class="stat-title">ចំណាយសរុប</span>
@@ -655,9 +605,10 @@
                 </div>
             </div>
 
+            <!-- ៦. ចំណូលសុទ្ធ -->
             <div class="stat-card purple">
                 <div class="stat-header">
-                    <span class="stat-title">ចំណូលសុទ្ធ</span>
+                    <span class="stat-title">ចំណូលសុទ្ធ (ការប្រាក់ - ចំណាយ)</span>
                     <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
                 </div>
                 <div class="stat-values">
@@ -669,14 +620,12 @@
             </div>
         </div>
 
-        <!-- ===== MONTH REPORT ===== -->
+        <!-- ===== CALENDAR ===== -->
         <div class="calendar-section">
             <div class="calendar-header">
-                <h3><i class="fas fa-calendar-alt"></i> របាយការណ៍ប្រចាំខែ</h3>
+                <h3><i class="fas fa-calendar-alt"></i> ប្រតិទិនប្រតិបត្តិការ</h3>
                 <div class="calendar-controls">
-                    <button onclick="changeMonth(-1)" title="ខែមុន">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
+                    <button onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i> ខែមុន</button>
                     <select id="monthSelect" onchange="loadCalendar()">
                         <option value="1">មករា</option>
                         <option value="2">កុម្ភៈ</option>
@@ -692,69 +641,22 @@
                         <option value="12">ធ្នូ</option>
                     </select>
                     <select id="yearSelect" onchange="loadCalendar()"></select>
-                    <button onclick="changeMonth(1)" title="ខែបន្ទាប់">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
-                    <button onclick="setCurrentMonth()" style="background:#27ae60;" title="ខែបច្ចុប្បន្ន">
-                        <i class="fas fa-calendar-day"></i> ថ្ងៃនេះ
-                    </button>
+                    <button onclick="changeMonth(1)">ខែបន្ទាប់ <i class="fas fa-chevron-right"></i></button>
                 </div>
             </div>
 
-            <div class="monthly-summary">
-                <div class="summary-item">
-                    <div class="lbl"><i class="fas fa-file-invoice"></i> កម្ចីក្នុងខែ</div>
-                    <div class="val blue" id="summaryLoanCount">0</div>
-                </div>
-                <div class="summary-item">
-                    <div class="lbl"><i class="fas fa-hand-holding-usd"></i> ទុនទំលាក់ (USD)</div>
-                    <div class="val blue" id="summaryLoanUSD">$0.00</div>
-                </div>
-                <div class="summary-item">
-                    <div class="lbl"><i class="fas fa-hand-holding-usd"></i> ទុនទំលាក់ (KHR)</div>
-                    <div class="val blue" id="summaryLoanKHR">៛ 0</div>
-                </div>
-                <div class="summary-item">
-                    <div class="lbl"><i class="fas fa-money-bill-wave"></i> ការប្រមូល (USD)</div>
-                    <div class="val green" id="summaryCollectUSD">$0.00</div>
-                </div>
-                <div class="summary-item">
-                    <div class="lbl"><i class="fas fa-money-bill-wave"></i> ការប្រមូល (KHR)</div>
-                    <div class="val green" id="summaryCollectKHR">៛ 0</div>
-                </div>
-                <div class="summary-item">
-                    <div class="lbl"><i class="fas fa-arrow-down"></i> ចំណាយ (USD)</div>
-                    <div class="val red" id="summaryExpense">$0.00</div>
-                </div>
+            <div class="calendar-grid" id="calendarGrid">
+                <div class="calendar-day-header sunday">អាទិត្យ</div>
+                <div class="calendar-day-header">ច័ន្ទ</div>
+                <div class="calendar-day-header">អង្គារ</div>
+                <div class="calendar-day-header">ពុធ</div>
+                <div class="calendar-day-header">ព្រហស្បតិ៍</div>
+                <div class="calendar-day-header">សុក្រ</div>
+                <div class="calendar-day-header saturday">សៅរ៍</div>
             </div>
 
-            <div style="margin-top:20px;">
-                <h4 style="font-size:14px; color:#667eea; margin-bottom:12px;">
-                    <i class="fas fa-list"></i> បំបែកតាមថ្ងៃ (ថ្ងៃដែលមានប្រតិបត្តិការ)
-                </h4>
-                <div class="table-responsive">
-                    <table class="daily-table">
-                        <thead>
-                            <tr>
-                                <th>ថ្ងៃទី</th>
-                                <th>កម្ចីថ្មី</th>
-                                <th>ទុនទំលាក់ (USD)</th>
-                                <th>ទុនទំលាក់ (KHR)</th>
-                                <th>ការប្រមូល (USD)</th>
-                                <th>ចំណាយ (USD)</th>
-                                <th>សកម្មភាព</th>
-                            </tr>
-                        </thead>
-                        <tbody id="dailyBreakdownBody">
-                            <tr>
-                                <td colspan="7" style="text-align:center; padding:30px; color:#888;">
-                                    <div class="spinner"></div>
-                                    <p style="margin-top:8px;">កំពុងផ្ទុក...</p>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            <div class="monthly-summary" id="monthlySummary">
+                <!-- Dynamic -->
             </div>
         </div>
 
@@ -843,12 +745,12 @@
         // ===== INIT YEAR SELECT =====
         function initYearSelect() {
             const select = document.getElementById('yearSelect');
-            const y = new Date().getFullYear();
-            for (let year = y - 3; year <= y + 2; year++) {
+            const currentYear = new Date().getFullYear();
+            for (let y = currentYear - 3; y <= currentYear + 2; y++) {
                 const opt = document.createElement('option');
-                opt.value = year;
-                opt.textContent = year;
-                if (year === y) opt.selected = true;
+                opt.value = y;
+                opt.textContent = y;
+                if (y === currentYear) opt.selected = true;
                 select.appendChild(opt);
             }
         }
@@ -857,14 +759,16 @@
         async function loadFullStats() {
             try {
                 const res = await fetch('/api/dashboard_full_stats');
-                if (!res.ok) throw new Error('Failed');
+                if (!res.ok) throw new Error('Failed to load stats');
                 const s = await res.json();
 
+                // ===== Mini Stats =====
                 document.getElementById('miniLoans').textContent = s.total_loans || 0;
                 document.getElementById('miniActive').textContent = s.active_loans || 0;
                 document.getElementById('miniBad').textContent = s.bad_loans || 0;
                 document.getElementById('miniCustomers').textContent = s.total_customers || 0;
 
+                // ===== Main Stats =====
                 document.getElementById('disbUSD').textContent = fmtCurrency(s.total_disbursement_usd, 'USD');
                 document.getElementById('disbKHR').textContent = fmtCurrency(s.total_disbursement_khr, 'KHR');
                 document.getElementById('interestUSD').textContent = fmtCurrency(s.total_interest_usd, 'USD');
@@ -875,12 +779,13 @@
                 document.getElementById('debtKHR').textContent = fmtCurrency(s.total_debt_khr, 'KHR');
                 document.getElementById('expenseTotal').textContent = fmtCurrency(s.total_expense, 'USD');
 
-                const net = s.net_income || 0;
+                const netIncome = s.net_income || 0;
                 const netEl = document.getElementById('netIncome');
-                netEl.textContent = fmtCurrency(net, 'USD');
-                netEl.style.color = net >= 0 ? '#27ae60' : '#e74c3c';
+                netEl.textContent = fmtCurrency(netIncome, 'USD');
+                netEl.style.color = netIncome >= 0 ? '#27ae60' : '#e74c3c';
+
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Error loading full stats:', error);
             }
         }
 
@@ -971,20 +876,11 @@
             } catch { return ts; }
         }
 
-        // ===== CALENDAR / MONTH REPORT =====
+        // ===== CALENDAR =====
         function changeMonth(delta) {
             currentMonth += delta;
             if (currentMonth > 12) { currentMonth = 1; currentYear++; }
             if (currentMonth < 1) { currentMonth = 12; currentYear--; }
-            document.getElementById('monthSelect').value = currentMonth;
-            document.getElementById('yearSelect').value = currentYear;
-            loadCalendar();
-        }
-
-        function setCurrentMonth() {
-            const now = new Date();
-            currentYear = now.getFullYear();
-            currentMonth = now.getMonth() + 1;
             document.getElementById('monthSelect').value = currentMonth;
             document.getElementById('yearSelect').value = currentYear;
             loadCalendar();
@@ -998,64 +894,94 @@
                 const res = await fetch(`/api/calendar_data?year=${currentYear}&month=${currentMonth}`);
                 if (!res.ok) throw new Error('Failed');
                 const data = await res.json();
+                renderCalendar(data);
                 renderMonthlySummary(data.summary);
-                renderDailyBreakdown(data.days);
             } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('dailyBreakdownBody').innerHTML = `
-                    <tr><td colspan="7" style="text-align:center; padding:30px; color:#e74c3c;">❌ មានបញ្ហាក្នុងការផ្ទុកទិន្នន័យ</td></tr>
-                `;
+                console.error('Error loading calendar:', error);
             }
+        }
+
+        function renderCalendar(data) {
+            const grid = document.getElementById('calendarGrid');
+            // ===== លុបថ្ងៃចាស់ (លើកលែង Header) =====
+            const headers = grid.querySelectorAll('.calendar-day-header');
+            grid.innerHTML = '';
+            headers.forEach(h => grid.appendChild(h));
+
+            // ===== បង្កើតថ្ងៃទទេសម្រាប់ថ្ងៃទី ១ =====
+            const firstDay = new Date(data.year, data.month - 1, 1);
+            const startDay = firstDay.getDay(); // 0=Sunday
+
+            for (let i = 0; i < startDay; i++) {
+                const empty = document.createElement('div');
+                empty.className = 'calendar-day empty';
+                grid.appendChild(empty);
+            }
+
+            // ===== បង្កើតថ្ងៃ =====
+            const today = new Date();
+            const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+            data.days.forEach(day => {
+                const dayEl = document.createElement('div');
+                dayEl.className = 'calendar-day';
+
+                if (day.date === todayStr) dayEl.classList.add('today');
+                if (day.loans_count > 0 || day.collections_usd > 0 || day.expenses > 0) {
+                    dayEl.classList.add('has-data');
+                }
+
+                let infoHtml = '';
+                if (day.loans_count > 0) {
+                    infoHtml += `<span class="badge loan">💰 ${day.loans_count}</span><br>`;
+                }
+                if (day.collections_usd > 0) {
+                    infoHtml += `<span class="badge collect">✅ ${fmtShort(day.collections_usd)}</span><br>`;
+                }
+                if (day.expenses > 0) {
+                    infoHtml += `<span class="badge expense">💸 ${fmtShort(day.expenses)}</span>`;
+                }
+
+                dayEl.innerHTML = `
+                    <div class="day-number">${day.day}</div>
+                    <div class="day-info">${infoHtml}</div>
+                `;
+
+                dayEl.onclick = () => openDayModal(day);
+                grid.appendChild(dayEl);
+            });
+        }
+
+        function fmtShort(amount) {
+            if (amount >= 1000000) return (amount / 1000000).toFixed(1) + 'M';
+            if (amount >= 1000) return (amount / 1000).toFixed(0) + 'K';
+            return amount.toFixed(0);
         }
 
         function renderMonthlySummary(summary) {
-            document.getElementById('summaryLoanCount').textContent = summary.total_loans || 0;
-            document.getElementById('summaryLoanUSD').textContent = fmtCurrency(summary.total_loans_usd || 0, 'USD');
-            document.getElementById('summaryLoanKHR').textContent = fmtCurrency(summary.total_loans_khr || 0, 'KHR');
-            document.getElementById('summaryCollectUSD').textContent = fmtCurrency(summary.total_collections_usd || summary.total_collections || 0, 'USD');
-            document.getElementById('summaryCollectKHR').textContent = fmtCurrency(summary.total_collections_khr || 0, 'KHR');
-            document.getElementById('summaryExpense').textContent = fmtCurrency(summary.total_expenses || 0, 'USD');
-        }
-
-        function renderDailyBreakdown(days) {
-            const tbody = document.getElementById('dailyBreakdownBody');
-
-            const activeDays = days.filter(d =>
-                d.loans_count > 0 ||
-                d.collections_usd > 0 ||
-                d.collections_khr > 0 ||
-                d.expenses > 0 ||
-                (d.events && d.events.length > 0)
-            );
-
-            if (activeDays.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7" class="empty-day">
-                            <i class="fas fa-inbox" style="font-size:40px; display:block; margin-bottom:10px; color:#e2e8f0;"></i>
-                            📭 មិនមានប្រតិបត្តិការក្នុងខែនេះ
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
-            tbody.innerHTML = activeDays.map(day => `
-                <tr>
-                    <td><span class="day-badge">${day.day}</span></td>
-                    <td>${day.loans_count > 0 ? `<strong style="color:#27ae60;">${day.loans_count} កម្ចី</strong>` : '-'}</td>
-                    <td>${day.loans_amount_usd > 0 ? `<strong style="color:#3498db;">${fmtCurrency(day.loans_amount_usd, 'USD')}</strong>` : '-'}</td>
-                    <td>${day.loans_amount_khr > 0 ? `<strong style="color:#f39c12;">${fmtCurrency(day.loans_amount_khr, 'KHR')}</strong>` : '-'}</td>
-                    <td>${day.collections_usd > 0 ? `<strong style="color:#27ae60;">${fmtCurrency(day.collections_usd, 'USD')}</strong>` : '-'}</td>
-                    <td>${day.expenses > 0 ? `<strong style="color:#e74c3c;">${fmtCurrency(day.expenses, 'USD')}</strong>` : '-'}</td>
-                    <td>
-                        <button onclick='openDayModal(${JSON.stringify(day).replace(/'/g, "\\'")})'
-                                style="background:#667eea; color:#fff; border:none; padding:5px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-family:inherit;">
-                            <i class="fas fa-eye"></i> មើល
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
+            const container = document.getElementById('monthlySummary');
+            container.innerHTML = `
+                <div class="summary-item">
+                    <div class="lbl">កម្ចីក្នុងខែ</div>
+                    <div class="val blue">${summary.total_loans || 0}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="lbl">ទុនទំលាក់ (USD)</div>
+                    <div class="val blue">${fmtCurrency(summary.total_loans_usd || 0, 'USD')}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="lbl">ទុនទំលាក់ (KHR)</div>
+                    <div class="val blue">${fmtCurrency(summary.total_loans_khr || 0, 'KHR')}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="lbl">ការប្រមូល (USD)</div>
+                    <div class="val green">${fmtCurrency(summary.total_collections || 0, 'USD')}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="lbl">ចំណាយ (USD)</div>
+                    <div class="val red">${fmtCurrency(summary.total_expenses || 0, 'USD')}</div>
+                </div>
+            `;
         }
 
         function openDayModal(day) {
@@ -1063,32 +989,22 @@
             document.getElementById('dayModalTitle').textContent = `📅 ថ្ងៃទី ${day.day} / ${currentMonth} / ${currentYear}`;
 
             let html = '';
-
-            if (day.loans_count > 0) {
-                html += `<div class="day-detail-item"><span class="lbl">💰 កម្ចីថ្មី</span><span class="val">${day.loans_count} កម្ចី</span></div>`;
-            }
+            html += `<div class="day-detail-item"><span class="lbl">💰 កម្ចីថ្មី</span><span class="val">${day.loans_count} កម្ចី</span></div>`;
             if (day.loans_amount_usd > 0) {
-                html += `<div class="day-detail-item"><span class="lbl">💵 ទុនទំលាក់ (USD)</span><span class="val" style="color:#3498db;">${fmtCurrency(day.loans_amount_usd, 'USD')}</span></div>`;
+                html += `<div class="day-detail-item"><span class="lbl">💵 ទុនទំលាក់ (USD)</span><span class="val">${fmtCurrency(day.loans_amount_usd, 'USD')}</span></div>`;
             }
             if (day.loans_amount_khr > 0) {
-                html += `<div class="day-detail-item"><span class="lbl">🇰🇭 ទុនទំលាក់ (KHR)</span><span class="val" style="color:#f39c12;">${fmtCurrency(day.loans_amount_khr, 'KHR')}</span></div>`;
+                html += `<div class="day-detail-item"><span class="lbl">🇰🇭 ទុនទំលាក់ (KHR)</span><span class="val">${fmtCurrency(day.loans_amount_khr, 'KHR')}</span></div>`;
             }
             if (day.collections_usd > 0) {
                 html += `<div class="day-detail-item"><span class="lbl">✅ ការប្រមូល (USD)</span><span class="val" style="color:#27ae60;">${fmtCurrency(day.collections_usd, 'USD')}</span></div>`;
-            }
-            if (day.collections_khr > 0) {
-                html += `<div class="day-detail-item"><span class="lbl">✅ ការប្រមូល (KHR)</span><span class="val" style="color:#27ae60;">${fmtCurrency(day.collections_khr, 'KHR')}</span></div>`;
             }
             if (day.expenses > 0) {
                 html += `<div class="day-detail-item"><span class="lbl">💸 ចំណាយ</span><span class="val" style="color:#e74c3c;">${fmtCurrency(day.expenses, 'USD')}</span></div>`;
             }
 
             if (day.events && day.events.length > 0) {
-                html += `<div style="margin-top:15px; padding-top:15px; border-top:1px solid #e2e8f0;">
-                    <strong style="color:#667eea; display:block; margin-bottom:10px;">
-                        <i class="fas fa-list"></i> ព្រឹត្តិការណ៍:
-                    </strong>
-                </div>`;
+                html += `<div style="margin-top:15px; padding-top:15px; border-top:1px solid #e2e8f0;"><strong style="color:#667eea;">📋 ព្រឹត្តិការណ៍:</strong></div>`;
                 day.events.forEach(e => {
                     if (e.type === 'loan') {
                         html += `<div class="day-detail-item"><span class="lbl">💰 ${e.code}</span><span class="val">${fmtCurrency(e.amount, e.currency)}</span></div>`;
@@ -1210,44 +1126,18 @@
                 });
 
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Error loading charts:', error);
             }
         }
 
-        // ===== MODAL CLOSE =====
+        // ===== CLOSE MODAL ON OVERLAY CLICK =====
         document.getElementById('dayModal').addEventListener('click', function(e) {
             if (e.target === this) closeDayModal();
         });
 
+        // ===== ESC KEY =====
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') closeDayModal();
-        });
-
-        // ============================================================
-        // ===== SIDEBAR MENU CLICK FIX =====
-        // ============================================================
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🔧 Applying sidebar menu click fix...');
-            
-            document.querySelectorAll('.sidebar .menu-item').forEach(function(menuItem) {
-                const newItem = menuItem.cloneNode(true);
-                menuItem.parentNode.replaceChild(newItem, menuItem);
-                
-                newItem.addEventListener('click', function(e) {
-                    const href = this.getAttribute('href');
-                    console.log('🖱️ Menu clicked:', href);
-                    
-                    if (href && href !== '#' && href !== 'javascript:void(0)' && href !== '') {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        e.stopImmediatePropagation();
-                        window.location.href = href;
-                        return false;
-                    }
-                }, true);
-            });
-            
-            console.log('✅ Sidebar menu click fix applied!');
         });
 
         // ===== INIT =====
