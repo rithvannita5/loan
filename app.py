@@ -1414,57 +1414,68 @@ def api_disbursement():
     if 'username' not in session:
         return jsonify([])
 
-    conn = db.get_db_connection()
-
-    payments = conn.execute('''
-        SELECT
-            a.id,
-            a.loan_id,
-            a.description,
-            a.created_at,
-            a.status,
-            l.loan_code,
-            l.currency,
-            l.co_officer,
-            c.name as customer_name,
-            l.amount_paid
-        FROM activities a
-        LEFT JOIN loans l ON a.loan_id = l.id
-        LEFT JOIN customers c ON l.customer_id = c.id
-        WHERE a.action = 'collection_payment'
-        ORDER BY a.created_at DESC
-        LIMIT ?
-    ''', (100,)).fetchall()
-
-    result = []
-    for p in payments:
+    try:
         import re
-        match = re.search(r'\$([0-9.]+)', p['description'])
-        amount = float(match.group(1)) if match else 0
+        # ===== ទាញយក Activities ដែលជា collection_payment =====
+        activities = list(db.activities_col.find(
+            {'action': 'collection_payment'}
+        ).sort('_id', -1).limit(100))
 
-        if '៛' in p['description']:
-            currency = 'KHR'
-            match_khr = re.search(r'៛\s*([0-9,]+)', p['description'])
-            if match_khr:
-                amount_str = match_khr.group(1).replace(',', '')
-                amount = float(amount_str)
-        else:
-            currency = p['currency'] or 'USD'
+        result = []
+        for p in activities:
+            loan_id = p.get('loan_id')
 
-        result.append({
-            'id': p['id'],
-            'loan_id': p['loan_id'],
-            'loan_code': p['loan_code'] or 'N/A',
-            'customer_name': p['customer_name'] or 'មិនស្គាល់',
-            'co_officer': p['co_officer'] or '-',
-            'amount': amount,
-            'currency': currency,
-            'created_at': p['created_at'],
-            'status': p['status'] or 'Pending'
-        })
+            # ===== ទាញយកព័ត៌មានកម្ចី =====
+            loan = None
+            customer = None
+            if loan_id:
+                loan = db.loans_col.find_one({'_id': int(loan_id)})
+                if loan:
+                    customer = db.customers_col.find_one({'_id': loan.get('customer_id')})
 
-    conn.close()
-    return jsonify(result)
+            # ===== ទាញយកទឹកប្រាក់ពី description =====
+            description = p.get('description', '')
+            amount = 0
+            currency = 'USD'
+
+            # ពិនិត្យរូបិយប័ណ្ណ
+            if '៛' in description:
+                currency = 'KHR'
+                match = re.search(r'៛\s*([0-9,]+)', description)
+                if match:
+                    amount = float(match.group(1).replace(',', ''))
+            else:
+                match = re.search(r'\$([0-9.]+)', description)
+                if match:
+                    amount = float(match.group(1))
+
+            # ===== បង្កើត Result =====
+            created_at = p.get('created_at')
+            created_str = ''
+            if hasattr(created_at, 'strftime'):
+                created_str = created_at.strftime('%Y-%m-%d %H:%M:%S')
+            elif created_at:
+                created_str = str(created_at)
+
+            result.append({
+                'id': p.get('_id'),
+                'loan_id': loan_id,
+                'loan_code': loan.get('loan_code', 'N/A') if loan else 'N/A',
+                'customer_name': customer.get('name', 'មិនស្គាល់') if customer else 'មិនស្គាល់',
+                'co_officer': loan.get('co_officer', '-') if loan else '-',
+                'amount': amount,
+                'currency': currency,
+                'created_at': created_str,
+                'status': p.get('status', 'Pending')
+            })
+
+        return jsonify(result)
+
+    except Exception as e:
+        import traceback
+        print(f"❌ Error in /api/disbursement: {e}")
+        print(traceback.format_exc())
+        return jsonify([])  # ត្រឡប់ Array ទទេជំនួស Error
 
 @app.route('/api/approve_disbursement', methods=['POST'])
 def api_approve_disbursement():
