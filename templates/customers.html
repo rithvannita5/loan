@@ -43,7 +43,6 @@
         .menu-item.active { background: rgba(102,126,234,0.15); color: #fff; border-left-color: #667eea; }
         .menu-item .icon { font-size: 20px; margin-right: 14px; width: 28px; text-align: center; }
         .menu-item .badge { margin-left: auto; background: #e74c3c; color: #fff; font-size: 11px; padding: 2px 10px; border-radius: 20px; }
-
         .main-content { margin-left: 260px; flex: 1; padding: 30px; min-height: 100vh; }
 
         .top-header {
@@ -52,6 +51,31 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             margin-bottom: 25px; flex-wrap: wrap; gap: 15px;
         }
+        /* ===== SUBMENU ANIMATION ===== */
+.submenu-container {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease-in-out;
+    background: rgba(0,0,0,0.15);
+}
+.submenu-container.open {
+    max-height: 500px;
+}
+.submenu-item {
+    padding-left: 50px !important;
+    font-size: 14px !important;
+}
+.submenu-item .icon {
+    font-size: 16px !important;
+    margin-right: 10px !important;
+    width: 22px !important;
+}
+.menu-item .arrow {
+    margin-left: auto;
+    font-size: 10px;
+    transition: transform 0.3s ease;
+    color: rgba(255,255,255,0.5);
+}
         .top-header h1 { font-size: 24px; color: #1a1a2e; }
         .top-header h1 span { color: #667eea; }
         .user-info { display: flex; align-items: center; gap: 15px; }
@@ -396,6 +420,83 @@
     </div>
 
     <script>
+        // ============================================================
+// ===== TOGGLE COLLECTION SUBMENU =====
+// ============================================================
+function toggleCollectionSubmenu(event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
+    const container = document.getElementById('collectionSubmenu');
+    const arrow = document.getElementById('collectionArrow');
+
+    if (container) {
+        const isOpen = container.classList.contains('open');
+        
+        // ===== បិទ Sub Menu ទាំងអស់ជាមុន =====
+        closeAllSubmenus();
+        
+        // ===== បើក Sub Menu នេះបើមិនទាន់បើក =====
+        if (!isOpen) {
+            container.classList.add('open');
+            if (arrow) arrow.textContent = '▲';
+        }
+    }
+}
+
+// ============================================================
+// ===== បិទ Sub Menu ទាំងអស់ =====
+// ============================================================
+function closeAllSubmenus() {
+    const container = document.getElementById('collectionSubmenu');
+    const arrow = document.getElementById('collectionArrow');
+    
+    if (container) {
+        container.classList.remove('open');
+        if (arrow) arrow.textContent = '▼';
+    }
+}
+
+// ============================================================
+// ===== បិទ Sub Menu ពេលចុចលើមេនុយផ្សេង =====
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+    // ===== ចាប់ព្រឹត្តិការណ៍ Click លើគ្រប់មេនុយក្នុង Sidebar =====
+    const allMenuItems = document.querySelectorAll('.sidebar .menu-item');
+    
+    allMenuItems.forEach(function(menuItem) {
+        // ===== ឆែកមើលថាមេនុយនេះជា "ប្រមូលប្រាក់" ឬអត់ =====
+        const isCollectionParent = menuItem.querySelector('#collectionArrow');
+        
+        menuItem.addEventListener('click', function(e) {
+            // ===== បើមិនមែនជាមេនុយ "ប្រមូលប្រាក់" → បិទ Sub Menu =====
+            if (!isCollectionParent) {
+                closeAllSubmenus();
+            }
+        });
+    });
+    
+    // ===== បិទ Sub Menu ពេលចុចលើ Sub Item =====
+    const subItems = document.querySelectorAll('#collectionSubmenu .submenu-item');
+    subItems.forEach(function(subItem) {
+        subItem.addEventListener('click', function() {
+            closeAllSubmenus();
+        });
+    });
+});
+
+// ============================================================
+// ===== បិទ Sub Menu ពេលចុចខាងក្រៅ Sidebar =====
+// ============================================================
+document.addEventListener('click', function(event) {
+    const sidebar = document.querySelector('.sidebar');
+    
+    if (sidebar && !sidebar.contains(event.target)) {
+        closeAllSubmenus();
+    }
+});
         let customers = [];
         let allCustomers = []; // សម្រាប់រក្សាទុកទិន្នន័យទាំងអស់
         let currentPage = 1;
