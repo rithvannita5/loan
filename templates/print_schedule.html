@@ -611,32 +611,39 @@
                 }
 
                 // ===== ពិនិត្យមើលថាតើមានការបង់ប្រាក់សម្រាប់វគ្គនេះដែរឬទេ =====
-                var payment = paymentMap[row.period];
-                var isPaid = payment !== undefined;
-                var actualAmount = isPaid ? payment.amount : 0;
-                var paymentDate = isPaid ? payment.payment_date : '-';
-                var paymentMethod = isPaid ? payment.payment_method : '-';
+var payment = paymentMap[row.period];
+var isPaid = payment !== undefined && payment.amount > 0;
+var paymentDate = isPaid ? payment.payment_date : '-';
+var paymentMethod = isPaid ? payment.payment_method : '-';
 
-                // ===== កំណត់ status =====
-                var statusClass = isPaid ? 'paid' : 'unpaid';
-                var statusText = isPaid ? 'បានបង់ ✅' : 'មិនទាន់បង់ ⏳';
-                var statusBadge = isPaid ? '<span class="status-badge paid">បានបង់</span>' : '<span class="status-badge unpaid">មិនទាន់បង់</span>';
+// ===== បង្ហាញទឹកប្រាក់ជាក់ស្តែង (បើមិនបង់ ទុកទទេ) =====
+var actualAmountHtml;
+if (isPaid) {
+    actualAmountHtml = `<strong style="color:#48bb78;">${formatCurrency(payment.amount, loan.currency)}</strong>`;
+} else {
+    actualAmountHtml = `<span style="color:#cbd5e0;">-</span>`;
+}
 
-                // ===== បន្ថែម row =====
-                html += `
-                    <tr class="${isPaid ? 'paid' : 'unpaid'}">
-                        <td><strong>${row.period}</strong></td>
-                        <td>${dueDate}</td>
-                        <td>${formatCurrency(row.principal, loan.currency)}</td>
-                        <td>${formatCurrency(row.interest, loan.currency)}</td>
-                        <td><strong>${formatCurrency(row.payment, loan.currency)}</strong></td>
-                        <td><strong style="color:${isPaid ? '#48bb78' : '#a0aec0'};">${formatCurrency(actualAmount, loan.currency)}</strong></td>
-                        <td>${paymentDate}</td>
-                        <td>${statusBadge}</td>
-                        <td style="height:30px;"><div style="border-bottom:1px solid #a0aec0; height:22px;"></div></td>
-                        <td style="height:30px;"><div style="border-bottom:1px solid #a0aec0; height:22px;"></div></td>
-                    </tr>
-                `;
+// ===== កំណត់ status =====
+var statusBadge = isPaid 
+    ? '<span class="status-badge paid">បានបង់</span>' 
+    : '<span class="status-badge unpaid">មិនទាន់បង់</span>';
+
+// ===== បន្ថែម row =====
+html += `
+    <tr class="${isPaid ? 'paid' : 'unpaid'}">
+        <td><strong>${row.period}</strong></td>
+        <td>${dueDate}</td>
+        <td>${formatCurrency(row.principal, loan.currency)}</td>
+        <td>${formatCurrency(row.interest, loan.currency)}</td>
+        <td><strong>${formatCurrency(row.payment, loan.currency)}</strong></td>
+        <td>${actualAmountHtml}</td>
+        <td>${paymentDate}</td>
+        <td>${statusBadge}</td>
+        <td style="height:30px;"><div style="border-bottom:1px solid #a0aec0; height:22px;"></div></td>
+        <td style="height:30px;"><div style="border-bottom:1px solid #a0aec0; height:22px;"></div></td>
+    </tr>
+`;
             });
 
             var remainingBalance = totalPayment - totalPaid;
