@@ -1161,6 +1161,123 @@ def get_permissions(role):
 
 
 # ============================================================
+# ===== DASHBOARD FUNCTIONS =====
+# ============================================================
+
+def get_dashboard_stats():
+    """ទាញយកស្ថិតិសម្រាប់ Dashboard"""
+    total_loans = loans_col.count_documents({})
+    active_loans = loans_col.count_documents({'status': {'$in': ['Approved', 'Pending']}})
+    bad_loans = loans_col.count_documents({'status': 'Bad Debt'})
+
+    # ===== ប្រាក់កម្ចី USD =====
+    pipeline_usd = [
+        {'$match': {'currency': 'USD'}},
+        {'$group': {'_id': None, 'total': {'$sum': '$loan_amount'}}}
+    ]
+    result_usd = list(loans_col.aggregate(pipeline_usd))
+    total_amount_usd = result_usd[0]['total'] if result_usd else 0
+
+    # ===== ប្រាក់កម្ចី KHR =====
+    pipeline_khr = [
+        {'$match': {'currency': 'KHR'}},
+        {'$group': {'_id': None, 'total': {'$sum': '$loan_amount'}}}
+    ]
+    result_khr = list(loans_col.aggregate(pipeline_khr))
+    total_amount_khr = result_khr[0]['total'] if result_khr else 0
+
+    # ===== បំណុល USD =====
+    pipeline_debt_usd = [
+        {'$match': {'currency': 'USD', 'status': {'$ne': 'Completed'}}},
+        {'$group': {'_id': None, 'total': {'$sum': '$remaining_balance'}}}
+    ]
+    result_debt_usd = list(loans_col.aggregate(pipeline_debt_usd))
+    total_debt_usd = result_debt_usd[0]['total'] if result_debt_usd else 0
+
+    # ===== បំណុល KHR =====
+    pipeline_debt_khr = [
+        {'$match': {'currency': 'KHR', 'status': {'$ne': 'Completed'}}},
+        {'$group': {'_id': None, 'total': {'$sum': '$remaining_balance'}}}
+    ]
+    result_debt_khr = list(loans_col.aggregate(pipeline_debt_khr))
+    total_debt_khr = result_debt_khr[0]['total'] if result_debt_khr else 0
+
+    return {
+        'total_loans': total_loans,
+        'active_loans': active_loans,
+        'bad_loans': bad_loans,
+        'total_amount_usd': total_amount_usd or 0,
+        'total_amount_khr': total_amount_khr or 0,
+        'total_debt_usd': total_debt_usd or 0,
+        'total_debt_khr': total_debt_khr or 0
+    }
+
+
+def get_dashboard_charts_data():
+    """ទាញយកទិន្នន័យសម្រាប់ Charts"""
+    from datetime import datetime, timedelta
+
+    # ===== កម្ចីតាមស្ថានភាព =====
+    pipeline_status = [
+        {'$group': {'_id': '$status', 'count': {'$sum': 1}}}
+    ]
+    status_result = list(loans_col.aggregate(pipeline_status))
+    loans_by_status = {item['_id']: item['count'] for item in status_result if item['_id']}
+
+    # ===== កម្ចីតាមរូបិយប័ណ្ណ =====
+    pipeline_currency = [
+        {'$group': {'_id': '$currency', 'count': {'$sum': 1}, 'total': {'$sum': '$loan_amount'}}}
+    ]
+    currency_result = list(loans_col.aggregate(pipeline_currency))
+    loans_by_currency = {}
+    for item in currency_result:
+        if item['_id']:
+            loans_by_currency[item['_id']] = {
+                'count': item['count'],
+                'total': item.get('total', 0)
+            }
+
+    # ===== កម្ចីប្រចាំខែ (6 ខែចុងក្រោយ) =====
+    six_months_ago = datetime.now() - timedelta(days=180)
+    pipeline_monthly = [
+        {'$match': {'created_at': {'$gte': six_months_ago}}},
+        {'$group': {
+            '_id': {'$dateToString': {'format': '%Y-%m', 'date': '$created_at'}},
+            'count': {'$sum': 1},
+            'total': {'$sum': '$loan_amount'}
+        }},
+        {'$sort': {'_id': 1}}
+    ]
+    monthly_result = list(loans_col.aggregate(pipeline_monthly))
+    monthly_loans = [
+        {'month': item['_id'], 'count': item['count'], 'total': item.get('total', 0)}
+        for item in monthly_result
+    ]
+
+    # ===== ការប្រមូលប្រាក់ប្រចាំខែ =====
+    pipeline_collection = [
+        {'$match': {'created_at': {'$gte': six_months_ago}}},
+        {'$group': {
+            '_id': {'$dateToString': {'format': '%Y-%m', 'date': '$created_at'}},
+            'count': {'$sum': 1},
+            'total': {'$sum': '$amount'}
+        }},
+        {'$sort': {'_id': 1}}
+    ]
+    collection_result = list(payment_history_col.aggregate(pipeline_collection))
+    monthly_collections = [
+        {'month': item['_id'], 'count': item['count'], 'total': item.get('total', 0)}
+        for item in collection_result
+    ]
+
+    return {
+        'loans_by_status': loans_by_status,
+        'loans_by_currency': loans_by_currency,
+        'monthly_loans': monthly_loans,
+        'monthly_collections': monthly_collections
+    }
+
+# ============================================================
 # ===== INITIALIZATION =====
 # ============================================================
 
