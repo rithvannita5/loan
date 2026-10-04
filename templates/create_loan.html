@@ -425,18 +425,19 @@
 
     <!-- Schedule Table -->
     <div id="scheduleContainer" style="display:none;" class="schedule-table">
-        <table>
-            <thead>
-                <tr>
-                    <th>វគ្គ</th>
-                    <th>កាលបរិច្ឆេទ</th>
-                    <th>ទឹកប្រាក់បង់</th>
-                    <th>សមតុល្យ</th>
-                </tr>
-            </thead>
-            <tbody id="scheduleBody"></tbody>
-        </table>
-    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>វគ្គ</th>
+                <th>កាលបរិច្ឆេទ</th>
+                <th>ប្រាក់ដើម</th>
+                <th>ការប្រាក់</th>
+                <th>ទឹកប្រាក់បង់</th>
+                <th>សមតុល្យ</th>
+            </tr>
+        </thead>
+        <tbody id="scheduleBody"></tbody>
+    </table>
 </div>
 
 <script>
@@ -703,39 +704,40 @@
 
     // ===== RENDER SCHEDULE =====
     function renderSchedule(schedule, currency) {
-        const container = document.getElementById('scheduleContainer');
-        const tbody = document.getElementById('scheduleBody');
-        tbody.innerHTML = '';
+    const container = document.getElementById('scheduleContainer');
+    const tbody = document.getElementById('scheduleBody');
+    tbody.innerHTML = '';
 
-        if (!schedule || schedule.length === 0) {
-            container.style.display = 'none';
-            return;
-        }
-
-        container.style.display = 'block';
-
-        schedule.forEach((item, index) => {
-            const tr = document.createElement('tr');
-
-            // ===== បង្ហាញ due_date ពី Server =====
-            let dueDate = item.due_date || '-';
-            if (dueDate !== '-') {
-                try {
-                    const d = new Date(dueDate + 'T00:00:00');
-                    dueDate = d.toLocaleDateString('km-KH');
-                } catch (e) {}
-            }
-
-            tr.innerHTML = `
-                <td>${item.period}</td>
-                <td>${dueDate}</td>
-                <td>${formatCurrency(item.payment, currency)}</td>
-                <td>${formatCurrency(item.balance, currency)}</td>
-            `;
-            tbody.appendChild(tr);
-        });
+    if (!schedule || schedule.length === 0) {
+        container.style.display = 'none';
+        return;
     }
 
+    container.style.display = 'block';
+
+    schedule.forEach((item, index) => {
+        const tr = document.createElement('tr');
+
+        // ===== Format កាលបរិច្ឆេទ =====
+        let dueDate = item.due_date || '-';
+        if (dueDate !== '-') {
+            try {
+                const d = new Date(dueDate + 'T00:00:00');
+                dueDate = d.toLocaleDateString('km-KH');
+            } catch (e) {}
+        }
+
+        tr.innerHTML = `
+            <td><strong>${item.period}</strong></td>
+            <td>${dueDate}</td>
+            <td>${formatCurrency(item.principal || 0, currency)}</td>
+            <td>${formatCurrency(item.interest || 0, currency)}</td>
+            <td><strong style="color:#27ae60;">${formatCurrency(item.payment || 0, currency)}</strong></td>
+            <td><strong style="color:#e74c3c;">${formatCurrency(item.balance || 0, currency)}</strong></td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
     // ===== FORMAT CURRENCY =====
     function formatCurrency(amount, currency) {
         if (amount === null || amount === undefined || isNaN(amount)) {
