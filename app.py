@@ -223,22 +223,50 @@ def logout():
 def print_contract(loan_id):
     if 'username' not in session:
         return redirect(url_for('index'))
+
     loan = db.get_loan_by_id(loan_id)
     if not loan:
         return "មិនឃើញកម្ចីនេះទេ!", 404
+
     customer = db.get_customer_by_id(loan['customer_id'])
+    if not customer:
+        customer = {
+            'name': 'មិនស្គាល់',
+            'code': '',
+            'gender': '',
+            'phone': '',
+            'address': '',
+            'dob': '',
+            'id_card': '',
+            'guarantor_name': '',
+            'guarantor_gender': '',
+            'guarantor_id_card': '',
+            'guarantor_dob': '',
+            'guarantor_phone': '',
+            'guarantor_address': '',
+            'relation': ''
+        }
+
+    # ===== គណនា Schedule =====
     schedule_data = []
-    if loan['duration_num'] and loan['duration_num'] > 0:
-        total_payment = loan['loan_amount'] + loan['total_interest']
+    if loan.get('duration_num') and loan['duration_num'] > 0:
+        total_payment = (loan.get('loan_amount', 0) or 0) + (loan.get('total_interest', 0) or 0)
         daily_payment = total_payment / loan['duration_num']
-        if loan['currency'] == 'KHR':
+
+        if loan.get('currency') == 'KHR':
             daily_payment = round(daily_payment / 100) * 100
         else:
             daily_payment = round(daily_payment, 2)
+
         schedule_data = [{'payment': daily_payment, 'period': 1}]
+
+    # ===== ចម្លង loan និង customer ទៅ dict =====
+    loan_dict = dict(loan) if isinstance(loan, dict) else loan
+    customer_dict = dict(customer) if isinstance(customer, dict) else customer
+
     return render_template('print_contract.html',
-                         loan=loan,
-                         customer=customer,
+                         loan=loan_dict,
+                         customer=customer_dict,
                          schedule_data=schedule_data,
                          username=session.get('full_name', session['username']),
                          now=get_cambodia_time(),
@@ -875,8 +903,28 @@ def api_collection_payment():
 def api_activities():
     if 'username' not in session:
         return jsonify([])
-    activities = db.get_activities(20)
-    return jsonify([dict(a) for a in activities])
+    try:
+        activities = db.get_activities(20)
+        result = []
+        for a in activities:
+            # ===== បម្លែង datetime ទៅ string =====
+            created = a.get('created_at', '')
+            if hasattr(created, 'strftime'):
+                created = created.strftime('%Y-%m-%d %H:%M:%S')
+            else:
+                created = str(created) if created else ''
+
+            result.append({
+                'id': a.get('id', ''),
+                'action': a.get('action', ''),
+                'description': a.get('description', ''),
+                'status': a.get('status', 'Pending'),
+                'created_at': created
+            })
+        return jsonify(result)
+    except Exception as e:
+        print(f"❌ Error in activities: {e}")
+        return jsonify([])
 
 # ============================================================
 # ===== API: SETTINGS (USERS, OFFICERS, HOLIDAYS, PERMISSIONS) =====
@@ -2075,50 +2123,22 @@ def api_dashboard_stats():
     if 'username' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
 
-    conn = db.get_db_connection()
-    cursor = conn.cursor()
-
-    total_loans = cursor.execute('SELECT COUNT(*) as count FROM loans').fetchone()['count']
-    active_loans = cursor.execute('''
-        SELECT COUNT(*) as count FROM loans
-        WHERE status IN ('Approved', 'Pending')
-    ''').fetchone()['count']
-    bad_loans = cursor.execute('''
-        SELECT COUNT(*) as count FROM loans
-        WHERE status = 'Bad Debt'
-    ''').fetchone()['count']
-
-    total_amount_usd = cursor.execute('''
-        SELECT SUM(loan_amount) as total FROM loans
-        WHERE currency = 'USD'
-    ''').fetchone()['total'] or 0
-
-    total_amount_khr = cursor.execute('''
-        SELECT SUM(loan_amount) as total FROM loans
-        WHERE currency = 'KHR'
-    ''').fetchone()['total'] or 0
-
-    total_debt_usd = cursor.execute('''
-        SELECT SUM(remaining_balance) as total FROM loans
-        WHERE currency = 'USD'
-    ''').fetchone()['total'] or 0
-
-    total_debt_khr = cursor.execute('''
-        SELECT SUM(remaining_balance) as total FROM loans
-        WHERE currency = 'KHR'
-    ''').fetchone()['total'] or 0
-
-    conn.close()
-
-    return jsonify({
-        'total_loans': total_loans,
-        'active_loans': active_loans,
-        'bad_loans': bad_loans,
-        'total_amount_usd': total_amount_usd,
-        'total_amount_khr': total_amount_khr,
-        'total_debt_usd': total_debt_usd,
-        'total_debt_khr': total_debt_khr
-    })
+    try:
+        stats = db.get_dashboard_stats()
+        return jsonify(stats)
+    except Exception as e:
+        print(f"❌ Error in dashboard_stats: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'total_loans': 0,
+            'active_loans': 0,
+            'bad_loans': 0,
+            'total_amount_usd': 0,
+            'total_amount_khr': 0,
+            'total_debt_usd': 0,
+            'total_debt_khr': 0
+        })
 
 # ============================================================
 # ===== CHANGE CO OFFICER API =====
@@ -2185,7 +2205,45 @@ def api_get_loan(loan_id):
     if not loan:
         return jsonify({'error': 'មិនឃើញកម្ចីនេះទេ!'}), 404
 
-    return jsonify(dict(loan))
+    # ===== បន្ថែមព័ត៌មានអតិថិជន =====
+    customer = db.get_customer_by_id(loan.get('customer_id'))
+    if customer:
+        loan['customer_name'] = customer.get('name', 'មិនស្គាល់')
+        loan['customer_code'] = customer.get('code', '')
+        loan['customer_phone'] = customer.get('phone', '')
+        loan['customer_gender'] = customer.get('gender', '')
+        loan['customer_address'] = customer.get('address', '')
+    else:
+        loan['customer_name'] = 'មិនស្គាល់'
+        loan['customer_code'] = ''
+        loan['customer_phone'] = ''
+        loan['customer_gender'] = ''
+        loan['customer_address'] = ''
+
+    return jsonify(loan)
+
+@app.route('/api/dashboard_charts')
+def api_dashboard_charts():
+    """ទាញយកទិន្នន័យសម្រាប់ Charts ក្នុង Dashboard"""
+    if 'username' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    try:
+        conn_data = db.get_dashboard_charts_data()
+        return jsonify(conn_data)
+    except Exception as e:
+        print(f"❌ Error in dashboard_charts: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'loans_by_status': {},
+            'loans_by_currency': {},
+            'monthly_loans': [],
+            'monthly_collections': []
+        })
+
+
+
 # ============================================================
 # ===== RUN APP =====
 # ============================================================
