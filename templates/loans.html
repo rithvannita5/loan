@@ -288,10 +288,9 @@
             <h2>កម្ចី<span>Plus</span></h2>
             <p>ប្រព័ន្ធគ្រប់គ្រងកម្ចី</p>
         </div>
-
         <div class="menu-label">មុខម្ហូប</div>
 
-        <a href="/dashboard" class="menu-item">
+        <a href="/dashboard" class="menu-item active">
             <span class="icon">📊</span>
             <span>Dashboard</span>
         </a>
@@ -301,7 +300,7 @@
             <span>អតិថិជន</span>
         </a>
 
-        <a href="/loans" class="menu-item active">
+        <a href="/loans" class="menu-item">
             <span class="icon">💰</span>
             <span>កម្ចី</span>
         </a>
@@ -321,10 +320,26 @@
             <span>ទូរទាត់</span>
         </a>
 
-        <a href="/collection" class="menu-item">
+        <!-- ===== COLLECTION WITH SUBMENU ===== -->
+        <div class="menu-item" onclick="toggleCollectionSubmenu(event)">
             <span class="icon">💵</span>
             <span>ប្រមូលប្រាក់</span>
-        </a>
+            <span class="arrow" id="collectionArrow">▼</span>
+        </div>
+        <div class="submenu-container" id="collectionSubmenu">
+            <a href="/collection_good" class="menu-item submenu-item">
+                <span class="icon">✅</span>
+                <span>កម្ចីល្អ</span>
+            </a>
+            <a href="/collection_late" class="menu-item submenu-item">
+                <span class="icon">⏰</span>
+                <span>កម្ចីយឺត</span>
+            </a>
+            <a href="/collection_bad" class="menu-item submenu-item">
+                <span class="icon">❌</span>
+                <span>កម្ចីខូច</span>
+            </a>
+        </div>
 
         <a href="/disbursement" class="menu-item">
             <span class="icon">📢</span>
@@ -346,7 +361,6 @@
             <span>សវនៈកម្ម</span>
         </a>
     </nav>
-
     <!-- ===== MAIN CONTENT ===== -->
     <div class="main-content">
         <div class="top-header">
