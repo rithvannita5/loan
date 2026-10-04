@@ -32,7 +32,7 @@
         .header h1 { font-size: 28px; color: #1a1a2e; }
         .header h1 span { color: #667eea; }
         .header p { color: #888; font-size: 14px; }
-        
+
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
@@ -75,7 +75,7 @@
             color: #555;
             cursor: not-allowed;
         }
-        
+
         .form-actions {
             display: flex;
             gap: 15px;
@@ -128,7 +128,7 @@
             cursor: not-allowed;
             transform: none;
         }
-        
+
         .schedule-table {
             margin-top: 30px;
             overflow-x: auto;
@@ -180,7 +180,7 @@
         .summary-item .value.success { color: #27ae60; }
         .summary-item .value.danger { color: #e74c3c; }
         .summary-item .value.warning { color: #f39c12; }
-        
+
         .alert {
             padding: 12px 18px;
             border-radius: 10px;
@@ -191,7 +191,7 @@
         .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
         .alert-info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
-        
+
         .help-text {
             font-size: 12px;
             color: #888;
@@ -215,7 +215,7 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        
+
         @media (max-width: 992px) {
             .form-grid { grid-template-columns: 1fr 1fr; }
         }
@@ -237,21 +237,21 @@
         <h1>✏️ កែប្រែ <span>កម្ចី</span></h1>
         <p>សូមកែប្រែព័ត៌មានខាងក្រោម</p>
     </div>
-    
+
     <div id="alertMessage"></div>
-    
+
     <form id="loanForm" onsubmit="return false;">
         <div class="form-grid">
-            <!-- 1. លេខកូដកម្ចី (ស្វ័យប្រវត្តិ) -->
+            <!-- 1. លេខកូដកម្ចី -->
             <div class="form-group">
                 <label>លេខកូដកម្ចី <span class="required">*</span></label>
                 <input type="text" id="loan_code" disabled>
             </div>
-            
+
             <!-- 2. លេខកូដអតិថិជន -->
             <div class="form-group">
                 <label>លេខកូដអតិថិជន <span class="required">*</span></label>
-                <input type="text" id="customer_search" list="customer_list" 
+                <input type="text" id="customer_search" list="customer_list"
                        placeholder="វាយលេខកូដ ឬឈ្មោះ..."
                        oninput="searchCustomer(this.value)"
                        autocomplete="off">
@@ -262,39 +262,39 @@
                 </datalist>
                 <input type="hidden" id="customer_id" value="{{ loan.customer_id }}">
             </div>
-            
-            <!-- 3. ឈ្មោះអតិថិជន (ស្វ័យប្រវត្តិ) -->
+
+            <!-- 3. ឈ្មោះអតិថិជន -->
             <div class="form-group">
                 <label>ឈ្មោះអតិថិជន <span class="required">*</span></label>
-                <input type="text" id="customer_name_display" readonly 
+                <input type="text" id="customer_name_display" readonly
                        style="background:#e9ecef; cursor:not-allowed;"
-                       placeholder="បង្ហាញដោយស្វ័យប្រវត្តិ" value="{{ customer.name if customer else '' }}">
+                       value="{{ customer.name if customer else '' }}">
             </div>
-            
-            <!-- 4. ភេទ (ស្វ័យប្រវត្តិ) -->
+
+            <!-- 4. ភេទ -->
             <div class="form-group">
                 <label>ភេទ</label>
-                <input type="text" id="gender" readonly style="background:#e9ecef; cursor:not-allowed;" value="{{ customer.gender if customer else '' }}">
+                <input type="text" id="gender" readonly style="background:#e9ecef;" value="{{ customer.gender if customer else '' }}">
             </div>
-            
-            <!-- 5. លេខទូរស័ព្ទ (ស្វ័យប្រវត្តិ) -->
+
+            <!-- 5. លេខទូរស័ព្ទ -->
             <div class="form-group">
                 <label>លេខទូរស័ព្ទ</label>
-                <input type="text" id="phone" readonly style="background:#e9ecef; cursor:not-allowed;" value="{{ customer.phone if customer else '' }}">
+                <input type="text" id="phone" readonly style="background:#e9ecef;" value="{{ customer.phone if customer else '' }}">
             </div>
-            
-            <!-- 6. អសយដ្ឋាន (ស្វ័យប្រវត្តិ) -->
+
+            <!-- 6. អសយដ្ឋាន -->
             <div class="form-group">
                 <label>អសយដ្ឋាន</label>
-                <input type="text" id="address" readonly style="background:#e9ecef; cursor:not-allowed;" value="{{ customer.address if customer else '' }}">
+                <input type="text" id="address" readonly style="background:#e9ecef;" value="{{ customer.address if customer else '' }}">
             </div>
-            
+
             <!-- 7. ទឹកប្រាក់កម្ចី -->
             <div class="form-group">
                 <label>ទឹកប្រាក់កម្ចី <span class="required">*</span></label>
                 <input type="number" id="loan_amount" placeholder="0" step="any" min="0" value="{{ loan.loan_amount }}">
             </div>
-            
+
             <!-- 8. រូបិយប័ណ្ណ -->
             <div class="form-group">
                 <label>រូបិយប័ណ្ណ</label>
@@ -303,7 +303,7 @@
                     <option value="KHR" {% if loan.currency == 'KHR' %}selected{% endif %}>រៀល (៛)</option>
                 </select>
             </div>
-            
+
             <!-- 9. ប្រភេទការគណនា -->
             <div class="form-group">
                 <label>ប្រភេទការគណនា</label>
@@ -314,13 +314,13 @@
                     <option value="4" {% if loan.calc_type == 4 %}selected{% endif %}>បង់តែការប្រាក់</option>
                 </select>
             </div>
-            
+
             <!-- 10. រយៈពេល -->
             <div class="form-group">
                 <label>រយៈពេល <span class="required">*</span></label>
                 <input type="number" id="duration_num" placeholder="1" min="1" value="{{ loan.duration_num }}">
             </div>
-            
+
             <!-- 11. ប្រភេទរយៈពេល -->
             <div class="form-group">
                 <label>ប្រភេទរយៈពេល</label>
@@ -331,61 +331,61 @@
                     <option value="ខែ" {% if loan.duration_type == 'ខែ' %}selected{% endif %}>ខែ</option>
                 </select>
             </div>
-            
+
             <!-- 12. អត្រាការប្រាក់ -->
             <div class="form-group">
                 <label>អត្រាការប្រាក់ (%)</label>
                 <input type="number" id="interest_rate" placeholder="0" step="0.01" min="0" value="{{ loan.interest_rate }}">
             </div>
-            
+
             <!-- 13. សេវារដ្ឋបាល (%) -->
             <div class="form-group">
                 <label>សេវារដ្ឋបាល (%)</label>
                 <input type="number" id="service_fee" placeholder="0" step="0.01" min="0" value="{{ loan.service_fee or 0 }}">
             </div>
-            
+
             <!-- 14. ថ្ងៃខែស្នើបង់ -->
             <div class="form-group">
                 <label>ថ្ងៃខែស្នើបង់</label>
                 <input type="date" id="due_date" value="{{ loan.due_date or '' }}">
             </div>
-            
-            <!-- 15. វគ្គ (បំណងខ្ចី) -->
+
+            <!-- 15. វគ្គ -->
             <div class="form-group">
                 <label>វគ្គ</label>
                 <input type="text" id="purpose" placeholder="បំណងខ្ចី" value="{{ loan.purpose or '' }}">
             </div>
-            
-            <!-- 16. ឈ្មោះអ្នកធានា (ស្វ័យប្រវត្តិ) -->
+
+            <!-- 16. ឈ្មោះអ្នកធានា -->
             <div class="form-group">
                 <label>ឈ្មោះអ្នកធានា</label>
-                <input type="text" id="guarantor_name" readonly style="background:#e9ecef; cursor:not-allowed;" value="{{ customer.guarantor_name if customer else '' }}">
+                <input type="text" id="guarantor_name" readonly style="background:#e9ecef;" value="{{ customer.guarantor_name if customer else '' }}">
             </div>
-            
-            <!-- 17. ភេទអ្នកធានា (ស្វ័យប្រវត្តិ) -->
+
+            <!-- 17. ភេទអ្នកធានា -->
             <div class="form-group">
                 <label>ភេទ (អ្នកធានា)</label>
-                <input type="text" id="guarantor_gender" readonly style="background:#e9ecef; cursor:not-allowed;" value="{{ customer.guarantor_gender if customer else '' }}">
+                <input type="text" id="guarantor_gender" readonly style="background:#e9ecef;" value="{{ customer.guarantor_gender if customer else '' }}">
             </div>
-            
-            <!-- 18. លេខទូរស័ព្ទអ្នកធានា (ស្វ័យប្រវត្តិ) -->
+
+            <!-- 18. លេខទូរស័ព្ទអ្នកធានា -->
             <div class="form-group">
                 <label>លេខទូរស័ព្ទ (អ្នកធានា)</label>
-                <input type="text" id="guarantor_phone" readonly style="background:#e9ecef; cursor:not-allowed;" value="{{ customer.guarantor_phone if customer else '' }}">
+                <input type="text" id="guarantor_phone" readonly style="background:#e9ecef;" value="{{ customer.guarantor_phone if customer else '' }}">
             </div>
-            
-            <!-- 19. អសយដ្ឋានអ្នកធានា (ស្វ័យប្រវត្តិ) -->
+
+            <!-- 19. អសយដ្ឋានអ្នកធានា -->
             <div class="form-group">
                 <label>អសយដ្ឋាន (អ្នកធានា)</label>
-                <input type="text" id="guarantor_address" readonly style="background:#e9ecef; cursor:not-allowed;" value="{{ customer.guarantor_address if customer else '' }}">
+                <input type="text" id="guarantor_address" readonly style="background:#e9ecef;" value="{{ customer.guarantor_address if customer else '' }}">
             </div>
-            
+
             <!-- 20. ថ្ងៃខែឆ្នាំខ្ចី -->
             <div class="form-group">
                 <label>ថ្ងៃខែឆ្នាំខ្ចី</label>
                 <input type="date" id="loan_date" value="{{ loan.loan_date or '' }}">
             </div>
-            
+
             <!-- 21. មន្ត្រី CO -->
             <div class="form-group">
                 <label>មន្ត្រី CO</label>
@@ -394,7 +394,7 @@
                 </select>
                 <small class="help-text">ទិន្នន័យទាញពីបញ្ជីមន្ត្រីឥណទានក្នុង Settings</small>
             </div>
-            
+
             <!-- 22. ស្ថានភាព -->
             <div class="form-group">
                 <label>ស្ថានភាព</label>
@@ -407,7 +407,7 @@
                 </select>
             </div>
         </div>
-        
+
         <!-- ===== FORM ACTIONS ===== -->
         <div class="form-actions">
             <button type="button" class="btn btn-calculate" id="calculateBtn" onclick="calculateLoan()">
@@ -417,7 +417,7 @@
             <button type="button" class="btn btn-submit" id="submitBtn" onclick="updateLoan()">💾 រក្សាទុក</button>
         </div>
     </form>
-    
+
     <!-- Summary -->
     <div id="summary" style="display:none;">
         <div class="summary">
@@ -435,7 +435,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Schedule Table -->
     <div id="scheduleContainer" style="display:none;" class="schedule-table">
         <table>
@@ -466,11 +466,11 @@
             const response = await fetch('/api/officers');
             if (!response.ok) throw new Error('Failed to load officers');
             officersData = await response.json();
-            
+
             const select = document.getElementById('co_officer');
             const currentValue = '{{ loan.co_officer or "" }}';
             select.innerHTML = '<option value="">-- ជ្រើសរើសមន្ត្រី --</option>';
-            
+
             if (officersData && officersData.length > 0) {
                 officersData.forEach(officer => {
                     const option = document.createElement('option');
@@ -481,17 +481,9 @@
                     }
                     if (officer.name) select.appendChild(option);
                 });
-            } else {
-                const option = document.createElement('option');
-                option.value = '';
-                option.textContent = 'មិនមានមន្ត្រីឥណទាន (សូមបង្កើតក្នុង Settings)';
-                option.disabled = true;
-                select.appendChild(option);
             }
         } catch (error) {
             console.error('Error loading officers:', error);
-            const select = document.getElementById('co_officer');
-            select.innerHTML = '<option value="">-- មិនអាចផ្ទុកទិន្នន័យ --</option>';
         }
     }
 
@@ -499,13 +491,13 @@
     async function searchCustomer(value) {
         const searchInput = document.getElementById('customer_search');
         const customerIdHidden = document.getElementById('customer_id');
-        
+
         if (!value || value.length < 1) {
             clearAllCustomerFields();
             customerIdHidden.value = '';
             return;
         }
-        
+
         const datalist = document.getElementById('customer_list');
         let found = false;
         for (let option of datalist.options) {
@@ -514,29 +506,20 @@
                 break;
             }
         }
-        
+
         if (found) {
             await loadCustomerByCode(value);
             return;
         }
-        
+
         try {
             const response = await fetch(`/api/search_customers?q=${encodeURIComponent(value)}&limit=5`);
             if (!response.ok) throw new Error('Network response was not ok');
             const results = await response.json();
-            
+
             if (results && results.length > 0) {
                 const customer = results[0];
-                customerIdHidden.value = customer.id || '';
-                document.getElementById('customer_name_display').value = customer.name || '';
-                document.getElementById('gender').value = customer.gender || '';
-                document.getElementById('phone').value = customer.phone || '';
-                document.getElementById('address').value = customer.address || '';
-                document.getElementById('guarantor_name').value = customer.guarantor_name || '';
-                document.getElementById('guarantor_gender').value = customer.guarantor_gender || '';
-                document.getElementById('guarantor_phone').value = customer.guarantor_phone || '';
-                document.getElementById('guarantor_address').value = customer.guarantor_address || '';
-                
+                fillCustomerFields(customer);
                 searchInput.value = customer.code || value;
             } else {
                 clearAllCustomerFields();
@@ -548,25 +531,28 @@
         }
     }
 
+    // ===== FILL CUSTOMER FIELDS =====
+    function fillCustomerFields(customer) {
+        document.getElementById('customer_id').value = customer.id || '';
+        document.getElementById('customer_name_display').value = customer.name || '';
+        document.getElementById('gender').value = customer.gender || '';
+        document.getElementById('phone').value = customer.phone || '';
+        document.getElementById('address').value = customer.address || '';
+        document.getElementById('guarantor_name').value = customer.guarantor_name || '';
+        document.getElementById('guarantor_gender').value = customer.guarantor_gender || '';
+        document.getElementById('guarantor_phone').value = customer.guarantor_phone || '';
+        document.getElementById('guarantor_address').value = customer.guarantor_address || '';
+    }
+
     // ===== LOAD CUSTOMER BY CODE =====
     async function loadCustomerByCode(code) {
         try {
             const response = await fetch(`/api/search_customers?q=${encodeURIComponent(code)}&limit=1`);
             if (!response.ok) throw new Error('Network response was not ok');
             const results = await response.json();
-            
+
             if (results && results.length > 0) {
-                const customer = results[0];
-                document.getElementById('customer_id').value = customer.id || '';
-                document.getElementById('customer_name_display').value = customer.name || '';
-                document.getElementById('gender').value = customer.gender || '';
-                document.getElementById('phone').value = customer.phone || '';
-                document.getElementById('address').value = customer.address || '';
-                document.getElementById('guarantor_name').value = customer.guarantor_name || '';
-                document.getElementById('guarantor_gender').value = customer.guarantor_gender || '';
-                document.getElementById('guarantor_phone').value = customer.guarantor_phone || '';
-                document.getElementById('guarantor_address').value = customer.guarantor_address || '';
-                document.getElementById('customer_search').value = customer.code || '';
+                fillCustomerFields(results[0]);
             }
         } catch (error) {
             console.error('Error loading customer by code:', error);
@@ -585,26 +571,13 @@
         document.getElementById('guarantor_address').value = '';
     }
 
-    // ===== SET DEFAULT DATES =====
-    function setDefaultDates() {
-        const today = new Date().toISOString().split('T')[0];
-        if (!document.getElementById('loan_date').value) {
-            document.getElementById('loan_date').value = today;
-        }
-        if (!document.getElementById('due_date').value) {
-            const due = new Date();
-            due.setDate(due.getDate() + 30);
-            document.getElementById('due_date').value = due.toISOString().split('T')[0];
-        }
-    }
-
     // ===== CALCULATE LOAN =====
     async function calculateLoan() {
         if (isCalculating) return;
-        
+
         const calculateBtn = document.getElementById('calculateBtn');
         const originalText = calculateBtn.innerHTML;
-        
+
         isCalculating = true;
         calculateBtn.disabled = true;
         calculateBtn.innerHTML = '⏳ <span class="spinner"></span> កំពុងគណនា...';
@@ -618,27 +591,28 @@
             const serviceFee = parseFloat(document.getElementById('service_fee').value) || 0;
             const currency = document.getElementById('currency').value;
             const durationType = document.getElementById('duration_type').value;
-            
+
+            // ===== គណនាចំនួនថ្ងៃ =====
             let totalDays = durationNum;
             if (durationType === 'សប្តាហ៍') totalDays = durationNum * 7;
             else if (durationType === '2 សប្តាហ៍') totalDays = durationNum * 14;
             else if (durationType === 'ខែ') totalDays = durationNum * 30;
-            
+
             if (!customerId) {
                 showAlert('សូមជ្រើសរើសអតិថិជនជាមុនសិន!', 'error');
                 return;
             }
-            
+
             if (loanAmount <= 0) {
                 showAlert('សូមបញ្ចូលទឹកប្រាក់កម្ចី!', 'error');
                 return;
             }
-            
+
             if (totalDays <= 0) {
                 showAlert('សូមបញ្ចូលចំនួនថ្ងៃឲ្យបានត្រឹមត្រូវ!', 'error');
                 return;
             }
-            
+
             const response = await fetch('/api/calculate_loan', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -649,25 +623,26 @@
                     calc_type: calcType,
                     service_fee: serviceFee,
                     currency: currency,
-                    duration_type: 'ថ្ងៃ'
+                    duration_type: 'ថ្ងៃ',
+                    start_date: document.getElementById('loan_date').value
                 })
             });
-            
+
             if (!response.ok) throw new Error('Network response was not ok');
             const result = await response.json();
             scheduleData = result.schedule || [];
-            
+
             document.getElementById('summary').style.display = 'block';
             document.getElementById('total_payment').textContent = formatCurrency(result.total_payment, currency);
             document.getElementById('total_interest').textContent = formatCurrency(result.total_interest, currency);
             document.getElementById('service_amount').textContent = formatCurrency(result.service_amount, currency);
-            
+
             renderSchedule(scheduleData, currency);
-            
+
             if (scheduleData.length > 0) {
                 showAlert(`✅ គណនាជោគជ័យ! បង្ហាញ ${scheduleData.length} វគ្គ`, 'success');
             }
-            
+
         } catch (error) {
             console.error('Error calculating loan:', error);
             showAlert('❌ មានបញ្ហាក្នុងការគណនា! ' + error.message, 'error');
@@ -683,28 +658,28 @@
         const container = document.getElementById('scheduleContainer');
         const tbody = document.getElementById('scheduleBody');
         tbody.innerHTML = '';
-        
+
         if (!schedule || schedule.length === 0) {
             container.style.display = 'none';
             return;
         }
-        
+
         container.style.display = 'block';
-        
-        let loanDate = document.getElementById('loan_date').value;
-        if (!loanDate) {
-            loanDate = new Date().toISOString().split('T')[0];
-        }
-        const startDate = new Date(loanDate);
-        
+
         schedule.forEach((item, index) => {
             const tr = document.createElement('tr');
-            const dueDate = new Date(startDate);
-            dueDate.setDate(dueDate.getDate() + (index + 1));
-            
+
+            let dueDate = item.due_date || '-';
+            if (dueDate !== '-') {
+                try {
+                    const d = new Date(dueDate + 'T00:00:00');
+                    dueDate = d.toLocaleDateString('km-KH');
+                } catch (e) {}
+            }
+
             tr.innerHTML = `
                 <td>${item.period}</td>
-                <td>${dueDate.toLocaleDateString('km-KH')}</td>
+                <td>${dueDate}</td>
                 <td>${formatCurrency(item.payment, currency)}</td>
                 <td>${formatCurrency(item.balance, currency)}</td>
             `;
@@ -717,7 +692,6 @@
         if (amount === null || amount === undefined || isNaN(amount)) {
             return currency === 'KHR' ? '៛ 0' : '$ 0.00';
         }
-        
         if (currency === 'KHR') {
             const rounded = Math.round(amount / 100) * 100;
             return '៛ ' + rounded.toLocaleString('en-US');
@@ -726,13 +700,15 @@
         }
     }
 
-    // ===== UPDATE LOAN =====
+    // ============================================================
+    // ===== UPDATE LOAN (កែត្រឹមត្រូវ - គណនាការប្រាក់ឡើងវិញ) =====
+    // ============================================================
     async function updateLoan() {
         if (isSubmitting) return;
-        
+
         const submitBtn = document.getElementById('submitBtn');
         const originalText = submitBtn.innerHTML;
-        
+
         isSubmitting = true;
         submitBtn.disabled = true;
         submitBtn.innerHTML = '⏳ <span class="spinner"></span> កំពុងរក្សាទុក...';
@@ -743,7 +719,7 @@
             const currency = document.getElementById('currency').value;
             const interestRate = parseFloat(document.getElementById('interest_rate').value) || 0;
             const durationNum = parseInt(document.getElementById('duration_num').value) || 1;
-            const durationType = document.getElementById('duration_type').value;  // <-- បន្ថែម
+            const durationType = document.getElementById('duration_type').value;
             const calcType = parseInt(document.getElementById('calc_type').value) || 1;
             const serviceFee = parseFloat(document.getElementById('service_fee').value) || 0;
             const loanDate = document.getElementById('loan_date').value;
@@ -751,50 +727,47 @@
             const coOfficer = document.getElementById('co_officer').value;
             const purpose = document.getElementById('purpose').value;
             const status = document.getElementById('status').value;
-            
-            if (!customerId) {
-                showAlert('សូមជ្រើសរើសអតិថិជន!', 'error');
-                return;
-            }
-            
-            if (loanAmount <= 0) {
-                showAlert('សូមបញ្ចូលទឹកប្រាក់កម្ចី!', 'error');
-                return;
-            }
-            
+
+            // ===== គណនាចំនួនថ្ងៃ =====
             let totalDays = durationNum;
             if (durationType === 'សប្តាហ៍') totalDays = durationNum * 7;
             else if (durationType === '2 សប្តាហ៍') totalDays = durationNum * 14;
             else if (durationType === 'ខែ') totalDays = durationNum * 30;
-            
+
+            // ============================================================
+            // ===== គណនាការប្រាក់ត្រឹមត្រូវ =====
+            // ============================================================
             let totalInterest = loanAmount * (interestRate / 100) * totalDays;
             let totalAmount = loanAmount + totalInterest;
-            let amountPaid = {{ loan.amount_paid or 0 }};
-            let remainingBalance = totalAmount - amountPaid;
-            
+
+            // ===== បង្គត់តាមរូបិយប័ណ្ណ =====
             if (currency === 'KHR') {
                 totalInterest = Math.round(totalInterest / 100) * 100;
                 totalAmount = Math.round(totalAmount / 100) * 100;
-                remainingBalance = Math.round(remainingBalance / 100) * 100;
             } else {
                 totalInterest = Math.round(totalInterest * 100) / 100;
                 totalAmount = Math.round(totalAmount * 100) / 100;
+            }
+
+            // ===== ទាញយក amount_paid ដើម =====
+            let amountPaid = {{ loan.amount_paid or 0 }};
+            let remainingBalance = totalAmount - amountPaid;
+
+            if (currency === 'KHR') {
+                remainingBalance = Math.round(remainingBalance / 100) * 100;
+            } else {
                 remainingBalance = Math.round(remainingBalance * 100) / 100;
             }
-            
-            if (scheduleData && scheduleData.length > 0) {
-                const last = scheduleData[scheduleData.length - 1];
-                totalAmount = Math.round((last.balance + last.principal + last.interest) * 100) / 100;
-                totalInterest = scheduleData.reduce((sum, s) => sum + s.interest, 0);
-                remainingBalance = Math.round(last.balance * 100) / 100;
-                
-                if (currency === 'KHR') {
-                    totalAmount = Math.round(totalAmount / 100) * 100;
-                    totalInterest = Math.round(totalInterest / 100) * 100;
-                    remainingBalance = Math.round(remainingBalance / 100) * 100;
-                }
-            }
-            
+
+            console.log('📊 Update Loan Calculation:');
+            console.log('   Amount:', loanAmount);
+            console.log('   Rate:', interestRate, '%');
+            console.log('   Days:', totalDays);
+            console.log('   Interest:', totalInterest);
+            console.log('   Total:', totalAmount);
+            console.log('   Paid:', amountPaid);
+            console.log('   Remaining:', remainingBalance);
+
             const data = {
                 id: loanId,
                 customer_id: parseInt(customerId),
@@ -802,7 +775,7 @@
                 currency: currency,
                 interest_rate: interestRate,
                 duration_num: totalDays,
-                duration_type: durationType,  // <-- បន្ថែម
+                duration_type: durationType,
                 calc_type: calcType,
                 service_fee: serviceFee,
                 service_fee_amount: Math.round((loanAmount * serviceFee / 100) * 100) / 100,
@@ -818,15 +791,15 @@
                 remaining_balance: remainingBalance,
                 status: status
             };
-            
+
             const response = await fetch('/api/update_loan', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
-            
+
             const result = await response.json();
-            
+
             if (result.success) {
                 showAlert('✅ កែប្រែកម្ចីជោគជ័យ!', 'success');
                 setTimeout(() => {
@@ -850,7 +823,7 @@
         const alertDiv = document.getElementById('alertMessage');
         const className = type === 'success' ? 'alert-success' : type === 'info' ? 'alert-info' : 'alert-error';
         alertDiv.innerHTML = `<div class="alert ${className}">${message}</div>`;
-        
+
         if (window.alertTimeout) {
             clearTimeout(window.alertTimeout);
         }
@@ -861,37 +834,34 @@
 
     // ===== EVENT LISTENERS =====
     document.addEventListener('DOMContentLoaded', function() {
+        // ===== កំណត់ Loan Code =====
         document.getElementById('loan_code').value = '{{ loan.loan_code }}';
-        
+
+        // ===== កំណត់ Customer Code =====
         const customerCode = '{{ customer.code if customer else "" }}';
         if (customerCode) {
             document.getElementById('customer_search').value = customerCode;
         }
-        
+
         loadOfficers();
-        setDefaultDates();
-        
+
+        // ===== Search Customer on Enter =====
         document.getElementById('customer_search').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
                 searchCustomer(this.value);
             }
         });
-        
+
+        // ===== Clear on Blur =====
         document.getElementById('customer_search').addEventListener('blur', function() {
             if (!this.value) {
                 clearAllCustomerFields();
                 document.getElementById('customer_id').value = '';
             }
         });
-        
-        document.getElementById('customer_list').addEventListener('change', function(e) {
-            const selectedValue = e.target.value;
-            if (selectedValue) {
-                searchCustomer(selectedValue);
-            }
-        });
 
+        // ===== Auto Calculate on Input Change =====
         let calcTimeout;
         const fields = ['loan_amount', 'interest_rate', 'duration_num', 'duration_type', 'calc_type', 'service_fee', 'currency'];
         fields.forEach(id => {
