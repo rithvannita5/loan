@@ -755,31 +755,44 @@ def api_calculate_loan():
 
     elif calc_type == 3:
         # ============================================================
-        # ===== ៣. បង់តែការ បង់ថយ (Interest Only + Principal at End) =====
+        # ===== ៣. បង់តែការ បង់ថយ (Interest Only + Partial Principal) =====
         # ============================================================
-        # បង់តែការប្រាក់រាល់ថ្ងៃ + ប្រាក់ដើមបង់ពេលចប់
-        
-        daily_interest = loan_amount * rate_decimal
-        total_interest = daily_interest * duration_num
-        total_payment = loan_amount + total_interest
+        # បង់តែការប្រាក់រាល់ថ្ងៃ + ប្រាក់ដើមបង់ថយៗ ជា ២ ដំណាក់កាល
+        # - ដំណាក់កាល ១ (ពាក់កណ្តាល): បង់ប្រាក់ដើម 50%
+        # - ដំណាក់កាល ២ (ចប់): បង់ប្រាក់ដើម 50% ដែលនៅសល់
         
         balance = loan_amount
+        total_interest = 0
+        total_payment = 0
+        
+        # ===== ចំណុចបង់ប្រាក់ដើម =====
+        midpoint = duration_num // 2  # ថ្ងៃកណ្តាល
+        principal_payment_1 = loan_amount / 2  # ៥០% ថ្ងៃកណ្តាល
+        principal_payment_2 = loan_amount - principal_payment_1  # ៥០% ថ្ងៃចប់
 
         for i in range(1, duration_num + 1):
             due_date = db.get_next_working_day(start_date, i)
             
-            if i == duration_num:
-                principal = loan_amount
-                interest = daily_interest
-                payment = principal + interest
-            else:
-                principal = 0
-                interest = daily_interest
-                payment = daily_interest
+            # ===== ការប្រាក់គណនាលើសមតុល្យបច្ចុប្បន្ន =====
+            interest = balance * rate_decimal
             
+            # ===== កំណត់ប្រាក់ដើមបង់ =====
+            if i == midpoint:
+                # ថ្ងៃកណ្តាល: បង់ 50%
+                principal = principal_payment_1
+            elif i == duration_num:
+                # ថ្ងៃចប់: បង់អោសដែលនៅសល់
+                principal = balance
+            else:
+                # ថ្ងៃផ្សេងទៀត: បង់តែការប្រាក់
+                principal = 0
+            
+            payment = principal + interest
             balance -= principal
+            total_interest += interest
+            total_payment += payment
 
-            # បង្គត់
+            # ===== បង្គត់តាមរូបិយប័ណ្ណ =====
             if currency == 'KHR':
                 interest = round(interest / 100) * 100 if interest > 0 else 0
                 principal = round(principal / 100) * 100 if principal > 0 else 0
