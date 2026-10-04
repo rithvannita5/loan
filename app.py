@@ -2242,7 +2242,43 @@ def api_dashboard_charts():
             'monthly_collections': []
         })
 
+# ============================================================
+# ===== DASHBOARD ROUTES ថ្មី =====
+# ============================================================
 
+@app.route('/api/dashboard_full_stats')
+def api_dashboard_full_stats():
+    """ទាញយកស្ថិតិពេញលេញ"""
+    if 'username' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    try:
+        stats = db.get_dashboard_full_stats()
+        return jsonify(stats)
+    except Exception as e:
+        print(f"❌ Error in dashboard_full_stats: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/calendar_data')
+def api_calendar_data():
+    """ទាញយកទិន្នន័យ Calendar"""
+    if 'username' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    from datetime import datetime
+    year = request.args.get('year', datetime.now().year, type=int)
+    month = request.args.get('month', datetime.now().month, type=int)
+
+    try:
+        data = db.get_calendar_data(year, month)
+        return jsonify(data)
+    except Exception as e:
+        print(f"❌ Error in calendar_data: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
 
 # ============================================================
 # ===== RUN APP =====
