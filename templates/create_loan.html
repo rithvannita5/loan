@@ -752,122 +752,126 @@
 
     // ===== SUBMIT LOAN =====
     async function submitLoan() {
-        if (isSubmitting) return;
+    if (isSubmitting) return;
 
-        const submitBtn = document.getElementById('submitBtn');
-        const originalText = submitBtn.innerHTML;
+    const submitBtn = document.getElementById('submitBtn');
+    const originalText = submitBtn.innerHTML;
 
-        isSubmitting = true;
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '⏳ <span class="spinner"></span> កំពុងរក្សាទុក...';
+    isSubmitting = true;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '⏳ <span class="spinner"></span> កំពុងរក្សាទុក...';
 
-        try {
-            const customerId = document.getElementById('customer_id').value;
-            const loanAmount = parseFloat(document.getElementById('loan_amount').value) || 0;
-            const currency = document.getElementById('currency').value;
-            const interestRate = parseFloat(document.getElementById('interest_rate').value) || 0;
-            const durationNum = parseInt(document.getElementById('duration_num').value) || 1;
-            const durationType = document.getElementById('duration_type').value;
-            const calcType = parseInt(document.getElementById('calc_type').value) || 1;
-            const serviceFee = parseFloat(document.getElementById('service_fee').value) || 0;
-            const loanDate = document.getElementById('loan_date').value;
-            const dueDate = document.getElementById('due_date').value;
-            const coOfficer = document.getElementById('co_officer').value;
-            const purpose = document.getElementById('purpose').value;
-            const loanCode = document.getElementById('loan_code').value;
+    try {
+        const customerId = document.getElementById('customer_id').value;
+        const loanAmount = parseFloat(document.getElementById('loan_amount').value) || 0;
+        const currency = document.getElementById('currency').value;
+        const interestRate = parseFloat(document.getElementById('interest_rate').value) || 0;
+        const durationNum = parseInt(document.getElementById('duration_num').value) || 1;
+        const durationType = document.getElementById('duration_type').value;
+        const calcType = parseInt(document.getElementById('calc_type').value) || 1;
+        const serviceFee = parseFloat(document.getElementById('service_fee').value) || 0;
+        const loanDate = document.getElementById('loan_date').value;
+        const dueDate = document.getElementById('due_date').value;
+        const coOfficer = document.getElementById('co_officer').value;
+        const purpose = document.getElementById('purpose').value;
+        const loanCode = document.getElementById('loan_code').value;
 
-            let totalDays = durationNum;
-            if (durationType === 'សប្តាហ៍') totalDays = durationNum * 7;
-            else if (durationType === '2 សប្តាហ៍') totalDays = durationNum * 14;
-            else if (durationType === 'ខែ') totalDays = durationNum * 30;
+        // ===== គណនាចំនួនថ្ងៃ =====
+        let totalDays = durationNum;
+        if (durationType === 'សប្តាហ៍') totalDays = durationNum * 7;
+        else if (durationType === '2 សប្តាហ៍') totalDays = durationNum * 14;
+        else if (durationType === 'ខែ') totalDays = durationNum * 30;
 
-            let totalInterest = 0;
-            let totalAmount = 0;
-            let remainingBalance = loanAmount;
+        // ============================================================
+        // ===== គណនាការប្រាក់ត្រឹមត្រូវ (មិន Override ពី Schedule) =====
+        // ============================================================
+        let totalInterest = loanAmount * (interestRate / 100) * totalDays;
+        let totalAmount = loanAmount + totalInterest;
+        let remainingBalance = totalAmount;
 
-            totalInterest = loanAmount * (interestRate / 100) * totalDays;
-            totalAmount = loanAmount + totalInterest;
+        // ===== បង្គត់តាមរូបិយប័ណ្ណ =====
+        if (currency === 'KHR') {
+            totalInterest = Math.round(totalInterest / 100) * 100;
+            totalAmount = Math.round(totalAmount / 100) * 100;
             remainingBalance = totalAmount;
-
-            if (currency === 'KHR') {
-                totalInterest = Math.round(totalInterest / 100) * 100;
-                totalAmount = Math.round(totalAmount / 100) * 100;
-                remainingBalance = totalAmount;
-            }
-
-            if (scheduleData && scheduleData.length > 0) {
-                const last = scheduleData[scheduleData.length - 1];
-                totalAmount = last.balance + last.principal + last.interest;
-                totalInterest = scheduleData.reduce((sum, s) => sum + s.interest, 0);
-                remainingBalance = last.balance || 0;
-            }
-
-            const data = {
-                customer_id: parseInt(customerId),
-                loan_code: loanCode,
-                loan_amount: loanAmount,
-                currency: currency,
-                interest_rate: interestRate,
-                duration_num: totalDays,
-                duration_type: durationType,
-                calc_type: calcType,
-                service_fee: serviceFee,
-                service_fee_amount: loanAmount * serviceFee / 100,
-                insurance_fee: 0,
-                insurance_amount: 0,
-                loan_date: loanDate,
-                due_date: dueDate,
-                co_officer: coOfficer,
-                purpose: purpose,
-                total_interest: totalInterest,
-                total_amount: totalAmount || loanAmount,
-                amount_paid: 0,
-                remaining_balance: remainingBalance || loanAmount,
-                status: 'Pending'
-            };
-
-            if (!customerId || loanAmount <= 0) {
-                showAlert('សូមជ្រើសរើសអតិថិជន និងបញ្ចូលទឹកប្រាក់កម្ចី!', 'error');
-                return;
-            }
-
-            const response = await fetch('/api/create_loan', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                showAlert('✅ បង្កើតកម្ចីថ្មីជោគជ័យ!', 'success');
-                document.getElementById('loan_amount').value = '';
-                document.getElementById('interest_rate').value = '0';
-                document.getElementById('duration_num').value = '1';
-                document.getElementById('service_fee').value = '0';
-                document.getElementById('purpose').value = '';
-                scheduleData = [];
-                document.getElementById('summary').style.display = 'none';
-                document.getElementById('scheduleContainer').style.display = 'none';
-
-                // ===== Generate new code =====
-                await generateLoanCode();
-
-                setTimeout(() => {
-                    window.location.href = '/loans';
-                }, 2000);
-            } else {
-                showAlert('❌ ' + (result.error || 'មានបញ្ហាក្នុងការបង្កើតកម្ចី!'), 'error');
-            }
-        } catch (error) {
-            console.error('Error submitting loan:', error);
-            showAlert('❌ មានបញ្ហាក្នុងការភ្ជាប់ទៅម៉ាស៊ីនមេ!', 'error');
-        } finally {
-            isSubmitting = false;
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalText;
+        } else {
+            totalInterest = Math.round(totalInterest * 100) / 100;
+            totalAmount = Math.round(totalAmount * 100) / 100;
+            remainingBalance = totalAmount;
         }
+
+        console.log('📊 Loan Calculation:');
+        console.log('   Amount:', loanAmount);
+        console.log('   Rate:', interestRate, '%');
+        console.log('   Days:', totalDays);
+        console.log('   Interest:', totalInterest);
+        console.log('   Total:', totalAmount);
+
+        const data = {
+            customer_id: parseInt(customerId),
+            loan_code: loanCode,
+            loan_amount: loanAmount,
+            currency: currency,
+            interest_rate: interestRate,
+            duration_num: totalDays,
+            duration_type: durationType,
+            calc_type: calcType,
+            service_fee: serviceFee,
+            service_fee_amount: loanAmount * serviceFee / 100,
+            insurance_fee: 0,
+            insurance_amount: 0,
+            loan_date: loanDate,
+            due_date: dueDate,
+            co_officer: coOfficer,
+            purpose: purpose,
+            total_interest: totalInterest,
+            total_amount: totalAmount,
+            amount_paid: 0,
+            remaining_balance: remainingBalance,
+            status: 'Pending'
+        };
+
+        if (!customerId || loanAmount <= 0) {
+            showAlert('សូមជ្រើសរើសអតិថិជន និងបញ្ចូលទឹកប្រាក់កម្ចី!', 'error');
+            return;
+        }
+
+        const response = await fetch('/api/create_loan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showAlert('✅ បង្កើតកម្ចីថ្មីជោគជ័យ!', 'success');
+            document.getElementById('loan_amount').value = '';
+            document.getElementById('interest_rate').value = '0';
+            document.getElementById('duration_num').value = '1';
+            document.getElementById('service_fee').value = '0';
+            document.getElementById('purpose').value = '';
+            scheduleData = [];
+            document.getElementById('summary').style.display = 'none';
+            document.getElementById('scheduleContainer').style.display = 'none';
+
+            await generateLoanCode();
+
+            setTimeout(() => {
+                window.location.href = '/loans';
+            }, 2000);
+        } else {
+            showAlert('❌ ' + (result.error || 'មានបញ្ហាក្នុងការបង្កើតកម្ចី!'), 'error');
+        }
+    } catch (error) {
+        console.error('Error submitting loan:', error);
+        showAlert('❌ មានបញ្ហាក្នុងការភ្ជាប់ទៅម៉ាស៊ីនមេ!', 'error');
+    } finally {
+        isSubmitting = false;
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
     }
+}
 
     // ===== SHOW ALERT =====
     function showAlert(message, type) {
