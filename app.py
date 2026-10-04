@@ -282,58 +282,186 @@ def print_schedule(loan_id):
         return "មិនឃើញកម្ចីនេះទេ!", 404
 
     customer = db.get_customer_by_id(loan['customer_id'])
-    loan_dict = dict(loan)
-    customer_dict = dict(customer) if customer else {}
+    loan_dict = dict(loan) if not isinstance(loan, dict) else loan
+    customer_dict = dict(customer) if customer and not isinstance(customer, dict) else (customer or {})
+
+    # ============================================================
+    # ===== គណនា Schedule តាម calc_type (ដូច /api/calculate_loan) =====
+    # ============================================================
     schedule_data = []
+    loan_amount = float(loan.get('loan_amount', 0))
+    interest_rate = float(loan.get('interest_rate', 0))
+    duration_num = int(loan.get('duration_num', 0))
+    currency = loan.get('currency', 'USD')
+    calc_type = int(loan.get('calc_type', 1))
 
-    if loan['duration_num'] and loan['duration_num'] > 0:
-        total_payment = loan['loan_amount'] + loan['total_interest']
-        daily_payment = total_payment / loan['duration_num']
+    if duration_num > 0 and loan_amount > 0:
+        rate_decimal = interest_rate / 100
 
-        if loan['currency'] == 'KHR':
-            daily_payment = round(daily_payment / 100) * 100
-        else:
-            daily_payment = round(daily_payment, 2)
-
-        balance = loan['loan_amount']
-        rate_decimal = loan['interest_rate'] / 100
-
+        # ===== ថ្ងៃចាប់ផ្ដើម =====
         try:
             start_date = datetime.strptime(loan['loan_date'], '%Y-%m-%d').date()
         except:
             start_date = get_cambodia_date()
 
-        for i in range(1, int(loan['duration_num']) + 1):
-            due_date = db.get_next_working_day(start_date, i)
-
-            interest = balance * rate_decimal
-            principal = daily_payment - interest
-            if i == int(loan['duration_num']):
-                principal = balance
-                payment = balance + interest
+        # ============================================================
+        # ===== ១. រំលោះបង់ថេរ (Equal Installment) =====
+        # ============================================================
+        if calc_type == 1:
+            if rate_decimal > 0:
+                daily_payment = loan_amount * (rate_decimal * (1 + rate_decimal) ** duration_num) / ((1 + rate_decimal) ** duration_num - 1)
             else:
-                payment = daily_payment
-            balance -= principal
+                daily_payment = loan_amount / duration_num
 
-            if loan['currency'] == 'KHR':
-                interest = round(interest / 100) * 100 if interest > 0 else 0
-                principal = round(principal / 100) * 100 if principal > 0 else 0
-                payment = round(payment / 100) * 100 if payment > 0 else 0
-                balance = round(balance / 100) * 100 if balance > 0 else 0
-            else:
-                interest = round(interest, 2)
-                principal = round(principal, 2)
-                payment = round(payment, 2)
-                balance = round(balance, 2)
+            balance = loan_amount
+            for i in range(1, duration_num + 1):
+                due_date = db.get_next_working_day(start_date, i)
+                interest = balance * rate_decimal
+                principal = daily_payment - interest
 
-            schedule_data.append({
-                'period': i,
-                'payment': payment,
-                'interest': interest,
-                'principal': principal,
-                'balance': balance if balance > 0 else 0,
-                'due_date': due_date.strftime('%Y-%m-%d')
-            })
+                if i == duration_num:
+                    principal = balance
+                    payment = balance + interest
+                else:
+                    payment = daily_payment
+
+                balance -= principal
+
+                if currency == 'KHR':
+                    interest = round(interest / 100) * 100 if interest > 0 else 0
+                    principal = round(principal / 100) * 100 if principal > 0 else 0
+                    payment = round(payment / 100) * 100 if payment > 0 else 0
+                    balance = round(balance / 100) * 100 if balance > 0 else 0
+                else:
+                    interest = round(interest, 2)
+                    principal = round(principal, 2)
+                    payment = round(payment, 2)
+                    balance = round(balance, 2)
+
+                schedule_data.append({
+                    'period': i,
+                    'payment': payment,
+                    'interest': interest,
+                    'principal': principal,
+                    'balance': max(balance, 0),
+                    'due_date': due_date.strftime('%Y-%m-%d')
+                })
+
+        # ============================================================
+        # ===== ២. ដើមថេរ ការថេរ (Flat Rate) =====
+        # ============================================================
+        elif calc_type == 2:
+            total_interest = loan_amount * rate_decimal * duration_num
+            total_payment = loan_amount + total_interest
+            daily_payment = total_payment / duration_num
+            daily_principal = loan_amount / duration_num
+            daily_interest = total_interest / duration_num
+
+            balance = loan_amount
+            for i in range(1, duration_num + 1):
+                due_date = db.get_next_working_day(start_date, i)
+
+                if i == duration_num:
+                    principal = balance
+                    interest = daily_interest
+                    payment = balance + interest
+                else:
+                    principal = daily_principal
+                    interest = daily_interest
+                    payment = daily_payment
+
+                balance -= principal
+
+                if currency == 'KHR':
+                    interest = round(interest / 100) * 100 if interest > 0 else 0
+                    principal = round(principal / 100) * 100 if principal > 0 else 0
+                    payment = round(payment / 100) * 100 if payment > 0 else 0
+                    balance = round(balance / 100) * 100 if balance > 0 else 0
+                else:
+                    interest = round(interest, 2)
+                    principal = round(principal, 2)
+                    payment = round(payment, 2)
+                    balance = round(balance, 2)
+
+                schedule_data.append({
+                    'period': i,
+                    'payment': payment,
+                    'interest': interest,
+                    'principal': principal,
+                    'balance': max(balance, 0),
+                    'due_date': due_date.strftime('%Y-%m-%d')
+                })
+
+        # ============================================================
+        # ===== ៣. បង់តែការ បង់ថយ (Interest Only + 2 Stages Principal) =====
+        # ============================================================
+        elif calc_type == 3:
+            midpoint = duration_num // 2
+            principal_payment_1 = loan_amount / 2
+            balance = loan_amount
+
+            for i in range(1, duration_num + 1):
+                due_date = db.get_next_working_day(start_date, i)
+                interest = balance * rate_decimal
+
+                if i == midpoint:
+                    principal = principal_payment_1
+                elif i == duration_num:
+                    principal = balance
+                else:
+                    principal = 0
+
+                payment = principal + interest
+                balance -= principal
+
+                if currency == 'KHR':
+                    interest = round(interest / 100) * 100 if interest > 0 else 0
+                    principal = round(principal / 100) * 100 if principal > 0 else 0
+                    payment = round(payment / 100) * 100 if payment > 0 else 0
+                    balance = round(balance / 100) * 100 if balance > 0 else 0
+                else:
+                    interest = round(interest, 2)
+                    principal = round(principal, 2)
+                    payment = round(payment, 2)
+                    balance = round(balance, 2)
+
+                schedule_data.append({
+                    'period': i,
+                    'payment': payment,
+                    'interest': interest,
+                    'principal': principal,
+                    'balance': max(balance, 0),
+                    'due_date': due_date.strftime('%Y-%m-%d')
+                })
+
+        # ============================================================
+        # ===== ៤. បង់តែការប្រាក់ (Interest Only) =====
+        # ============================================================
+        elif calc_type == 4:
+            daily_interest = loan_amount * rate_decimal
+            balance = loan_amount
+
+            for i in range(1, duration_num + 1):
+                due_date = db.get_next_working_day(start_date, i)
+                principal = 0
+                interest = daily_interest
+                payment = daily_interest
+
+                if currency == 'KHR':
+                    interest = round(interest / 100) * 100 if interest > 0 else 0
+                    payment = round(payment / 100) * 100 if payment > 0 else 0
+                else:
+                    interest = round(interest, 2)
+                    payment = round(payment, 2)
+
+                schedule_data.append({
+                    'period': i,
+                    'payment': payment,
+                    'interest': interest,
+                    'principal': principal,
+                    'balance': balance,
+                    'due_date': due_date.strftime('%Y-%m-%d')
+                })
 
     return render_template('print_schedule.html',
                          loan=loan_dict,
