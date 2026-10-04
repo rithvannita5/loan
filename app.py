@@ -732,9 +732,42 @@ def api_calculate_loan():
 def api_create_loan():
     if 'username' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
+
     data = request.get_json()
     if not data.get('customer_id') or not data.get('loan_amount'):
         return jsonify({'error': 'សូមជ្រើសរើសអតិថិជន និងបញ្ចូលទឹកប្រាក់កម្ចី'}), 400
+
+    # ===== គណនាការប្រាក់នៅ Backend (Override Frontend) =====
+    loan_amount = float(data.get('loan_amount', 0))
+    interest_rate = float(data.get('interest_rate', 0))
+    duration_num = int(data.get('duration_num', 0))
+    currency = data.get('currency', 'USD')
+
+    # ===== គណនាការប្រាក់សរុប =====
+    total_interest = loan_amount * (interest_rate / 100) * duration_num
+    total_amount = loan_amount + total_interest
+
+    # ===== បង្គត់តាមរូបិយប័ណ្ណ =====
+    if currency == 'KHR':
+        total_interest = round(total_interest / 100) * 100
+        total_amount = round(total_amount / 100) * 100
+    else:
+        total_interest = round(total_interest, 2)
+        total_amount = round(total_amount, 2)
+
+    # ===== Override Data =====
+    data['total_interest'] = total_interest
+    data['total_amount'] = total_amount
+    data['remaining_balance'] = total_amount
+    data['amount_paid'] = 0
+
+    print(f"📊 Creating loan:")
+    print(f"   Amount: {loan_amount}")
+    print(f"   Rate: {interest_rate}%")
+    print(f"   Duration: {duration_num} days")
+    print(f"   Interest: {total_interest}")
+    print(f"   Total: {total_amount}")
+
     loan_id = db.create_loan(data)
     db.log_activity(data['customer_id'], loan_id, 'create_loan', 'បានបង្កើតកម្ចីថ្មី', user_id=session.get('user_id'))
     return jsonify({'success': True, 'id': loan_id})
