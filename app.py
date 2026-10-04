@@ -631,8 +631,8 @@ def api_calculate_loan():
     currency = data.get('currency', 'USD')
     start_date_str = data.get('start_date', '')
     service_fee = float(data.get('service_fee', 0))
+    calc_type = int(data.get('calc_type', 1))
 
-    # ===== កំណត់ថ្ងៃចាប់ផ្ដើម =====
     try:
         start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
     except:
@@ -642,71 +642,201 @@ def api_calculate_loan():
         return jsonify({'error': 'ចំនួនថ្ងៃមិនត្រឹមត្រូវ'}), 400
 
     # ============================================================
-    # ===== គណនាការប្រាក់សរុប (ត្រឹមត្រូវ) =====
-    # ============================================================
-    # ការប្រាក់សរុប = ប្រាក់ដើម × (អត្រា / 100) × ចំនួនថ្ងៃ
-    total_interest = loan_amount * (interest_rate / 100) * duration_num
-    
-    # ប្រាក់ត្រូវបង់សរុប = ប្រាក់ដើម + ការប្រាក់សរុប
-    total_payment = loan_amount + total_interest
-    
-    # ប្រាក់បង់ប្រចាំថ្ងៃ = ប្រាក់សរុប ÷ ចំនួនថ្ងៃ
-    daily_payment = total_payment / duration_num
-
-    print(f"📊 Loan Calculation:")
-    print(f"   Principal: {loan_amount:,.2f}")
-    print(f"   Interest Rate: {interest_rate}% per day")
-    print(f"   Duration: {duration_num} days")
-    print(f"   Total Interest: {total_interest:,.2f}")
-    print(f"   Total Payment: {total_payment:,.2f}")
-    print(f"   Daily Payment: {daily_payment:,.2f}")
-
-    # ============================================================
-    # ===== បង្កើត Schedule =====
+    # ===== គណនាតាមប្រភេទការគណនា =====
     # ============================================================
     schedule = []
-    balance = loan_amount
     rate_decimal = interest_rate / 100
 
-    for i in range(1, duration_num + 1):
-        # ===== គណនាថ្ងៃកំណត់ =====
-        due_date = db.get_next_working_day(start_date, i)
-
-        # ===== ការប្រាក់ប្រចាំថ្ងៃ (គិតលើប្រាក់ដើមដែលនៅសល់) =====
-        interest = balance * rate_decimal
+    if calc_type == 1:
+        # ============================================================
+        # ===== ១. រំលោះបង់ថេរ (Equal Installment) =====
+        # ============================================================
+        # បង់ថេររាល់ថ្ងៃ ប៉ុន្តែការប្រាក់ខ្ពស់ដំបូង ថយក្រោយ
+        # ប្រាក់ដើមចុះតិចដំបូង ចុះច្រើនក្រោយ
         
-        # ===== ប្រាក់ដើមប្រចាំថ្ងៃ =====
-        principal = daily_payment - interest
-        
-        # ===== វគ្គចុងក្រោយ: បង់អោយអស់ =====
-        if i == duration_num:
-            principal = balance
-            payment = balance + interest
+        # គណនាបង់ប្រចាំថ្ងៃតាមរូបមន្ត Annuity
+        if rate_decimal > 0:
+            daily_payment = loan_amount * (rate_decimal * (1 + rate_decimal) ** duration_num) / ((1 + rate_decimal) ** duration_num - 1)
         else:
-            payment = daily_payment
+            daily_payment = loan_amount / duration_num
         
-        balance -= principal
+        balance = loan_amount
+        total_interest = 0
+        total_payment = 0
 
-        # ===== បង្គត់តាមរូបិយប័ណ្ណ =====
-        if currency == 'KHR':
-            interest = round(interest / 100) * 100 if interest > 0 else 0
-            principal = round(principal / 100) * 100 if principal > 0 else 0
-            payment = round(payment / 100) * 100 if payment > 0 else 0
-            balance = round(balance / 100) * 100 if balance > 0 else 0
-        else:
-            interest = round(interest, 2)
-            principal = round(principal, 2)
-            payment = round(payment, 2)
-            balance = round(balance, 2)
+        for i in range(1, duration_num + 1):
+            due_date = db.get_next_working_day(start_date, i)
+            
+            # ការប្រាក់គណនាលើសមតុល្យ
+            interest = balance * rate_decimal
+            principal = daily_payment - interest
+            
+            # វគ្គចុងក្រោយ
+            if i == duration_num:
+                principal = balance
+                payment = balance + interest
+            else:
+                payment = daily_payment
+            
+            balance -= principal
+            total_interest += interest
+            total_payment += payment
 
-        schedule.append({
-            'period': i,
-            'payment': payment,
-            'interest': interest,
-            'principal': principal,
-            'balance': max(balance, 0),
-            'due_date': due_date.strftime('%Y-%m-%d')
-        })
+            # បង្គត់
+            if currency == 'KHR':
+                interest = round(interest / 100) * 100 if interest > 0 else 0
+                principal = round(principal / 100) * 100 if principal > 0 else 0
+                payment = round(payment / 100) * 100 if payment > 0 else 0
+                balance = round(balance / 100) * 100 if balance > 0 else 0
+            else:
+                interest = round(interest, 2)
+                principal = round(principal, 2)
+                payment = round(payment, 2)
+                balance = round(balance, 2)
+
+            schedule.append({
+                'period': i,
+                'payment': payment,
+                'interest': interest,
+                'principal': principal,
+                'balance': max(balance, 0),
+                'due_date': due_date.strftime('%Y-%m-%d')
+            })
+
+    elif calc_type == 2:
+        # ============================================================
+        # ===== ២. ដើមថេរ ការថេរ (Flat Rate) =====
+        # ============================================================
+        # ការប្រាក់គណនាលើប្រាក់ដើមដើម (មិនថយ)
+        # បង់ថេររាល់ថ្ងៃ
+        
+        total_interest = loan_amount * rate_decimal * duration_num
+        total_payment = loan_amount + total_interest
+        daily_payment = total_payment / duration_num
+        daily_principal = loan_amount / duration_num
+        daily_interest = total_interest / duration_num
+        
+        balance = loan_amount
+
+        for i in range(1, duration_num + 1):
+            due_date = db.get_next_working_day(start_date, i)
+            
+            if i == duration_num:
+                principal = balance
+                interest = daily_interest
+                payment = balance + interest
+            else:
+                principal = daily_principal
+                interest = daily_interest
+                payment = daily_payment
+            
+            balance -= principal
+
+            # បង្គត់
+            if currency == 'KHR':
+                interest = round(interest / 100) * 100 if interest > 0 else 0
+                principal = round(principal / 100) * 100 if principal > 0 else 0
+                payment = round(payment / 100) * 100 if payment > 0 else 0
+                balance = round(balance / 100) * 100 if balance > 0 else 0
+            else:
+                interest = round(interest, 2)
+                principal = round(principal, 2)
+                payment = round(payment, 2)
+                balance = round(balance, 2)
+
+            schedule.append({
+                'period': i,
+                'payment': payment,
+                'interest': interest,
+                'principal': principal,
+                'balance': max(balance, 0),
+                'due_date': due_date.strftime('%Y-%m-%d')
+            })
+
+    elif calc_type == 3:
+        # ============================================================
+        # ===== ៣. បង់តែការ បង់ថយ (Interest Only + Principal at End) =====
+        # ============================================================
+        # បង់តែការប្រាក់រាល់ថ្ងៃ + ប្រាក់ដើមបង់ពេលចប់
+        
+        daily_interest = loan_amount * rate_decimal
+        total_interest = daily_interest * duration_num
+        total_payment = loan_amount + total_interest
+        
+        balance = loan_amount
+
+        for i in range(1, duration_num + 1):
+            due_date = db.get_next_working_day(start_date, i)
+            
+            if i == duration_num:
+                principal = loan_amount
+                interest = daily_interest
+                payment = principal + interest
+            else:
+                principal = 0
+                interest = daily_interest
+                payment = daily_interest
+            
+            balance -= principal
+
+            # បង្គត់
+            if currency == 'KHR':
+                interest = round(interest / 100) * 100 if interest > 0 else 0
+                principal = round(principal / 100) * 100 if principal > 0 else 0
+                payment = round(payment / 100) * 100 if payment > 0 else 0
+                balance = round(balance / 100) * 100 if balance > 0 else 0
+            else:
+                interest = round(interest, 2)
+                principal = round(principal, 2)
+                payment = round(payment, 2)
+                balance = round(balance, 2)
+
+            schedule.append({
+                'period': i,
+                'payment': payment,
+                'interest': interest,
+                'principal': principal,
+                'balance': max(balance, 0),
+                'due_date': due_date.strftime('%Y-%m-%d')
+            })
+
+    elif calc_type == 4:
+        # ============================================================
+        # ===== ៤. បង់តែការប្រាក់ (Interest Only) =====
+        # ============================================================
+        # បង់តែការប្រាក់ ប្រាក់ដើមមិនបង់
+        
+        daily_interest = loan_amount * rate_decimal
+        total_interest = daily_interest * duration_num
+        total_payment = loan_amount + total_interest
+        
+        balance = loan_amount
+
+        for i in range(1, duration_num + 1):
+            due_date = db.get_next_working_day(start_date, i)
+            
+            principal = 0
+            interest = daily_interest
+            payment = daily_interest
+            
+            # មិនបន្ថយ balance ទេ
+
+            # បង្គត់
+            if currency == 'KHR':
+                interest = round(interest / 100) * 100 if interest > 0 else 0
+                payment = round(payment / 100) * 100 if payment > 0 else 0
+            else:
+                interest = round(interest, 2)
+                payment = round(payment, 2)
+
+            schedule.append({
+                'period': i,
+                'payment': payment,
+                'interest': interest,
+                'principal': principal,
+                'balance': balance,
+                'due_date': due_date.strftime('%Y-%m-%d')
+            })
 
     # ===== គណនាសេវារដ្ឋបាល =====
     service_amount = loan_amount * (service_fee / 100)
@@ -722,8 +852,9 @@ def api_calculate_loan():
     return jsonify({
         'total_payment': round_amount(total_payment),
         'total_interest': round_amount(total_interest),
-        'daily_payment': round_amount(daily_payment),
+        'daily_payment': round_amount(daily_payment) if calc_type in [1, 2] else 0,
         'service_amount': round_amount(service_amount),
+        'calc_type': calc_type,
         'duration_num': duration_num,
         'schedule': schedule
     })
