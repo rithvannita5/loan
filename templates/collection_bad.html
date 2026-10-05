@@ -673,50 +673,6 @@
             }
         }
 
-        // ===== បិទ Sub Menu ពេលចុចលើមេនុយផ្សេង =====
-        document.addEventListener('DOMContentLoaded', function() {
-            const allMenuItems = document.querySelectorAll('.sidebar .menu-item');
-            allMenuItems.forEach(function(menuItem) {
-                const isCollectionParent = menuItem.querySelector('#collectionArrow');
-                menuItem.addEventListener('click', function(e) {
-                    if (!isCollectionParent) {
-                        const container = document.getElementById('collectionSubmenu');
-                        const arrow = document.getElementById('collectionArrow');
-                        if (container && container.classList.contains('open')) {
-                            container.classList.remove('open');
-                            if (arrow) arrow.textContent = '▼';
-                        }
-                    }
-                });
-            });
-
-            // ===== បិទ Sub Menu ពេលចុច Sub Item =====
-            const subItems = document.querySelectorAll('#collectionSubmenu .submenu-item');
-            subItems.forEach(function(subItem) {
-                subItem.addEventListener('click', function() {
-                    const container = document.getElementById('collectionSubmenu');
-                    const arrow = document.getElementById('collectionArrow');
-                    if (container) {
-                        container.classList.remove('open');
-                        if (arrow) arrow.textContent = '▼';
-                    }
-                });
-            });
-
-            // ===== បិទ Sub Menu ពេលចុចខាងក្រៅ =====
-            document.addEventListener('click', function(event) {
-                const container = document.getElementById('collectionSubmenu');
-                const collectionMenu = document.querySelector('.menu-item[onclick*="toggleCollectionSubmenu"]');
-                if (container && collectionMenu) {
-                    if (!collectionMenu.contains(event.target) && !container.contains(event.target)) {
-                        container.classList.remove('open');
-                        const arrow = document.getElementById('collectionArrow');
-                        if (arrow) arrow.textContent = '▼';
-                    }
-                }
-            });
-        });
-
         // ============================================================
         // ===== MENU TOGGLE (Mobile) =====
         // ============================================================
@@ -735,18 +691,50 @@
         });
 
         // ============================================================
-        // ===== AUTO HIGHLIGHT ACTIVE MENU =====
+        // ===== AUTO HIGHLIGHT ACTIVE MENU (កែរួច) =====
         // ============================================================
         document.addEventListener('DOMContentLoaded', function() {
             const currentPath = window.location.pathname;
             console.log('📍 Current path:', currentPath);
 
-            // ===== លុប active ទាំងអស់ចេញជាមុន =====
+            // ===== លុប active ទាំងអស់ចេញ =====
             document.querySelectorAll('.sidebar .menu-item').forEach(function(item) {
                 item.classList.remove('active');
             });
 
-            // ===== កំណត់ active តាម URL =====
+            // ===== ករណីពិសេស: Collection Pages =====
+            const collectionPages = ['/collection', '/collection_good', '/collection_late', '/collection_bad'];
+            let isCollectionPage = collectionPages.some(page => currentPath === page);
+
+            if (isCollectionPage) {
+                // ===== កំណត់ Parent Menu Active =====
+                const collectionParent = document.querySelector('.menu-item[onclick*="toggleCollectionSubmenu"]');
+                if (collectionParent) {
+                    collectionParent.classList.add('active');
+                }
+
+                // ===== បើក Sub Menu =====
+                const container = document.getElementById('collectionSubmenu');
+                const arrow = document.getElementById('collectionArrow');
+                if (container) {
+                    container.classList.add('open');
+                    if (arrow) arrow.textContent = '▲';
+                }
+
+                // ===== កំណត់ Sub Item Active =====
+                document.querySelectorAll('#collectionSubmenu .submenu-item').forEach(function(subItem) {
+                    const href = subItem.getAttribute('href');
+                    if (href === currentPath) {
+                        subItem.classList.add('active');
+                    }
+                });
+
+                return;
+            }
+
+            // ===== សម្រាប់មេនុយធម្មតា =====
+            let hasActiveMenu = false;
+
             document.querySelectorAll('.sidebar .menu-item').forEach(function(item) {
                 const href = item.getAttribute('href');
                 if (!href || href === '#') return;
@@ -760,30 +748,16 @@
 
                 if (isActive) {
                     item.classList.add('active');
+                    hasActiveMenu = true;
                 }
             });
 
-            // ===== ករណីពិសេសសម្រាប់ Collection =====
-            const collectionPages = ['/collection', '/collection_good', '/collection_late', '/collection_bad'];
-            if (collectionPages.some(page => currentPath === page)) {
-                const collectionParent = document.querySelector('.menu-item[onclick*="toggleCollectionSubmenu"]');
-                if (collectionParent) {
-                    collectionParent.classList.add('active');
+            // ===== បើគ្មាន Active → Dashboard =====
+            if (!hasActiveMenu && currentPath !== '/login') {
+                const dashboardItem = document.querySelector('.sidebar .menu-item[href="/dashboard"]');
+                if (dashboardItem) {
+                    dashboardItem.classList.add('active');
                 }
-
-                const container = document.getElementById('collectionSubmenu');
-                const arrow = document.getElementById('collectionArrow');
-                if (container) {
-                    container.classList.add('open');
-                    if (arrow) arrow.textContent = '▲';
-                }
-
-                document.querySelectorAll('#collectionSubmenu .submenu-item').forEach(function(subItem) {
-                    const href = subItem.getAttribute('href');
-                    if (href === currentPath) {
-                        subItem.classList.add('active');
-                    }
-                });
             }
         });
 
