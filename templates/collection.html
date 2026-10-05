@@ -8,345 +8,181 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Khmer OS', 'Khmer OS Muol', 'Moul', 'Arial', sans-serif;
-            background: #f0f2f5;
+            font-family: 'Khmer OS', 'Noto Sans Khmer', 'Moul', Arial, sans-serif;
+            background: #f4f6f9;
             display: flex;
             min-height: 100vh;
         }
 
-        /* ===== SIDEBAR ===== */
         .sidebar {
             width: 260px;
-            background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%);
-            color: white;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff;
             padding: 20px 0;
             position: fixed;
-            top: 0;
-            left: 0;
             height: 100vh;
             overflow-y: auto;
-            overflow-x: hidden;
-            transition: all 0.3s;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
             z-index: 1000;
-            box-sizing: border-box;
         }
-        .sidebar-brand {
-            padding: 0 20px 20px 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            margin-bottom: 20px;
-        }
-        .sidebar-brand h2 {
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 0;
-            color: white;
-        }
-        .sidebar-brand h2 i { color: #667eea; }
-        .sidebar-brand .subtitle {
-            font-size: 12px;
-            color: #a0aec0;
-            margin-top: 5px;
-        }
+        .sidebar-brand { text-align: center; padding: 20px 15px 30px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 20px; }
+        .sidebar-brand .logo { font-size: 32px; display: block; margin-bottom: 5px; }
+        .sidebar-brand h2 { font-size: 20px; font-weight: 700; color: #fff; letter-spacing: 1px; }
+        .sidebar-brand h2 span { color: #667eea; }
+        .sidebar-brand p { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 3px; }
 
-        .menu-label {
-            padding: 15px 20px 8px 20px;
-            font-size: 11px;
-            color: #718096;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 600;
-            display: block;
+        .menu-label { padding: 10px 25px 5px; font-size: 11px; text-transform: uppercase; color: rgba(255,255,255,0.3); letter-spacing: 2px; font-weight: 600; }
+        .menu-item {
+            display: flex; align-items: center; padding: 13px 25px;
+            color: rgba(255,255,255,0.6); text-decoration: none;
+            transition: all 0.3s ease; border-left: 3px solid transparent;
+            cursor: pointer; font-size: 15px; font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif;
         }
+        .menu-item:hover { background: rgba(255,255,255,0.05); color: #fff; border-left-color: #667eea; }
+        .menu-item.active { background: rgba(102,126,234,0.15); color: #fff; border-left-color: #667eea; }
+        .menu-item .icon { font-size: 20px; margin-right: 14px; width: 28px; text-align: center; }
+        .menu-item .badge { margin-left: auto; background: #e74c3c; color: #fff; font-size: 11px; padding: 2px 10px; border-radius: 20px; }
 
-        /* ===== MENU ITEM ===== */
-        .sidebar .menu-item {
-            display: flex !important;
-            flex-direction: row !important;
-            align-items: center !important;
-            gap: 12px !important;
-            padding: 12px 20px !important;
-            color: #cbd5e0 !important;
-            text-decoration: none !important;
-            transition: all 0.3s ease;
-            border-left: 3px solid transparent !important;
-            font-size: 14px;
-            font-family: 'Khmer OS', 'Arial', sans-serif;
-            cursor: pointer;
-            width: 100% !important;
-            box-sizing: border-box;
-            position: relative;
-            z-index: 2;
-            background: transparent;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            line-height: 1.4;
-        }
-        .sidebar .menu-item:hover {
-            background: rgba(255, 255, 255, 0.05) !important;
-            color: white !important;
-            border-left-color: #667eea !important;
-        }
-        .sidebar .menu-item.active {
-            background: rgba(102, 126, 234, 0.15) !important;
-            color: white !important;
-            border-left-color: #667eea !important;
-        }
+        .main-content { margin-left: 260px; flex: 1; padding: 30px; min-height: 100vh; }
 
-        .sidebar .menu-item .icon {
-            width: 20px !important;
-            min-width: 20px !important;
-            text-align: center;
-            font-size: 16px;
-            color: #a0aec0;
-            flex-shrink: 0;
-            display: inline-flex !important;
-            align-items: center;
-            justify-content: center;
-            line-height: 1;
+        .top-header {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #fff; padding: 18px 30px; border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 25px; flex-wrap: wrap; gap: 15px;
         }
-        .sidebar .menu-item:hover .icon,
-        .sidebar .menu-item.active .icon {
-            color: #667eea;
-        }
+        .top-header h1 { font-size: 24px; color: #1a1a2e; }
+        .top-header h1 span { color: #28a745; }
+        .user-info { display: flex; align-items: center; gap: 15px; }
+        .user-info .avatar { width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 22px; font-weight: 700; }
+        .user-info .name { font-weight: 600; color: #333; }
+        .user-info .role { font-size: 12px; color: #888; }
+        .logout-btn { background: #e74c3c; color: #fff; border: none; padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 14px; transition: all 0.3s ease; font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif; text-decoration: none; }
+        .logout-btn:hover { background: #c0392b; transform: scale(1.02); }
 
-        .sidebar .menu-item > span:not(.icon):not(.badge):not(.arrow) {
-            flex: 1;
-            display: inline-block !important;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .sidebar .menu-item .badge {
-            margin-left: auto;
-            background: #e74c3c;
-            color: #fff;
-            font-size: 11px;
-            padding: 2px 10px;
-            border-radius: 20px;
-            flex-shrink: 0;
-        }
-
-        /* ===== ARROW ===== */
-        .sidebar .menu-item .arrow {
-            margin-left: auto;
-            font-size: 10px;
-            transition: all 0.3s ease;
-            color: #a0aec0;
-            display: inline-flex !important;
-            align-items: center;
-            justify-content: center;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.08);
-            flex-shrink: 0;
-        }
-        .sidebar .menu-item:hover .arrow {
-            background: rgba(102, 126, 234, 0.3);
-            color: #fff;
-        }
-
-        /* ===== SUBMENU ===== */
-        .submenu-container {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            background: rgba(0, 0, 0, 0.15);
-        }
-        .submenu-container.open {
-            max-height: 500px;
-        }
-
-        .sidebar .submenu-item {
-            display: flex !important;
-            flex-direction: row !important;
-            align-items: center !important;
-            gap: 10px !important;
-            padding: 10px 20px 10px 50px !important;
-            font-size: 13px !important;
-            color: #a0aec0 !important;
-            border-left: 3px solid transparent !important;
-            position: relative;
-            transition: all 0.3s ease;
-            background: transparent;
-            width: 100% !important;
-            box-sizing: border-box;
-            text-decoration: none !important;
-            cursor: pointer;
-        }
-        .submenu-item::before {
-            content: '';
-            position: absolute;
-            left: 32px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
-        }
-        .submenu-item:hover {
-            background: rgba(255, 255, 255, 0.06) !important;
-            color: white !important;
-        }
-        .submenu-item:hover::before {
-            background: #667eea;
-            box-shadow: 0 0 6px rgba(102, 126, 234, 0.6);
-        }
-        .submenu-item.active {
-            background: rgba(102, 126, 234, 0.2) !important;
-            color: white !important;
-            border-left-color: #667eea !important;
-        }
-        .submenu-item.active::before {
-            background: #667eea;
-            width: 7px;
-            height: 7px;
-            left: 31px;
-            box-shadow: 0 0 8px rgba(102, 126, 234, 0.8);
-        }
-        .submenu-item .icon {
-            width: 18px !important;
-            min-width: 18px !important;
-            text-align: center;
-            font-size: 13px !important;
-            flex-shrink: 0;
-            display: inline-flex !important;
-            align-items: center;
-            justify-content: center;
-        }
-        .submenu-item > span:not(.icon) {
-            flex: 1;
-            display: inline-block !important;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* ===== MAIN CONTENT ===== */
-        .main-content { margin-left: 260px; flex: 1; padding: 20px; min-height: 100vh; }
-
-        .top-header { background: white; padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 10px; }
-        .top-header .page-title h1 { font-size: 22px; color: #2d3748; }
-        .top-header .page-title p { color: #718096; font-size: 14px; }
-        .top-header .user-info { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
-        .top-header .user-info .avatar { width: 40px; height: 40px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px; }
-        .top-header .user-info .user-name { font-weight: 600; color: #2d3748; font-size: 14px; }
-        .top-header .user-info .user-role { font-size: 12px; color: #718096; }
-        .top-header .user-info .logout-btn { padding: 8px 18px; background: #fc8181; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-family: 'Khmer OS', 'Arial', sans-serif; transition: all 0.3s; text-decoration: none; }
-        .top-header .user-info .logout-btn:hover { background: #f56565; }
-        .menu-toggle { display: none; background: none; border: none; color: #2d3748; font-size: 24px; cursor: pointer; padding: 5px; }
-
-        /* ===== TABS (បញ្ចូល ៣ ក្នុងទំព័រតែមួយ) ===== */
-        .tabs-container {
+        .filter-tabs {
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
             flex-wrap: wrap;
         }
-        .tab-btn {
-            padding: 12px 25px;
-            border: 2px solid transparent;
+        .filter-tab {
+            padding: 12px 30px;
+            border: none;
             border-radius: 10px;
             cursor: pointer;
             font-size: 15px;
             font-weight: 600;
-            font-family: 'Khmer OS', Arial, sans-serif;
+            font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif;
             transition: all 0.3s ease;
-            background: white;
+            background: #e2e8f0;
             color: #4a5568;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
-        .tab-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        .tab-btn.active.good {
-            background: #48bb78;
-            color: white;
-            border-color: #38a169;
-        }
-        .tab-btn.active.late {
-            background: #ed8936;
-            color: white;
-            border-color: #dd6b20;
-        }
-        .tab-btn.active.bad {
-            background: #e74c3c;
-            color: white;
-            border-color: #c0392b;
-        }
+        .filter-tab:hover { transform: translateY(-2px); }
+        .filter-tab.active { background: #28a745; color: #fff; box-shadow: 0 4px 15px rgba(40,167,69,0.4); }
+        .filter-tab .count { background: rgba(255,255,255,0.2); padding: 2px 10px; border-radius: 20px; font-size: 12px; margin-left: 5px; }
+        .filter-tab.active .count { background: rgba(255,255,255,0.3); }
+        .filter-tab.good { background: #d4edda; color: #155724; }
+        .filter-tab.good.active { background: #28a745; color: #fff; }
+        .filter-tab.late { background: #fff3cd; color: #856404; }
+        .filter-tab.late.active { background: #f39c12; color: #fff; }
+        .filter-tab.bad { background: #f8d7da; color: #721c24; }
+        .filter-tab.bad.active { background: #e74c3c; color: #fff; }
 
-        .page-content { background: white; border-radius: 16px; padding: 25px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
+        .table-wrapper {
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 5px 0;
+            overflow: hidden;
+            border: none;
         }
-        .stat-card { background: white; padding: 15px 20px; border-radius: 12px; border-left: 4px solid #667eea; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .stat-card .number { font-size: 22px; font-weight: bold; }
-        .stat-card .label { font-size: 13px; color: #718096; margin-top: 2px; }
-        .stat-card.green { border-left-color: #48bb78; }
-        .stat-card.green .number { color: #48bb78; }
-        .stat-card.orange { border-left-color: #ed8936; }
-        .stat-card.orange .number { color: #ed8936; }
-        .stat-card.red { border-left-color: #e74c3c; }
-        .stat-card.red .number { color: #e74c3c; }
-        .stat-card.blue { border-left-color: #667eea; }
-        .stat-card.blue .number { color: #667eea; }
-
-        .btn { padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-family: 'Khmer OS', 'Arial', sans-serif; transition: all 0.3s; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
-        .btn-success { background: #48bb78; color: white; }
-        .btn-success:hover { background: #38a169; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(72,187,120,0.4); }
-        .btn-warning { background: #ed8936; color: white; }
-        .btn-warning:hover { background: #dd6b20; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(237,137,54,0.4); }
-        .btn-danger { background: #e74c3c; color: white; }
-        .btn-danger:hover { background: #c0392b; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(231,76,60,0.4); }
-        .btn-sm { padding: 5px 12px; font-size: 12px; }
-        .btn-secondary { background: #e2e8f0; color: #2d3748; }
-        .btn-secondary:hover { background: #cbd5e0; }
-        .btn-fixed-width { min-width: 140px; text-align: center; justify-content: center; white-space: nowrap; }
-
-        .table-responsive { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1100px; }
-        table th { background: #f7fafc; padding: 10px 12px; text-align: left; color: #2d3748; font-weight: 600; border-bottom: 2px solid #e2e8f0; font-size: 12px; white-space: nowrap; }
-        table td { padding: 8px 12px; border-bottom: 1px solid #f0f2f5; color: #4a5568; font-size: 13px; }
-        table tr:hover td { background: #f7fafc; }
+        .table-scroll { overflow-x: auto; overflow-y: auto; max-height: 550px; padding: 0 5px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1200px; }
+        table thead { position: sticky; top: 0; z-index: 10; }
+        table th {
+            text-align: left; padding: 12px 10px;
+            background: #d4edda;
+            color: #155724;
+            font-weight: 700;
+            white-space: nowrap;
+            font-size: 12px;
+            border-bottom: 2px solid #c3e6cb;
+        }
+        table td {
+            padding: 10px;
+            border-bottom: none;
+            color: #333;
+            vertical-align: middle;
+        }
+        table tbody tr:hover { background: #f0fff4; }
+        table tbody tr:nth-child(even) { background: #fafafa; }
+        table tbody tr:nth-child(even):hover { background: #e8f5e9; }
 
         .badge {
             display: inline-block; padding: 2px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
         }
-        .badge-success { background: #c6f6d5; color: #22543d; }
-        .badge-warning { background: #feebc8; color: #9c6b2e; }
+        .badge-success { background: #d4edda; color: #155724; }
         .badge-danger { background: #fed7d7; color: #9b2c2c; }
+        .badge-warning { background: #feebc8; color: #9c6b2e; }
+        .badge-info { background: #bee3f8; color: #2a4365; }
 
-        .empty-state { text-align: center; padding: 40px 20px; color: #a0aec0; }
-        .empty-state .icon { font-size: 60px; margin-bottom: 15px; color: #e2e8f0; }
-
-        .text-center { text-align: center; }
-        .text-muted { color: #a0aec0; }
-        .mt-20 { margin-top: 20px; }
+        .btn {
+            padding: 6px 14px;
+            border: none !important;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-success {
+            background: #28a745 !important;
+            color: white !important;
+            border: none !important;
+            box-shadow: 0 2px 8px rgba(40,167,69,0.3);
+        }
+        .btn-success:hover {
+            background: #1e7e34 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(40,167,69,0.4);
+        }
+        .btn-sm { padding: 4px 10px; font-size: 12px; }
+        .btn-warning { background: #f39c12; color: white; border: none !important; }
+        .btn-warning:hover { background: #d68910; }
+        .btn-danger { background: #e74c3c; color: white; border: none !important; }
+        .btn-danger:hover { background: #c0392b; }
 
         .overdue-highlight { background: #fff5f5 !important; }
         .overdue-highlight:hover td { background: #fed7d7 !important; }
 
-        /* ===== MODAL ===== */
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #28a745;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         .modal-overlay {
             display: none;
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: rgba(0, 0, 0, 0.5);
-            z-index: 2000;
+            z-index: 9999;
             justify-content: center;
             align-items: center;
             padding: 20px;
@@ -384,14 +220,21 @@
             display: block; font-size: 14px; font-weight: 600;
             color: #2d3748; margin-bottom: 5px;
         }
-        .modal-body .form-group label .required { color: #fc8181; }
+        .modal-body .form-group label .required { color: #e74c3c; }
         .modal-body .form-group input, .modal-body .form-group select {
             width: 100%; padding: 10px 14px; border: 2px solid #e2e8f0;
             border-radius: 8px; font-size: 14px; font-family: 'Khmer OS','Arial',sans-serif;
             transition: all 0.3s; height: 44px;
         }
         .modal-body .form-group input:focus, .modal-body .form-group select:focus {
-            outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+            outline: none; border-color: #28a745; box-shadow: 0 0 0 3px rgba(40,167,69,0.1);
+        }
+        .modal-body .form-group input:read-only {
+            background: #f0fff4;
+            color: #28a745;
+            font-weight: bold;
+            font-size: 18px;
+            border-color: #d4edda;
         }
         .modal-body .info-display {
             background: #f7fafc;
@@ -411,50 +254,58 @@
         .modal-body .info-display .info-item:last-child { border-bottom: none; }
         .modal-body .info-display .info-item .label { color: #718096; font-size: 13px; }
         .modal-body .info-display .info-item .value { font-weight: 600; color: #2d3748; font-size: 14px; }
-        .modal-body .info-display .info-item .value.danger { color: #e74c3c; }
 
-        @media (max-width: 768px) {
-            .sidebar { left: -260px; }
-            .sidebar.open { left: 0; }
-            .main-content { margin-left: 0; padding: 15px; }
-            .menu-toggle { display: block; }
-            .stats-grid { grid-template-columns: 1fr 1fr; }
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #2d3748;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover { background: #cbd5e0; }
+
+        @media (max-width: 600px) {
             .modal-box { padding: 20px; margin: 10px; }
             .modal-body .info-display { grid-template-columns: 1fr; }
-            table { font-size: 12px; min-width: 800px; }
-            .tabs-container { flex-direction: column; }
-            .tab-btn { width: 100%; justify-content: center; }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 70px; padding: 15px 0; }
+            .sidebar-brand h2, .sidebar-brand p, .menu-label,
+            .menu-item span:not(.icon), .menu-item .badge, .menu-item .arrow { display: none; }
+            .sidebar-brand .logo { font-size: 28px; }
+            .menu-item { padding: 15px 0; justify-content: center; }
+            .menu-item .icon { margin-right: 0; font-size: 24px; }
+            .main-content { margin-left: 70px; padding: 15px; }
+            .top-header h1 { font-size: 18px; }
+            .user-info .name, .user-info .role { display: none; }
+            .filter-tabs { flex-direction: column; }
+            .filter-tab { text-align: center; }
+            .submenu-container .menu-item { padding-left: 20px; }
         }
         @media (max-width: 480px) {
-            .stats-grid { grid-template-columns: 1fr; }
+            .top-header { flex-direction: column; text-align: center; }
         }
-        .sidebar::-webkit-scrollbar { width: 4px; }
-        .sidebar::-webkit-scrollbar-track { background: transparent; }
-        .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
-
-        .spinner {
-            display: inline-block;
-            width: 40px;
-            height: 40px;
-            border: 4px solid #e2e8f0;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        .table-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+        .table-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .table-scroll::-webkit-scrollbar-thumb { background: #28a745; border-radius: 10px; }
+        .table-scroll::-webkit-scrollbar-thumb:hover { background: #1e7e34; }
     </style>
 </head>
 <body>
 
     <!-- ===== SIDEBAR ===== -->
-    <nav class="sidebar" id="sidebar">
+    <nav class="sidebar">
         <div class="sidebar-brand">
-            <h2><i class="fas fa-hand-holding-usd"></i> កម្ចី<span style="color:#667eea;">Plus</span></h2>
-            <div class="subtitle">ប្រព័ន្ធគ្រប់គ្រងកម្ចី</div>
+            <span class="logo">🏦</span>
+            <h2>កម្ចី<span>Plus</span></h2>
+            <p>ប្រព័ន្ធគ្រប់គ្រងកម្ចី</p>
         </div>
+
         <div class="menu-label">មុខម្ហូប</div>
 
         <a href="/dashboard" class="menu-item">
@@ -487,24 +338,27 @@
             <span>ទូរទាត់</span>
         </a>
 
-        <!-- ===== COLLECTION WITH SUBMENU (SPA) ===== -->
-        <div class="menu-item" onclick="toggleCollectionSubmenu(event)">
+        <!-- ===== COLLECTION WITH SUBMENU ===== -->
+        <div class="menu-item active" onclick="toggleCollectionSubmenu(event)" style="cursor:pointer;">
             <span class="icon">💵</span>
             <span>ប្រមូលប្រាក់</span>
-            <span class="arrow" id="collectionArrow">▼</span>
+            <span class="arrow" id="collectionArrow">▲</span>
         </div>
-        <div class="submenu-container" id="collectionSubmenu">
-            <a href="#" class="menu-item submenu-item" onclick="switchTab('good'); return false;">
+        <div class="submenu-container open" id="collectionSubmenu">
+            <a href="#" class="menu-item active" onclick="switchTab('good')">
                 <span class="icon">✅</span>
                 <span>កម្ចីល្អ</span>
+                <span class="badge" id="goodBadge" style="background:#28a745;">0</span>
             </a>
-            <a href="#" class="menu-item submenu-item" onclick="switchTab('late'); return false;">
+            <a href="#" class="menu-item" onclick="switchTab('late')">
                 <span class="icon">⏰</span>
                 <span>កម្ចីយឺត</span>
+                <span class="badge" id="lateBadge" style="background:#f39c12;">0</span>
             </a>
-            <a href="#" class="menu-item submenu-item" onclick="switchTab('bad'); return false;">
+            <a href="#" class="menu-item" onclick="switchTab('bad')">
                 <span class="icon">❌</span>
                 <span>កម្ចីខូច</span>
+                <span class="badge" id="badBadge" style="background:#e74c3c;">0</span>
             </a>
         </div>
 
@@ -533,57 +387,36 @@
     <div class="main-content">
 
         <header class="top-header">
-            <div style="display:flex;align-items:center;gap:15px;">
-                <button class="menu-toggle" id="menuToggle">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <div class="page-title">
-                    <h1 id="pageTitle"><i class="fas fa-check-circle" style="color:#27ae60;"></i> កម្ចីល្អ</h1>
-                    <p id="pageSubtitle">បញ្ជីកម្ចីដែលដល់ថ្ងៃត្រូវបង់ (មិនយឺត)</p>
-                </div>
+            <div>
+                <h1>💵 <span>ប្រមូលប្រាក់</span></h1>
+                <p style="color:#718096; font-size:14px; margin-top:2px;">តាមដានការប្រមូលប្រាក់ប្រចាំថ្ងៃ</p>
             </div>
             <div class="user-info">
                 <div>
-                    <div class="user-name">{{ username }}</div>
-                    <div class="user-role">អ្នកគ្រប់គ្រង</div>
+                    <div class="name">ស្វាគមន៍, <span id="usernameDisplay">{{ username }}</span></div>
+                    <div class="role">អ្នកគ្រប់គ្រងប្រព័ន្ធ</div>
                 </div>
                 <div class="avatar">{{ username[0] if username else 'អ' }}</div>
-                <a href="{{ url_for('logout') }}" class="logout-btn"><i class="fas fa-sign-out-alt"></i> ចាកចេញ</a>
+                <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> ចាកចេញ</a>
             </div>
         </header>
 
-        <!-- ===== TABS (៣ ក្នុងទំព័រតែមួយ) ===== -->
-        <div class="tabs-container">
-            <button class="tab-btn active good" data-tab="good" onclick="switchTab('good')">
-                <i class="fas fa-check-circle"></i> កម្ចីល្អ
+        <!-- ===== FILTER TABS ===== -->
+        <div class="filter-tabs">
+            <button class="filter-tab good active" data-type="good" onclick="switchTab('good')">
+                <i class="fas fa-check-circle"></i> កម្ចីល្អ <span class="count" id="goodCount">0</span>
             </button>
-            <button class="tab-btn late" data-tab="late" onclick="switchTab('late')">
-                <i class="fas fa-clock"></i> កម្ចីយឺត
+            <button class="filter-tab late" data-type="late" onclick="switchTab('late')">
+                <i class="fas fa-clock"></i> កម្ចីយឺត <span class="count" id="lateCount">0</span>
             </button>
-            <button class="tab-btn bad" data-tab="bad" onclick="switchTab('bad')">
-                <i class="fas fa-times-circle"></i> កម្ចីខូច
+            <button class="filter-tab bad" data-type="bad" onclick="switchTab('bad')">
+                <i class="fas fa-times-circle"></i> កម្ចីខូច <span class="count" id="badCount">0</span>
             </button>
         </div>
 
-        <!-- ===== PAGE CONTENT ===== -->
-        <div class="page-content">
-
-            <div class="stats-grid">
-                <div class="stat-card green">
-                    <div class="number" id="totalAmount">$0.00</div>
-                    <div class="label">សរុបត្រូវបង់</div>
-                </div>
-                <div class="stat-card green">
-                    <div class="number" id="totalCustomers">0</div>
-                    <div class="label">ចំនួនកម្ចី</div>
-                </div>
-                <div class="stat-card orange">
-                    <div class="number" id="todayCount">0</div>
-                    <div class="label">ត្រូវបង់ថ្ងៃនេះ</div>
-                </div>
-            </div>
-
-            <div class="table-responsive">
+        <!-- ===== TABLE ===== -->
+        <div class="table-wrapper">
+            <div class="table-scroll">
                 <table>
                     <thead>
                         <tr>
@@ -592,7 +425,8 @@
                             <th>ប្រាក់ត្រូវបង់</th>
                             <th>ប្រាក់ដើម</th>
                             <th>ការប្រាក់</th>
-                            <th>ស្ថានភាព</th>
+                            <th>យឺត</th>
+                            <th>ពិន័យ</th>
                             <th>បំណុលនៅខ្វះ</th>
                             <th>អាសយដ្ឋាន</th>
                             <th>លេខទូរស័ព្ទ</th>
@@ -600,7 +434,7 @@
                     </thead>
                     <tbody id="collectionBody">
                         <tr>
-                            <td colspan="9" style="text-align:center; padding:40px;">
+                            <td colspan="10" style="text-align:center; padding:40px;">
                                 <div class="spinner"></div>
                                 <p style="margin-top:10px; color:#718096;">កំពុងផ្ទុកទិន្នន័យ...</p>
                             </td>
@@ -608,16 +442,11 @@
                     </tbody>
                 </table>
             </div>
-
-            <div class="text-center text-muted mt-20" style="font-size:13px;">
-                <i class="fas fa-sync-alt"></i>
-                <span id="footerInfo">កំពុងផ្ទុក...</span>
-            </div>
-
         </div>
 
-        <div style="text-align:center; color:#a0aec0; font-size:13px; padding:20px 0 10px 0; border-top:1px solid #e2e8f0; margin-top:25px;">
-            <i class="fas fa-hand-holding-usd"></i> Loan System Management v2.0
+        <div style="text-align:center; color:#a0aec0; font-size:13px; margin-top:20px;">
+            <i class="fas fa-sync-alt"></i>
+            <span id="footerInfo">កំពុងផ្ទុក...</span>
         </div>
 
     </div>
@@ -626,7 +455,7 @@
     <div class="modal-overlay" id="paymentModal">
         <div class="modal-box">
             <div class="modal-header">
-                <h3><i class="fas fa-hand-holding-usd" style="color:#667eea;"></i> ប្រមូលប្រាក់</h3>
+                <h3><i class="fas fa-hand-holding-usd" style="color:#28a745;"></i> ប្រមូលប្រាក់</h3>
                 <button class="modal-close" onclick="closePaymentModal()">&times;</button>
             </div>
             <div class="modal-body">
@@ -643,52 +472,50 @@
                             <span class="value" id="modal_customer_name">-</span>
                         </div>
                         <div class="info-item">
-                            <span class="label">ប្រាក់ដើម</span>
+                            <span class="label">ប្រាក់ដើមត្រូវបង់</span>
                             <span class="value" id="modal_principal">-</span>
                         </div>
                         <div class="info-item">
                             <span class="label">ការប្រាក់</span>
                             <span class="value" id="modal_interest">-</span>
                         </div>
-                        <div class="info-item" id="penaltyRow" style="display:none;">
-                            <span class="label">ថ្ងៃយឺត</span>
-                            <span class="value danger" id="modal_days_overdue">-</span>
-                        </div>
-                        <div class="info-item" style="grid-column: 1 / -1;">
-                            <span class="label">សរុបត្រូវបង់</span>
-                            <span class="value" id="modal_total" style="color:#27ae60; font-size:18px;">-</span>
-                        </div>
                     </div>
 
-                    <div class="form-group" id="penaltyInputRow" style="display:none;">
-                        <label>ប្រាក់ពិន័យ (អាចកែប្រែបាន)</label>
+                    <div class="form-group">
+                        <label><i class="fas fa-money-bill-wave"></i> ប្រាក់ពិន័យ</label>
                         <input type="number" name="penalty" id="modal_penalty" step="0.01" value="0" oninput="calculateTotal()" placeholder="បញ្ចូលចំនួនពិន័យ...">
+                        <small style="color:#718096;">ប្រសិនបើមិនមានពិន័យ សូមទុក 0</small>
                     </div>
 
                     <div class="form-group">
-                        <label>ទឹកប្រាក់បានទទួល <span class="required">*</span></label>
-                        <input type="number" name="amount" id="modal_amount" step="0.01" required placeholder="បញ្ចូលទឹកប្រាក់...">
+                        <label><i class="fas fa-calculator"></i> សរុបប្រាក់ត្រូវបង់</label>
+                        <input type="text" id="modal_total" readonly style="background:#f0fff4; color:#28a745; font-weight:bold; font-size:18px;">
                     </div>
 
                     <div class="form-group">
-                        <label>វិធីសាស្ត្រទូរទាត់ <span class="required">*</span></label>
+                        <label><i class="fas fa-hand-holding-usd"></i> ទឹកប្រាក់បានទទួល <span class="required">*</span></label>
+                        <input type="number" name="amount" id="modal_amount" step="0.01" required placeholder="បញ្ចូលទឹកប្រាក់ដែលបានទទួល...">
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-university"></i> វិធីសាស្ត្រទូរទាត់ <span class="required">*</span></label>
                         <select name="payment_method" id="modal_payment_method" required>
-                            <option value="cash">សាច់ប្រាក់ផ្ទាល់</option>
-                            <option value="aba">ធនាគារ ABA</option>
-                            <option value="acleda">ធនាគារ ACLEDA</option>
+                            <option value="cash"><i class="fas fa-money-bill"></i> សាច់ប្រាក់ផ្ទាល់</option>
+                            <option value="aba"><i class="fas fa-building"></i> ធនាគារ ABA</option>
+                            <option value="acleda"><i class="fas fa-building"></i> ធនាគារ ACLEDA</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label>កំណត់ចំណាំ</label>
+                        <label><i class="fas fa-pencil-alt"></i> កំណត់ចំណាំ</label>
                         <input type="text" name="notes" id="modal_notes" placeholder="កំណត់ចំណាំបន្ថែម...">
                     </div>
 
-                    <div style="display:flex; gap:10px; margin-top:15px;">
-                        <button type="submit" class="btn btn-success" id="submitBtn" style="flex:1; justify-content:center;">
+                    <div style="display:flex; gap:10px; margin-top:20px;">
+                        <button type="submit" class="btn btn-success" style="flex:1; justify-content:center; padding:12px;">
                             <i class="fas fa-check"></i> បញ្ជាក់ការបង់
                         </button>
-                        <button type="button" class="btn btn-secondary" onclick="closePaymentModal()" style="padding:8px 20px;">
+                        <button type="button" class="btn btn-secondary" onclick="closePaymentModal()" style="flex:1; justify-content:center; padding:12px; background:#e2e8f0; color:#2d3748;">
                             <i class="fas fa-times"></i> បោះបង់
                         </button>
                     </div>
@@ -698,93 +525,11 @@
     </div>
 
     <script>
-        let currentTab = 'good';
-        let currentLoanData = {};
-        let currentCurrency = 'USD';
+        let currentType = 'good';
 
-        // ============================================================
-        // ===== TAB CONFIG =====
-        // ============================================================
-        const tabConfig = {
-            'good': {
-                title: 'កម្ចីល្អ',
-                subtitle: 'បញ្ជីកម្ចីដែលដល់ថ្ងៃត្រូវបង់ (មិនយឺត)',
-                icon: 'fa-check-circle',
-                color: '#27ae60',
-                api: '/api/collection/good',
-                btnClass: 'btn-success'
-            },
-            'late': {
-                title: 'កម្ចីយឺត',
-                subtitle: 'បញ្ជីកម្ចីដែលហួសកំណត់ 1-30 ថ្ងៃ',
-                icon: 'fa-clock',
-                color: '#ed8936',
-                api: '/api/collection/late',
-                btnClass: 'btn-warning'
-            },
-            'bad': {
-                title: 'កម្ចីខូច',
-                subtitle: 'បញ្ជីកម្ចីដែលហួសកំណត់ > 30 ថ្ងៃ',
-                icon: 'fa-times-circle',
-                color: '#e74c3c',
-                api: '/api/collection/bad',
-                btnClass: 'btn-danger'
-            }
-        };
-
-        // ============================================================
-        // ===== SWITCH TAB =====
-        // ============================================================
-        function switchTab(tab) {
-            currentTab = tab;
-            const config = tabConfig[tab];
-
-            // ===== Update Tab Active =====
-            document.querySelectorAll('.tab-btn').forEach(function(btn) {
-                btn.classList.remove('active');
-            });
-            document.querySelector('.tab-btn[data-tab="' + tab + '"]').classList.add('active');
-
-            // ===== Update Sub Menu Active =====
-            document.querySelectorAll('#collectionSubmenu .submenu-item').forEach(function(item) {
-                item.classList.remove('active');
-            });
-            const subItems = document.querySelectorAll('#collectionSubmenu .submenu-item');
-            const tabIndex = {'good': 0, 'late': 1, 'bad': 2};
-            if (subItems[tabIndex[tab]]) {
-                subItems[tabIndex[tab]].classList.add('active');
-            }
-
-            // ===== Update Page Title =====
-            document.getElementById('pageTitle').innerHTML = '<i class="fas ' + config.icon + '" style="color:' + config.color + ';"></i> ' + config.title;
-            document.getElementById('pageSubtitle').textContent = config.subtitle;
-
-            // ===== Update Button Class =====
-            const submitBtn = document.getElementById('submitBtn');
-            if (submitBtn) {
-                submitBtn.className = 'btn ' + config.btnClass;
-                submitBtn.style.flex = '1';
-                submitBtn.style.justifyContent = 'center';
-            }
-
-            // ===== Show/Hide Penalty Fields =====
-            const showPenalty = (tab === 'late' || tab === 'bad');
-            document.getElementById('penaltyRow').style.display = showPenalty ? 'flex' : 'none';
-            document.getElementById('penaltyInputRow').style.display = showPenalty ? 'block' : 'none';
-
-            // ===== Load Data =====
-            loadCollection();
-        }
-
-        // ============================================================
         // ===== TOGGLE COLLECTION SUBMENU =====
-        // ============================================================
         function toggleCollectionSubmenu(event) {
-            if (event) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-
+            event.preventDefault();
             const container = document.getElementById('collectionSubmenu');
             const arrow = document.getElementById('collectionArrow');
 
@@ -796,83 +541,32 @@
             }
         }
 
-        // ============================================================
-        // ===== MENU TOGGLE (Mobile) =====
-        // ============================================================
-        document.getElementById('menuToggle').addEventListener('click', function() {
-            document.getElementById('sidebar').classList.toggle('open');
-        });
+        // ===== SWITCH TAB =====
+        function switchTab(type) {
+            currentType = type;
 
-        // ============================================================
-        // ===== AUTO HIGHLIGHT ACTIVE MENU =====
-        // ============================================================
-        document.addEventListener('DOMContentLoaded', function() {
-            const currentPath = window.location.pathname;
-            console.log('📍 Current path:', currentPath);
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.type === type) {
+                    tab.classList.add('active');
+                }
+            });
 
-            // ===== លុប active ទាំងអស់ចេញ =====
-            document.querySelectorAll('.sidebar .menu-item').forEach(function(item) {
+            document.querySelectorAll('#collectionSubmenu .menu-item').forEach(item => {
                 item.classList.remove('active');
             });
-
-            // ===== ករណីពិសេស: Collection =====
-            if (currentPath === '/collection') {
-                const collectionParent = document.querySelector('.menu-item[onclick*="toggleCollectionSubmenu"]');
-                if (collectionParent) {
-                    collectionParent.classList.add('active');
-                }
-
-                const container = document.getElementById('collectionSubmenu');
-                const arrow = document.getElementById('collectionArrow');
-                if (container) {
-                    container.classList.add('open');
-                    if (arrow) arrow.textContent = '▲';
-                }
-
-                // ===== Sub Item Active =====
-                const subItems = document.querySelectorAll('#collectionSubmenu .submenu-item');
-                const tabIndex = {'good': 0, 'late': 1, 'bad': 2};
-                if (subItems[tabIndex[currentTab]]) {
-                    subItems[tabIndex[currentTab]].classList.add('active');
-                }
-
-                return;
+            const submenuItems = document.querySelectorAll('#collectionSubmenu .menu-item');
+            const typeMap = {'good': 0, 'late': 1, 'bad': 2};
+            if (submenuItems[typeMap[type]]) {
+                submenuItems[typeMap[type]].classList.add('active');
             }
 
-            // ===== សម្រាប់មេនុយធម្មតា =====
-            let hasActiveMenu = false;
-            document.querySelectorAll('.sidebar .menu-item').forEach(function(item) {
-                const href = item.getAttribute('href');
-                if (!href || href === '#') return;
+            loadCollection(type);
+        }
 
-                let isActive = false;
-                if (currentPath === href) {
-                    isActive = true;
-                } else if (href !== '/' && currentPath.startsWith(href + '/')) {
-                    isActive = true;
-                }
-
-                if (isActive) {
-                    item.classList.add('active');
-                    hasActiveMenu = true;
-                }
-            });
-
-            if (!hasActiveMenu && currentPath !== '/login') {
-                const dashboardItem = document.querySelector('.sidebar .menu-item[href="/dashboard"]');
-                if (dashboardItem) {
-                    dashboardItem.classList.add('active');
-                }
-            }
-        });
-
-        // ============================================================
         // ===== FORMAT CURRENCY =====
-        // ============================================================
         function formatCurrency(amount, currency) {
-            if (amount === null || amount === undefined || isNaN(amount)) {
-                return currency === 'KHR' ? '៛ 0' : '$ 0.00';
-            }
+            if (amount === null || amount === undefined || isNaN(amount)) return currency === 'KHR' ? '៛ 0' : '$ 0.00';
             if (currency === 'KHR') {
                 const rounded = Math.round(amount / 100) * 100;
                 return '៛ ' + rounded.toLocaleString('en-US');
@@ -881,28 +575,35 @@
             }
         }
 
-        // ============================================================
-        // ===== CALCULATE TOTAL =====
-        // ============================================================
-        function calculateTotal() {
-            const penaltyInput = document.getElementById('modal_penalty');
-            const totalElement = document.getElementById('modal_total');
-            const baseAmount = parseFloat(currentLoanData.totalDue) || 0;
-            const penalty = parseFloat(penaltyInput.value) || 0;
-            const total = baseAmount + penalty;
-            totalElement.textContent = formatCurrency(total, currentLoanData.currency || 'USD');
+        function formatCurrencyDisplay(amount, currency) {
+            if (amount === null || amount === undefined || isNaN(amount)) return currency === 'KHR' ? '៛ 0' : '$ 0.00';
+            if (currency === 'KHR') {
+                const rounded = Math.round(amount / 100) * 100;
+                return '៛ ' + rounded.toLocaleString('en-US');
+            } else {
+                return '$ ' + amount.toFixed(2);
+            }
         }
 
-        // ============================================================
-        // ===== LOAD COLLECTION =====
-        // ============================================================
-        async function loadCollection() {
-            const tbody = document.getElementById('collectionBody');
-            const config = tabConfig[currentTab];
+        // ===== CALCULATE TOTAL =====
+        function calculateTotal() {
+            const penaltyInput = document.getElementById('modal_penalty');
+            const totalInput = document.getElementById('modal_total');
+            const amountInput = document.getElementById('modal_amount');
 
+            const penalty = parseFloat(penaltyInput.value) || 0;
+            const baseAmount = parseFloat(amountInput.dataset.baseAmount) || 0;
+
+            const total = baseAmount + penalty;
+            totalInput.value = formatCurrencyDisplay(total, 'USD');
+        }
+
+        // ===== LOAD COLLECTION =====
+        async function loadCollection(type) {
+            const tbody = document.getElementById('collectionBody');
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="9" style="text-align:center; padding:40px;">
+                    <td colspan="10" style="text-align:center; padding:40px;">
                         <div class="spinner"></div>
                         <p style="margin-top:10px; color:#718096;">កំពុងផ្ទុកទិន្នន័យ...</p>
                     </td>
@@ -910,40 +611,68 @@
             `;
 
             try {
-                const response = await fetch(config.api);
-                if (!response.ok) throw new Error('Network response was not ok');
+                const url = `/api/collection/${type}`;
+                console.log('📡 Fetching:', url);
+
+                const response = await fetch(url);
+                console.log('📡 Response status:', response.status);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('❌ Error response:', errorText);
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+
                 const data = await response.json();
+                console.log('✅ Data received:', data.length, 'items');
+
+                // Update counts
+                const goodCount = data.filter(l => l.days_overdue === 0).length;
+                const lateCount = data.filter(l => l.days_overdue > 0 && l.days_overdue <= 30).length;
+                const badCount = data.filter(l => l.days_overdue > 30).length;
+
+                document.getElementById('goodCount').textContent = goodCount;
+                document.getElementById('lateCount').textContent = lateCount;
+                document.getElementById('badCount').textContent = badCount;
+
+                document.getElementById('goodBadge').textContent = goodCount;
+                document.getElementById('lateBadge').textContent = lateCount;
+                document.getElementById('badBadge').textContent = badCount;
+
                 renderTable(data);
-                updateStats(data);
                 document.getElementById('footerInfo').textContent = `បង្ហាញចំនួន ${data.length} កម្ចី`;
             } catch (error) {
-                console.error('Error:', error);
+                console.error('❌ Error loading collection:', error);
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="9" style="text-align:center; padding:40px; color:#e74c3c;">
-                            <span style="font-size:48px; display:block; margin-bottom:10px;">❌</span>
+                        <td colspan="10" style="text-align:center; padding:40px; color:#e74c3c;">
+                            <i class="fas fa-exclamation-circle" style="font-size:48px; display:block; margin-bottom:10px;"></i>
                             មានបញ្ហាក្នុងការផ្ទុកទិន្នន័យ<br>
                             <small style="color:#718096;">${error.message}</small>
+                            <br>
+                            <small style="color:#718096; font-size:12px;">សូមពិនិត្យ Console (F12) សម្រាប់ព័ត៌មានបន្ថែម</small>
                         </td>
                     </tr>
                 `;
             }
         }
 
-        // ============================================================
         // ===== RENDER TABLE =====
-        // ============================================================
         function renderTable(data) {
             const tbody = document.getElementById('collectionBody');
-            const config = tabConfig[currentTab];
             tbody.innerHTML = '';
 
             if (!data || data.length === 0) {
+                const messages = {
+                    'good': '📭 មិនមានកម្ចីល្អដែលត្រូវប្រមូលថ្ងៃនេះ',
+                    'late': '📭 មិនមានកម្ចីយឺត',
+                    'bad': '📭 មិនមានកម្ចីខូច'
+                };
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="9" style="text-align:center; padding:40px; color:#888;">
+                        <td colspan="10" style="text-align:center; padding:40px; color:#888;">
                             <span style="font-size:48px; display:block; margin-bottom:10px;">📭</span>
-                            មិនមានទិន្នន័យ
+                            ${messages[currentType] || 'មិនមានទិន្នន័យ'}
                         </td>
                     </tr>
                 `;
@@ -951,61 +680,54 @@
             }
 
             data.forEach((loan) => {
-                const totalDue = loan.total_due || 0;
+                const isOverdue = loan.days_overdue > 0;
                 const remainingBalance = loan.remaining_balance || 0;
-                const daysOverdue = loan.days_overdue || 0;
-                const currency = loan.currency || 'USD';
-                const penalty = loan.penalty || 0;
+
+                const row = document.createElement('tr');
+                if (isOverdue) {
+                    row.classList.add('overdue-highlight');
+                }
+
+                let btnColor = '#28a745';
+                let btnIcon = '💰';
+
+                if (currentType === 'late') {
+                    btnColor = '#f39c12';
+                    btnIcon = '⏰';
+                } else if (currentType === 'bad') {
+                    btnColor = '#e74c3c';
+                    btnIcon = '⚠️';
+                }
+
                 const loanCode = loan.loan_code || loan.customer_code || '-';
                 const customerName = loan.customer_name || 'មិនស្គាល់';
+                const currency = loan.currency || 'USD';
 
-                // ===== កំណត់ badge តាម tab =====
-                let badgeHtml = '';
-                if (currentTab === 'good') {
-                    badgeHtml = '<span class="badge badge-success"><i class="fas fa-check-circle"></i> ថ្ងៃនេះ</span>';
-                } else if (currentTab === 'late') {
-                    badgeHtml = '<span class="badge badge-warning">' + daysOverdue + ' ថ្ងៃ</span>';
+                // ===== បង្ហាញថ្ងៃយឺត =====
+                let overdueDisplay = '';
+                if (isOverdue) {
+                    overdueDisplay = `<span class="badge badge-danger">${loan.days_overdue} ថ្ងៃ</span>`;
                 } else {
-                    badgeHtml = '<span class="badge badge-danger">' + daysOverdue + ' ថ្ងៃ</span>';
+                    overdueDisplay = `<span class="badge badge-success"><i class="fas fa-check-circle"></i> ថ្ងៃនេះ</span>`;
                 }
 
-                // ===== កំណត់ row class =====
-                let rowClass = '';
-                if (currentTab === 'bad') {
-                    rowClass = 'overdue-highlight';
-                } else if (currentTab === 'late' && daysOverdue > 0) {
-                    rowClass = 'overdue-highlight';
-                }
-
-                // ===== បង្កើត button HTML =====
-                let buttonHtml = '';
-                let totalDisplay = formatCurrency(totalDue, currency);
-
-                if (currentTab === 'good') {
-                    buttonHtml = '<button class="btn btn-success btn-sm btn-fixed-width" onclick="openPaymentModal(' + loan.id + ', \'' + customerName.replace(/'/g, "\\'") + '\', \'' + loanCode + '\', ' + totalDue + ', ' + (loan.principal || 0) + ', ' + (loan.interest || 0) + ', 0, 0, \'' + currency + '\')">' + totalDisplay + '</button>';
-                } else if (currentTab === 'late') {
-                    totalDisplay = formatCurrency(totalDue + penalty, currency);
-                    buttonHtml = '<button class="btn btn-warning btn-sm btn-fixed-width" onclick="openPaymentModal(' + loan.id + ', \'' + customerName.replace(/'/g, "\\'") + '\', \'' + loanCode + '\', ' + totalDue + ', ' + (loan.principal || 0) + ', ' + (loan.interest || 0) + ', ' + daysOverdue + ', ' + penalty + ', \'' + currency + '\')">' + totalDisplay + '</button>';
-                } else {
-                    totalDisplay = formatCurrency(totalDue + penalty, currency);
-                    buttonHtml = '<button class="btn btn-danger btn-sm btn-fixed-width" onclick="openPaymentModal(' + loan.id + ', \'' + customerName.replace(/'/g, "\\'") + '\', \'' + loanCode + '\', ' + totalDue + ', ' + (loan.principal || 0) + ', ' + (loan.interest || 0) + ', ' + daysOverdue + ', ' + penalty + ', \'' + currency + '\')">' + totalDisplay + '</button>';
-                }
-
-                // ===== បង្កើត row =====
-                const row = document.createElement('tr');
-                row.className = rowClass;
                 row.innerHTML = `
                     <td><strong>${loanCode}</strong></td>
-                    <td>${customerName}</td>
-                    <td>${buttonHtml}</td>
+                    <td><strong>${customerName}</strong></td>
+                    <td>
+                        <button class="btn btn-success btn-sm"
+                                style="background:${btnColor}; border:none; cursor:pointer; box-shadow: 0 2px 8px rgba(40,167,69,0.3);"
+                                onclick="openPaymentModal(${loan.id}, '${customerName.replace(/'/g, "\\'")}', '${loanCode}', ${loan.total_due || 0}, ${loan.principal || 0}, ${loan.interest || 0}, '${currency}')">
+                            ${btnIcon} ${formatCurrency(loan.total_due || 0, currency)}
+                        </button>
+                    </td>
                     <td>${formatCurrency(loan.principal || 0, currency)}</td>
                     <td>${formatCurrency(loan.interest || 0, currency)}</td>
-                    <td>${badgeHtml}</td>
+                    <td>${overdueDisplay}</td>
+                    <td>${formatCurrency(loan.penalty || 0, currency)}</td>
                     <td>
-                        <button class="btn btn-success btn-sm btn-fixed-width" 
-                                style="background:#48bb78; opacity:0.85; cursor:default;" 
-                                onclick="alert('បំណុលនៅខ្វះសរុប: ${formatCurrency(remainingBalance, currency)}')">
-                            ${formatCurrency(remainingBalance, currency)}
+                        <button class="btn btn-success btn-sm"
+                                <strong style="color:#e74c3c;">${formatCurrency(remainingBalance, currency)}</strong>
                         </button>
                     </td>
                     <td>${loan.customer_address || '-'}</td>
@@ -1015,36 +737,10 @@
             });
         }
 
-        // ============================================================
-        // ===== UPDATE STATS =====
-        // ============================================================
-        function updateStats(data) {
-            let total = 0;
-            let todayCount = 0;
-            let totalPenalty = 0;
-
-            data.forEach(loan => {
-                total += (loan.total_due || 0);
-                if (currentTab === 'late' || currentTab === 'bad') {
-                    total += (loan.penalty || 0);
-                    totalPenalty += (loan.penalty || 0);
-                }
-                if (loan.days_overdue === 0) todayCount++;
-            });
-
-            document.getElementById('totalAmount').textContent = formatCurrency(total, 'USD');
-            document.getElementById('totalCustomers').textContent = data.length;
-            document.getElementById('todayCount').textContent = todayCount;
-        }
-
-        // ============================================================
         // ===== OPEN PAYMENT MODAL =====
-        // ============================================================
-        function openPaymentModal(loanId, customerName, loanCode, totalDue, principal, interest, daysOverdue, penalty, currency) {
+        function openPaymentModal(loanId, customerName, loanCode, totalDue, principal, interest, currency) {
             document.getElementById('paymentModal').classList.add('active');
             document.body.style.overflow = 'hidden';
-
-            currentCurrency = currency;
 
             document.getElementById('modal_loan_id').value = loanId;
             document.getElementById('modal_loan_code').textContent = loanCode || '-';
@@ -1052,50 +748,24 @@
             document.getElementById('modal_principal').textContent = formatCurrency(principal, currency);
             document.getElementById('modal_interest').textContent = formatCurrency(interest, currency);
 
-            // ===== បង្ហាញថ្ងៃយឺត (បើមាន) =====
-            if (daysOverdue > 0) {
-                document.getElementById('modal_days_overdue').textContent = daysOverdue + ' ថ្ងៃ';
-            }
+            const amountInput = document.getElementById('modal_amount');
+            amountInput.dataset.baseAmount = totalDue;
+            amountInput.value = totalDue;
 
-            currentLoanData = {
-                totalDue: totalDue,
-                currency: currency
-            };
+            document.getElementById('modal_total').value = formatCurrencyDisplay(totalDue, currency);
+            document.getElementById('modal_penalty').value = 0;
 
-            const totalElement = document.getElementById('modal_total');
-            const finalTotal = totalDue + (penalty || 0);
-            totalElement.textContent = formatCurrency(finalTotal, currency);
-            
-            document.getElementById('modal_penalty').value = penalty || 0;
-            document.getElementById('modal_amount').value = finalTotal;
+            document.getElementById('modal_penalty').addEventListener('input', calculateTotal);
             document.getElementById('modal_amount').focus();
         }
 
-        // ============================================================
         // ===== CLOSE PAYMENT MODAL =====
-        // ============================================================
         function closePaymentModal() {
             document.getElementById('paymentModal').classList.remove('active');
             document.body.style.overflow = 'auto';
-            document.getElementById('paymentForm').reset();
-            document.getElementById('modal_total').textContent = '-';
         }
 
-        document.getElementById('paymentModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closePaymentModal();
-            }
-        });
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closePaymentModal();
-            }
-        });
-
-        // ============================================================
         // ===== SUBMIT PAYMENT =====
-        // ============================================================
         async function submitPayment(event) {
             event.preventDefault();
 
@@ -1110,7 +780,7 @@
                 return;
             }
 
-            const submitBtn = document.getElementById('submitBtn');
+            const submitBtn = document.querySelector('#paymentForm .btn-success');
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> កំពុងដំណើរការ...';
             submitBtn.disabled = true;
@@ -1133,7 +803,7 @@
                 if (result.success) {
                     alert('✅ ប្រមូលប្រាក់ជោគជ័យ!');
                     closePaymentModal();
-                    loadCollection();
+                    loadCollection(currentType);
                 } else {
                     alert('❌ ' + (result.error || 'មានបញ្ហាក្នុងការប្រមូលប្រាក់!'));
                 }
@@ -1146,11 +816,30 @@
             }
         }
 
-        // ============================================================
+        // ===== CLOSE MODAL ON OVERLAY CLICK =====
+        document.getElementById('paymentModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePaymentModal();
+            }
+        });
+
+        // ===== CLOSE MODAL ON ESCAPE KEY =====
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closePaymentModal();
+            }
+        });
+
         // ===== INITIAL LOAD =====
-        // ============================================================
         document.addEventListener('DOMContentLoaded', function() {
-            switchTab('good');
+            const container = document.getElementById('collectionSubmenu');
+            if (container) {
+                container.classList.add('open');
+                document.getElementById('collectionArrow').textContent = '▲';
+            }
+
+            console.log('🚀 Page loaded, loading collection...');
+            loadCollection('good');
         });
     </script>
 
