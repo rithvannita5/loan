@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>កម្ចីល្អ - ប្រមូលប្រាក់</title>
+    <title>កម្ចីយឺត - ប្រមូលប្រាក់</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -60,7 +60,7 @@
             display: block;
         }
 
-        /* ===== MENU ITEM (ត្រូវនឹង HTML) ===== */
+        /* ===== MENU ITEM ===== */
         .sidebar .menu-item {
             display: flex !important;
             flex-direction: row !important;
@@ -230,29 +230,14 @@
         /* ===== MAIN CONTENT ===== */
         .main-content { margin-left: 260px; flex: 1; padding: 20px; min-height: 100vh; }
 
-        .top-header {
-            background: white; padding: 15px 25px; border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 25px; flex-wrap: wrap; gap: 10px;
-        }
+        .top-header { background: white; padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 10px; }
         .top-header .page-title h1 { font-size: 22px; color: #2d3748; }
         .top-header .page-title p { color: #718096; font-size: 14px; }
         .top-header .user-info { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
-        .top-header .user-info .avatar {
-            width: 40px; height: 40px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            color: white; font-weight: bold; font-size: 18px;
-        }
+        .top-header .user-info .avatar { width: 40px; height: 40px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px; }
         .top-header .user-info .user-name { font-weight: 600; color: #2d3748; font-size: 14px; }
         .top-header .user-info .user-role { font-size: 12px; color: #718096; }
-        .top-header .user-info .logout-btn {
-            padding: 8px 18px; background: #fc8181; color: white; border: none;
-            border-radius: 8px; cursor: pointer; font-size: 13px;
-            font-family: 'Khmer OS', 'Arial', sans-serif; transition: all 0.3s;
-            text-decoration: none;
-        }
+        .top-header .user-info .logout-btn { padding: 8px 18px; background: #fc8181; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-family: 'Khmer OS', 'Arial', sans-serif; transition: all 0.3s; text-decoration: none; }
         .top-header .user-info .logout-btn:hover { background: #f56565; }
         .menu-toggle { display: none; background: none; border: none; color: #2d3748; font-size: 24px; cursor: pointer; padding: 5px; }
 
@@ -267,23 +252,23 @@
         .stat-card { background: white; padding: 15px 20px; border-radius: 12px; border-left: 4px solid #667eea; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .stat-card .number { font-size: 22px; font-weight: bold; }
         .stat-card .label { font-size: 13px; color: #718096; margin-top: 2px; }
-        .stat-card.green { border-left-color: #48bb78; }
-        .stat-card.green .number { color: #48bb78; }
         .stat-card.orange { border-left-color: #ed8936; }
         .stat-card.orange .number { color: #ed8936; }
-        .stat-card.blue { border-left-color: #667eea; }
-        .stat-card.blue .number { color: #667eea; }
+        .stat-card.red { border-left-color: #fc8181; }
+        .stat-card.red .number { color: #fc8181; }
 
         .btn { padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-family: 'Khmer OS', 'Arial', sans-serif; transition: all 0.3s; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
-        .btn-success { background: #48bb78; color: white; }
-        .btn-success:hover { background: #38a169; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(72,187,120,0.4); }
+        .btn-warning { background: #ed8936; color: white; }
+        .btn-warning:hover { background: #dd6b20; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(237,137,54,0.4); }
         .btn-sm { padding: 5px 12px; font-size: 12px; }
         .btn-secondary { background: #e2e8f0; color: #2d3748; }
         .btn-secondary:hover { background: #cbd5e0; }
         .btn-fixed-width { min-width: 140px; text-align: center; justify-content: center; white-space: nowrap; }
+        .btn-success { background: #48bb78; color: white; }
+        .btn-success:hover { background: #38a169; }
 
         .table-responsive { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1000px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1100px; }
         table th { background: #f7fafc; padding: 10px 12px; text-align: left; color: #2d3748; font-weight: 600; border-bottom: 2px solid #e2e8f0; font-size: 12px; white-space: nowrap; }
         table td { padding: 8px 12px; border-bottom: 1px solid #f0f2f5; color: #4a5568; font-size: 13px; }
         table tr:hover td { background: #f7fafc; }
@@ -291,9 +276,9 @@
         .badge {
             display: inline-block; padding: 2px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
         }
-        .badge-success { background: #c6f6d5; color: #22543d; }
-        .badge-info { background: #bee3f8; color: #2a4365; }
+        .badge-danger { background: #fed7d7; color: #9b2c2c; }
         .badge-warning { background: #feebc8; color: #9c6b2e; }
+        .badge-success { background: #c6f6d5; color: #22543d; }
 
         .empty-state { text-align: center; padding: 40px 20px; color: #a0aec0; }
         .empty-state .icon { font-size: 60px; margin-bottom: 15px; color: #e2e8f0; }
@@ -303,6 +288,10 @@
         .text-muted { color: #a0aec0; }
         .mt-20 { margin-top: 20px; }
 
+        .overdue-highlight { background: #fff5f5 !important; }
+        .overdue-highlight:hover td { background: #fed7d7 !important; }
+
+        /* ===== MODAL ===== */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -356,7 +345,14 @@
             transition: all 0.3s; height: 44px;
         }
         .modal-body .form-group input:focus, .modal-body .form-group select:focus {
-            outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+            outline: none; border-color: #ed8936; box-shadow: 0 0 0 3px rgba(237,137,54,0.1);
+        }
+        .modal-body .form-group input:read-only {
+            background: #fff8f0;
+            color: #ed8936;
+            font-weight: bold;
+            font-size: 18px;
+            border-color: #feebc8;
         }
         .modal-body .info-display {
             background: #f7fafc;
@@ -376,6 +372,7 @@
         .modal-body .info-display .info-item:last-child { border-bottom: none; }
         .modal-body .info-display .info-item .label { color: #718096; font-size: 13px; }
         .modal-body .info-display .info-item .value { font-weight: 600; color: #2d3748; font-size: 14px; }
+        .modal-body .info-display .info-item .value.danger { color: #e74c3c; }
 
         @media (max-width: 768px) {
             .sidebar { left: -260px; }
@@ -400,7 +397,7 @@
             width: 40px;
             height: 40px;
             border: 4px solid #e2e8f0;
-            border-top: 4px solid #48bb78;
+            border-top: 4px solid #ed8936;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -501,8 +498,8 @@
                     <i class="fas fa-bars"></i>
                 </button>
                 <div class="page-title">
-                    <h1><i class="fas fa-check-circle" style="color:#27ae60;"></i> កម្ចីល្អ</h1>
-                    <p>បញ្ជីកម្ចីដែលដល់ថ្ងៃត្រូវបង់ (មិនយឺត)</p>
+                    <h1><i class="fas fa-clock" style="color:#ed8936;"></i> កម្ចីយឺត</h1>
+                    <p>បញ្ជីកម្ចីដែលហួសកំណត់ 1-30 ថ្ងៃ</p>
                 </div>
             </div>
             <div class="user-info">
@@ -519,17 +516,17 @@
         <div class="page-content">
 
             <div class="stats-grid">
-                <div class="stat-card green">
+                <div class="stat-card orange">
                     <div class="number" id="totalAmount">$0.00</div>
-                    <div class="label">សរុបត្រូវបង់</div>
+                    <div class="label">សរុបត្រូវបង់ (រួមពិន័យ)</div>
                 </div>
-                <div class="stat-card green">
+                <div class="stat-card red">
                     <div class="number" id="totalCustomers">0</div>
-                    <div class="label">ចំនួនកម្ចី</div>
+                    <div class="label">ចំនួនកម្ចីយឺត</div>
                 </div>
                 <div class="stat-card orange">
-                    <div class="number" id="todayCount">0</div>
-                    <div class="label">ត្រូវបង់ថ្ងៃនេះ</div>
+                    <div class="number" id="totalPenalty">$0.00</div>
+                    <div class="label">សរុបពិន័យ</div>
                 </div>
             </div>
 
@@ -542,7 +539,8 @@
                             <th>ប្រាក់ត្រូវបង់</th>
                             <th>ប្រាក់ដើម</th>
                             <th>ការប្រាក់</th>
-                            <th>ស្ថានភាព</th>
+                            <th>យឺត</th>
+                            <th>ពិន័យ</th>
                             <th>បំណុលនៅខ្វះ</th>
                             <th>អាសយដ្ឋាន</th>
                             <th>លេខទូរស័ព្ទ</th>
@@ -550,7 +548,7 @@
                     </thead>
                     <tbody id="collectionBody">
                         <tr>
-                            <td colspan="9" style="text-align:center; padding:40px;">
+                            <td colspan="10" style="text-align:center; padding:40px;">
                                 <div class="spinner"></div>
                                 <p style="margin-top:10px; color:#718096;">កំពុងផ្ទុកទិន្នន័យ...</p>
                             </td>
@@ -576,7 +574,7 @@
     <div class="modal-overlay" id="paymentModal">
         <div class="modal-box">
             <div class="modal-header">
-                <h3><i class="fas fa-hand-holding-usd" style="color:#667eea;"></i> ប្រមូលប្រាក់</h3>
+                <h3><i class="fas fa-clock" style="color:#ed8936;"></i> ប្រមូលប្រាក់ (កម្ចីយឺត)</h3>
                 <button class="modal-close" onclick="closePaymentModal()">&times;</button>
             </div>
             <div class="modal-body">
@@ -600,10 +598,20 @@
                             <span class="label">ការប្រាក់</span>
                             <span class="value" id="modal_interest">-</span>
                         </div>
-                        <div class="info-item" style="grid-column: 1 / -1;">
-                            <span class="label">សរុបត្រូវបង់</span>
-                            <span class="value" id="modal_total" style="color:#27ae60; font-size:18px;">-</span>
+                        <div class="info-item">
+                            <span class="label">ថ្ងៃយឺត</span>
+                            <span class="value danger" id="modal_days_overdue">-</span>
                         </div>
+                        <div class="info-item" style="grid-column: 1 / -1;">
+                            <span class="label">សរុបត្រូវបង់ (រួមពិន័យ)</span>
+                            <span class="value" id="modal_total" style="color:#ed8936; font-size:18px;">-</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>ប្រាក់ពិន័យ (អាចកែប្រែបាន)</label>
+                        <input type="number" name="penalty" id="modal_penalty" step="0.01" value="0" oninput="calculateTotal()" placeholder="បញ្ចូលចំនួនពិន័យ...">
+                        <small style="color:#718096;">ប្រសិនបើមិនមានពិន័យ សូមទុក 0</small>
                     </div>
 
                     <div class="form-group">
@@ -626,7 +634,7 @@
                     </div>
 
                     <div style="display:flex; gap:10px; margin-top:15px;">
-                        <button type="submit" class="btn btn-success" style="flex:1; justify-content:center;">
+                        <button type="submit" class="btn btn-warning" style="flex:1; justify-content:center;">
                             <i class="fas fa-check"></i> បញ្ជាក់ការបង់
                         </button>
                         <button type="button" class="btn btn-secondary" onclick="closePaymentModal()" style="padding:8px 20px;">
@@ -661,50 +669,6 @@
             }
         }
 
-        // ===== បិទ Sub Menu ពេលចុចលើមេនុយផ្សេង =====
-        document.addEventListener('DOMContentLoaded', function() {
-            const allMenuItems = document.querySelectorAll('.sidebar .menu-item');
-            allMenuItems.forEach(function(menuItem) {
-                const isCollectionParent = menuItem.querySelector('#collectionArrow');
-                menuItem.addEventListener('click', function(e) {
-                    if (!isCollectionParent) {
-                        const container = document.getElementById('collectionSubmenu');
-                        const arrow = document.getElementById('collectionArrow');
-                        if (container && container.classList.contains('open')) {
-                            container.classList.remove('open');
-                            if (arrow) arrow.textContent = '▼';
-                        }
-                    }
-                });
-            });
-
-            // ===== បិទ Sub Menu ពេលចុច Sub Item =====
-            const subItems = document.querySelectorAll('#collectionSubmenu .submenu-item');
-            subItems.forEach(function(subItem) {
-                subItem.addEventListener('click', function() {
-                    const container = document.getElementById('collectionSubmenu');
-                    const arrow = document.getElementById('collectionArrow');
-                    if (container) {
-                        container.classList.remove('open');
-                        if (arrow) arrow.textContent = '▼';
-                    }
-                });
-            });
-
-            // ===== បិទ Sub Menu ពេលចុចខាងក្រៅ =====
-            document.addEventListener('click', function(event) {
-                const container = document.getElementById('collectionSubmenu');
-                const collectionMenu = document.querySelector('.menu-item[onclick*="toggleCollectionSubmenu"]');
-                if (container && collectionMenu) {
-                    if (!collectionMenu.contains(event.target) && !container.contains(event.target)) {
-                        container.classList.remove('open');
-                        const arrow = document.getElementById('collectionArrow');
-                        if (arrow) arrow.textContent = '▼';
-                    }
-                }
-            });
-        });
-
         // ============================================================
         // ===== MENU TOGGLE (Mobile) =====
         // ============================================================
@@ -723,18 +687,51 @@
         });
 
         // ============================================================
-        // ===== AUTO HIGHLIGHT ACTIVE MENU =====
+        // ===== AUTO HIGHLIGHT ACTIVE MENU (កែរួច) =====
         // ============================================================
         document.addEventListener('DOMContentLoaded', function() {
             const currentPath = window.location.pathname;
             console.log('📍 Current path:', currentPath);
 
-            // ===== លុប active ទាំងអស់ចេញជាមុន =====
+            // ===== លុប active ទាំងអស់ចេញ =====
             document.querySelectorAll('.sidebar .menu-item').forEach(function(item) {
                 item.classList.remove('active');
             });
 
-            // ===== កំណត់ active តាម URL =====
+            // ===== ករណីពិសេស: Collection Pages =====
+            const collectionPages = ['/collection', '/collection_good', '/collection_late', '/collection_bad'];
+            let isCollectionPage = collectionPages.some(page => currentPath === page);
+
+            if (isCollectionPage) {
+                // ===== កំណត់ Parent Menu Active =====
+                const collectionParent = document.querySelector('.menu-item[onclick*="toggleCollectionSubmenu"]');
+                if (collectionParent) {
+                    collectionParent.classList.add('active');
+                }
+
+                // ===== បើក Sub Menu =====
+                const container = document.getElementById('collectionSubmenu');
+                const arrow = document.getElementById('collectionArrow');
+                if (container) {
+                    container.classList.add('open');
+                    if (arrow) arrow.textContent = '▲';
+                }
+
+                // ===== កំណត់ Sub Item Active =====
+                document.querySelectorAll('#collectionSubmenu .submenu-item').forEach(function(subItem) {
+                    const href = subItem.getAttribute('href');
+                    if (href === currentPath) {
+                        subItem.classList.add('active');
+                    }
+                });
+
+                // ===== ឈប់ - មិនត្រូវកំណត់ Dashboard =====
+                return;
+            }
+
+            // ===== សម្រាប់មេនុយធម្មតា =====
+            let hasActiveMenu = false;
+
             document.querySelectorAll('.sidebar .menu-item').forEach(function(item) {
                 const href = item.getAttribute('href');
                 if (!href || href === '#') return;
@@ -748,30 +745,16 @@
 
                 if (isActive) {
                     item.classList.add('active');
+                    hasActiveMenu = true;
                 }
             });
 
-            // ===== ករណីពិសេសសម្រាប់ Collection =====
-            const collectionPages = ['/collection', '/collection_good', '/collection_late', '/collection_bad'];
-            if (collectionPages.some(page => currentPath === page)) {
-                const collectionParent = document.querySelector('.menu-item[onclick*="toggleCollectionSubmenu"]');
-                if (collectionParent) {
-                    collectionParent.classList.add('active');
+            // ===== បើគ្មាន Active → Dashboard =====
+            if (!hasActiveMenu && currentPath !== '/login') {
+                const dashboardItem = document.querySelector('.sidebar .menu-item[href="/dashboard"]');
+                if (dashboardItem) {
+                    dashboardItem.classList.add('active');
                 }
-
-                const container = document.getElementById('collectionSubmenu');
-                const arrow = document.getElementById('collectionArrow');
-                if (container) {
-                    container.classList.add('open');
-                    if (arrow) arrow.textContent = '▲';
-                }
-
-                document.querySelectorAll('#collectionSubmenu .submenu-item').forEach(function(subItem) {
-                    const href = subItem.getAttribute('href');
-                    if (href === currentPath) {
-                        subItem.classList.add('active');
-                    }
-                });
             }
         });
 
@@ -791,13 +774,25 @@
         }
 
         // ============================================================
+        // ===== CALCULATE TOTAL =====
+        // ============================================================
+        function calculateTotal() {
+            const penaltyInput = document.getElementById('modal_penalty');
+            const totalElement = document.getElementById('modal_total');
+            const baseAmount = parseFloat(currentLoanData.totalDue) || 0;
+            const penalty = parseFloat(penaltyInput.value) || 0;
+            const total = baseAmount + penalty;
+            totalElement.textContent = formatCurrency(total, currentLoanData.currency || 'USD');
+        }
+
+        // ============================================================
         // ===== LOAD COLLECTION =====
         // ============================================================
         async function loadCollection() {
             const tbody = document.getElementById('collectionBody');
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="9" style="text-align:center; padding:40px;">
+                    <td colspan="10" style="text-align:center; padding:40px;">
                         <div class="spinner"></div>
                         <p style="margin-top:10px; color:#718096;">កំពុងផ្ទុកទិន្នន័យ...</p>
                     </td>
@@ -805,17 +800,17 @@
             `;
 
             try {
-                const response = await fetch('/api/collection/good');
+                const response = await fetch('/api/collection/late');
                 if (!response.ok) throw new Error('Network response was not ok');
                 const data = await response.json();
                 renderTable(data);
                 updateStats(data);
-                document.getElementById('footerInfo').textContent = `បង្ហាញចំនួន ${data.length} កម្ចីល្អ`;
+                document.getElementById('footerInfo').textContent = `បង្ហាញចំនួន ${data.length} កម្ចីយឺត`;
             } catch (error) {
                 console.error('Error:', error);
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="9" style="text-align:center; padding:40px; color:#e74c3c;">
+                        <td colspan="10" style="text-align:center; padding:40px; color:#e74c3c;">
                             <span style="font-size:48px; display:block; margin-bottom:10px;">❌</span>
                             មានបញ្ហាក្នុងការផ្ទុកទិន្នន័យ<br>
                             <small style="color:#718096;">${error.message}</small>
@@ -835,9 +830,9 @@
             if (!data || data.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="9" style="text-align:center; padding:40px; color:#888;">
+                        <td colspan="10" style="text-align:center; padding:40px; color:#888;">
                             <span style="font-size:48px; display:block; margin-bottom:10px;">📭</span>
-                            មិនមានកម្ចីល្អដែលត្រូវប្រមូលថ្ងៃនេះ
+                            មិនមានកម្ចីយឺត
                         </td>
                     </tr>
                 `;
@@ -847,27 +842,29 @@
             data.forEach((loan) => {
                 const totalDue = loan.total_due || 0;
                 const remainingBalance = loan.remaining_balance || 0;
+                const daysOverdue = loan.days_overdue || 0;
                 const currency = loan.currency || 'USD';
+                const penalty = loan.penalty || 0;
                 const loanCode = loan.loan_code || loan.customer_code || '-';
                 const customerName = loan.customer_name || 'មិនស្គាល់';
 
                 const row = document.createElement('tr');
+                row.className = daysOverdue > 0 ? 'overdue-highlight' : '';
                 row.innerHTML = `
                     <td><strong>${loanCode}</strong></td>
                     <td>${customerName}</td>
                     <td>
-                        <button class="btn btn-success btn-sm btn-fixed-width" 
-                                onclick="openPaymentModal(${loan.id}, '${customerName.replace(/'/g, "\\'")}', '${loanCode}', ${totalDue}, ${loan.principal || 0}, ${loan.interest || 0}, '${currency}')">
-                            ${formatCurrency(totalDue, currency)}
+                        <button class="btn btn-warning btn-sm btn-fixed-width" 
+                                onclick="openPaymentModal(${loan.id}, '${customerName.replace(/'/g, "\\'")}', '${loanCode}', ${totalDue}, ${loan.principal || 0}, ${loan.interest || 0}, ${daysOverdue}, ${penalty}, '${currency}')">
+                            ${formatCurrency(totalDue + penalty, currency)}
                         </button>
                     </td>
                     <td>${formatCurrency(loan.principal || 0, currency)}</td>
                     <td>${formatCurrency(loan.interest || 0, currency)}</td>
                     <td>
-                        <span class="badge badge-success">
-                            <i class="fas fa-check-circle"></i> ថ្ងៃនេះ
-                        </span>
+                        <span class="badge badge-danger">${daysOverdue} ថ្ងៃ</span>
                     </td>
+                    <td>${formatCurrency(penalty, currency)}</td>
                     <td>
                         <button class="btn btn-success btn-sm btn-fixed-width" 
                                 style="background:#48bb78; opacity:0.85; cursor:default;" 
@@ -887,22 +884,22 @@
         // ============================================================
         function updateStats(data) {
             let total = 0;
-            let todayCount = 0;
+            let totalPenalty = 0;
 
             data.forEach(loan => {
-                total += loan.total_due || 0;
-                if (loan.days_overdue === 0) todayCount++;
+                total += (loan.total_due || 0) + (loan.penalty || 0);
+                totalPenalty += loan.penalty || 0;
             });
 
             document.getElementById('totalAmount').textContent = formatCurrency(total, 'USD');
             document.getElementById('totalCustomers').textContent = data.length;
-            document.getElementById('todayCount').textContent = todayCount;
+            document.getElementById('totalPenalty').textContent = formatCurrency(totalPenalty, 'USD');
         }
 
         // ============================================================
         // ===== OPEN PAYMENT MODAL =====
         // ============================================================
-        function openPaymentModal(loanId, customerName, loanCode, totalDue, principal, interest, currency) {
+        function openPaymentModal(loanId, customerName, loanCode, totalDue, principal, interest, daysOverdue, penalty, currency) {
             document.getElementById('paymentModal').classList.add('active');
             document.body.style.overflow = 'hidden';
 
@@ -911,17 +908,19 @@
             document.getElementById('modal_customer_name').textContent = customerName || 'មិនស្គាល់';
             document.getElementById('modal_principal').textContent = formatCurrency(principal, currency);
             document.getElementById('modal_interest').textContent = formatCurrency(interest, currency);
-            document.getElementById('modal_total').textContent = formatCurrency(totalDue, currency);
-
-            const amountInput = document.getElementById('modal_amount');
-            amountInput.value = totalDue;
-            amountInput.focus();
+            document.getElementById('modal_days_overdue').textContent = daysOverdue + ' ថ្ងៃ';
 
             currentLoanData = {
-                loanId: loanId,
                 totalDue: totalDue,
                 currency: currency
             };
+
+            const totalElement = document.getElementById('modal_total');
+            totalElement.textContent = formatCurrency(totalDue + penalty, currency);
+            
+            document.getElementById('modal_penalty').value = penalty || 0;
+            document.getElementById('modal_amount').value = totalDue + (penalty || 0);
+            document.getElementById('modal_amount').focus();
         }
 
         // ============================================================
@@ -931,6 +930,7 @@
             document.getElementById('paymentModal').classList.remove('active');
             document.body.style.overflow = 'auto';
             document.getElementById('paymentForm').reset();
+            document.getElementById('modal_total').textContent = '-';
         }
 
         document.getElementById('paymentModal').addEventListener('click', function(e) {
@@ -954,6 +954,7 @@
             const loanId = document.getElementById('modal_loan_id').value;
             const amount = document.getElementById('modal_amount').value;
             const paymentMethod = document.getElementById('modal_payment_method').value;
+            const penalty = document.getElementById('modal_penalty').value || 0;
             const notes = document.getElementById('modal_notes').value || '';
 
             if (!amount || parseFloat(amount) <= 0) {
@@ -961,7 +962,7 @@
                 return;
             }
 
-            const submitBtn = document.querySelector('#paymentForm .btn-success');
+            const submitBtn = document.querySelector('#paymentForm .btn-warning');
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> កំពុងដំណើរការ...';
             submitBtn.disabled = true;
@@ -974,7 +975,7 @@
                         loan_id: parseInt(loanId),
                         amount: parseFloat(amount),
                         payment_method: paymentMethod,
-                        penalty: 0,
+                        penalty: parseFloat(penalty),
                         notes: notes
                     })
                 });
