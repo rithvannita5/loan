@@ -43,32 +43,9 @@
         .menu-item.active { background: rgba(102,126,234,0.15); color: #fff; border-left-color: #667eea; }
         .menu-item .icon { font-size: 20px; margin-right: 14px; width: 28px; text-align: center; }
         .menu-item .badge { margin-left: auto; background: #e74c3c; color: #fff; font-size: 11px; padding: 2px 10px; border-radius: 20px; }
+
         .main-content { margin-left: 260px; flex: 1; padding: 30px; min-height: 100vh; }
-        /* ===== SUBMENU ANIMATION ===== */
-.submenu-container {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.35s ease-in-out;
-    background: rgba(0,0,0,0.15);
-}
-.submenu-container.open {
-    max-height: 500px;
-}
-.submenu-item {
-    padding-left: 50px !important;
-    font-size: 14px !important;
-}
-.submenu-item .icon {
-    font-size: 16px !important;
-    margin-right: 10px !important;
-    width: 22px !important;
-}
-.menu-item .arrow {
-    margin-left: auto;
-    font-size: 10px;
-    transition: transform 0.3s ease;
-    color: rgba(255,255,255,0.5);
-}
+
         .top-header {
             display: flex; justify-content: space-between; align-items: center;
             background: #fff; padding: 18px 30px; border-radius: 15px;
@@ -371,6 +348,7 @@
             <h2>កម្ចី<span>Plus</span></h2>
             <p>ប្រព័ន្ធគ្រប់គ្រងកម្ចី</p>
         </div>
+
         <div class="menu-label">មុខម្ហូប</div>
 
         <a href="/dashboard" class="menu-item">
@@ -403,33 +381,17 @@
             <span>ទូរទាត់</span>
         </a>
 
-        <!-- ===== COLLECTION WITH SUBMENU ===== -->
-        <div class="menu-item" onclick="toggleCollectionSubmenu(event)">
+        <a href="/collection" class="menu-item">
             <span class="icon">💵</span>
             <span>ប្រមូលប្រាក់</span>
-            <span class="arrow" id="collectionArrow">▼</span>
-        </div>
-        <div class="submenu-container" id="collectionSubmenu">
-            <a href="/collection_good" class="menu-item submenu-item">
-                <span class="icon">✅</span>
-                <span>កម្ចីល្អ</span>
-            </a>
-            <a href="/collection_late" class="menu-item submenu-item">
-                <span class="icon">⏰</span>
-                <span>កម្ចីយឺត</span>
-            </a>
-            <a href="/collection_bad" class="menu-item submenu-item">
-                <span class="icon">❌</span>
-                <span>កម្ចីខូច</span>
-            </a>
-        </div>
+        </a>
 
         <a href="/disbursement" class="menu-item">
             <span class="icon">📢</span>
             <span>បេឡា</span>
         </a>
 
-        <a href="/reports" class="menu-item">
+        <a href="/reports" class="menu-item active">
             <span class="icon">📈</span>
             <span>របាយការណ៍</span>
         </a>
@@ -441,7 +403,7 @@
 
         <a href="/audit" class="menu-item">
             <span class="icon">📋</span>
-            <span>សវនៈកម្ម</span>
+            <span>សវនកម្ម</span>
         </a>
     </nav>
 
@@ -736,83 +698,6 @@
     </div>
 
     <script>
-        // ============================================================
-// ===== TOGGLE COLLECTION SUBMENU =====
-// ============================================================
-function toggleCollectionSubmenu(event) {
-    if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-    }
-
-    const container = document.getElementById('collectionSubmenu');
-    const arrow = document.getElementById('collectionArrow');
-
-    if (container) {
-        const isOpen = container.classList.contains('open');
-        
-        // ===== បិទ Sub Menu ទាំងអស់ជាមុន =====
-        closeAllSubmenus();
-        
-        // ===== បើក Sub Menu នេះបើមិនទាន់បើក =====
-        if (!isOpen) {
-            container.classList.add('open');
-            if (arrow) arrow.textContent = '▲';
-        }
-    }
-}
-
-// ============================================================
-// ===== បិទ Sub Menu ទាំងអស់ =====
-// ============================================================
-function closeAllSubmenus() {
-    const container = document.getElementById('collectionSubmenu');
-    const arrow = document.getElementById('collectionArrow');
-    
-    if (container) {
-        container.classList.remove('open');
-        if (arrow) arrow.textContent = '▼';
-    }
-}
-
-// ============================================================
-// ===== បិទ Sub Menu ពេលចុចលើមេនុយផ្សេង =====
-// ============================================================
-document.addEventListener('DOMContentLoaded', function() {
-    // ===== ចាប់ព្រឹត្តិការណ៍ Click លើគ្រប់មេនុយក្នុង Sidebar =====
-    const allMenuItems = document.querySelectorAll('.sidebar .menu-item');
-    
-    allMenuItems.forEach(function(menuItem) {
-        // ===== ឆែកមើលថាមេនុយនេះជា "ប្រមូលប្រាក់" ឬអត់ =====
-        const isCollectionParent = menuItem.querySelector('#collectionArrow');
-        
-        menuItem.addEventListener('click', function(e) {
-            // ===== បើមិនមែនជាមេនុយ "ប្រមូលប្រាក់" → បិទ Sub Menu =====
-            if (!isCollectionParent) {
-                closeAllSubmenus();
-            }
-        });
-    });
-    
-    // ===== បិទ Sub Menu ពេលចុចលើ Sub Item =====
-    const subItems = document.querySelectorAll('#collectionSubmenu .submenu-item');
-    subItems.forEach(function(subItem) {
-        subItem.addEventListener('click', function() {
-            closeAllSubmenus();
-        });
-    });
-});
-
-// ============================================================
-// ===== បិទ Sub Menu ពេលចុចខាងក្រៅ Sidebar =====
-// ============================================================
-document.addEventListener('click', function(event) {
-    const sidebar = document.querySelector('.sidebar');
-    
-    if (sidebar && !sidebar.contains(event.target)) {
-        closeAllSubmenus();
-    }
-});
         // ============================================================
         // ===== TAB SWITCHING =====
         // ============================================================
@@ -1304,59 +1189,6 @@ async function loadSummary() {
 
             loadSummary();
         });
-        // ============================================================
-// ===== AUTO HIGHLIGHT ACTIVE MENU =====
-// ============================================================
-document.addEventListener('DOMContentLoaded', function() {
-    // ===== ទាញយក URL បច្ចុប្បន្ន =====
-    const currentPath = window.location.pathname;
-    
-    console.log('📍 Current path:', currentPath);
-    
-    // ===== លុប active ទាំងអស់ចេញជាមុន =====
-    document.querySelectorAll('.sidebar .menu-item').forEach(function(item) {
-        item.classList.remove('active');
-    });
-    
-    // ===== កំណត់ active តាម URL =====
-    const menuItems = document.querySelectorAll('.sidebar .menu-item');
-    
-    menuItems.forEach(function(item) {
-        const href = item.getAttribute('href');
-        
-        if (!href || href === '#') return;
-        
-        // ===== ឆែកមើលថា URL ត្រូវគ្នាឬអត់ =====
-        let isActive = false;
-        
-        // ករណី ១: URL ដូចគ្នាទាំងស្រុង
-        if (currentPath === href) {
-            isActive = true;
-        }
-        // ករណី ២: Sub path (ឧ. /loans/bad ត្រូវនឹង /loans)
-        else if (href !== '/' && currentPath.startsWith(href + '/')) {
-            isActive = true;
-        }
-        // ករណី ៣: Root path
-        else if (href === '/' && currentPath === '/') {
-            isActive = true;
-        }
-        
-        if (isActive) {
-            item.classList.add('active');
-            console.log('✅ Activated:', href);
-        }
-    });
-    
-    // ===== ករណីពិសេស: បើគ្មានមេនុយ Active ត្រូវកំណត់ Dashboard =====
-    const activeMenu = document.querySelector('.sidebar .menu-item.active');
-    if (!activeMenu && currentPath !== '/login') {
-        const dashboardItem = document.querySelector('.sidebar .menu-item[href="/dashboard"]');
-        if (dashboardItem) {
-            dashboardItem.classList.add('active');
-        }
-    }
-});
     </script>
 
 </body>
