@@ -8,26 +8,60 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Khmer OS', 'Khmer OS Muol', 'Moul', 'Arial', sans-serif;
-            background: #f0f2f5;
+            font-family: 'Khmer OS', 'Noto Sans Khmer', 'Moul', Arial, sans-serif;
+            background: #f4f6f9;
             display: flex;
             min-height: 100vh;
         }
 
         /* ===== SIDEBAR ===== */
-        .sidebar { width: 260px; background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%); color: white; padding: 20px 0; position: fixed; height: 100vh; overflow-y: auto; transition: all 0.3s; z-index: 1000; }
-        .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
-        .sidebar-brand h2 { font-size: 20px; display: flex; align-items: center; gap: 10px; }
-        .sidebar-brand h2 i { color: #667eea; }
-        .sidebar-brand .subtitle { font-size: 12px; color: #a0aec0; margin-top: 5px; }
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+        }
+        .sidebar-brand { text-align: center; padding: 20px 15px 30px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 20px; }
+        .sidebar-brand .logo { font-size: 32px; display: block; margin-bottom: 5px; }
+        .sidebar-brand h2 { font-size: 20px; font-weight: 700; color: #fff; letter-spacing: 1px; }
+        .sidebar-brand h2 span { color: #667eea; }
+        .sidebar-brand p { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 3px; }
 
-        .sidebar-menu { list-style: none; padding: 0; }
-        .sidebar-menu li a { display: flex; align-items: center; gap: 12px; padding: 10px 20px; color: #cbd5e0; text-decoration: none; transition: all 0.3s; border-left: 3px solid transparent; font-size: 14px; }
-        .sidebar-menu li a:hover { background: rgba(255,255,255,0.05); color: white; border-left-color: #667eea; }
-        .sidebar-menu li a.active { background: rgba(102,126,234,0.15); color: white; border-left-color: #667eea; }
-        .sidebar-menu li a i { width: 20px; text-align: center; font-size: 14px; color: #a0aec0; }
-        .sidebar-menu li a.active i { color: #667eea; }
-        .sidebar-menu .menu-label { padding: 15px 20px 5px 20px; font-size: 11px; color: #718096; text-transform: uppercase; letter-spacing: 1px; }
+        .menu-label { padding: 10px 25px 5px; font-size: 11px; text-transform: uppercase; color: rgba(255,255,255,0.3); letter-spacing: 2px; font-weight: 600; }
+
+        /* ===== MENU ITEM ===== */
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 13px 25px;
+            color: rgba(255,255,255,0.6);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+            font-size: 15px;
+            font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif;
+            position: relative;
+            z-index: 2;
+            background: transparent;
+            width: 100%;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .menu-item:hover { background: rgba(255,255,255,0.05); color: #fff; border-left-color: #667eea; }
+        .menu-item.active { background: rgba(102,126,234,0.15); color: #fff; border-left-color: #667eea; }
+        .menu-item .icon { font-size: 20px; margin-right: 14px; width: 28px; text-align: center; flex-shrink: 0; }
+        .menu-item .badge { margin-left: auto; background: #e74c3c; color: #fff; font-size: 11px; padding: 2px 10px; border-radius: 20px; }
+        .menu-item .arrow { margin-left: auto; font-size: 10px; transition: transform 0.3s ease; color: rgba(255,255,255,0.5); }
 
         /* ===== SUBMENU ===== */
         .submenu-container {
@@ -37,31 +71,29 @@
             background: rgba(0,0,0,0.15);
         }
         .submenu-container.open { max-height: 500px; }
-        .submenu-container .menu-item {
-            padding-left: 50px;
-            font-size: 14px;
-        }
-        .submenu-container .menu-item i { font-size: 16px; margin-right: 10px; width: 22px; }
-        .menu-item .arrow {
-            margin-left: auto;
-            font-size: 10px;
-            transition: transform 0.3s ease;
-            color: rgba(255,255,255,0.5);
-        }
+        .submenu-item { padding-left: 50px !important; font-size: 14px !important; }
+        .submenu-item .icon { font-size: 16px !important; margin-right: 10px !important; width: 22px !important; }
 
-        .main-content { margin-left: 260px; flex: 1; padding: 20px; min-height: 100vh; }
-        .top-header { background: white; padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 10px; }
-        .top-header .page-title h1 { font-size: 22px; color: #2d3748; }
-        .top-header .page-title p { color: #718096; font-size: 14px; }
-        .top-header .user-info { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
-        .top-header .user-info .avatar { width: 40px; height: 40px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px; }
-        .top-header .user-info .user-name { font-weight: 600; color: #2d3748; font-size: 14px; }
-        .top-header .user-info .user-role { font-size: 12px; color: #718096; }
-        .top-header .user-info .logout-btn { padding: 8px 18px; background: #fc8181; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-family: 'Khmer OS', 'Arial', sans-serif; transition: all 0.3s; text-decoration: none; }
-        .top-header .user-info .logout-btn:hover { background: #f56565; }
-        .menu-toggle { display: none; background: none; border: none; color: #2d3748; font-size: 24px; cursor: pointer; padding: 5px; }
+        /* ===== MAIN CONTENT ===== */
+        .main-content { margin-left: 260px; flex: 1; padding: 30px; min-height: 100vh; }
 
-        .page-content { background: white; border-radius: 16px; padding: 25px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
+        .top-header {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #fff; padding: 18px 30px; border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 25px; flex-wrap: wrap; gap: 15px;
+        }
+        .top-header h1 { font-size: 24px; color: #1a1a2e; }
+        .top-header h1 span { color: #27ae60; }
+        .user-info { display: flex; align-items: center; gap: 15px; }
+        .user-info .avatar { width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 22px; font-weight: 700; }
+        .user-info .name { font-weight: 600; color: #333; }
+        .user-info .role { font-size: 12px; color: #888; }
+        .logout-btn { background: #e74c3c; color: #fff; border: none; padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 14px; transition: all 0.3s ease; font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif; text-decoration: none; }
+        .logout-btn:hover { background: #c0392b; transform: scale(1.02); }
+
+        /* ===== PAGE CONTENT ===== */
+        .page-content { background: #fff; border-radius: 16px; padding: 25px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
 
         /* ===== FILTER TABS ===== */
         .filter-tabs {
@@ -77,7 +109,7 @@
             cursor: pointer;
             font-size: 14px;
             font-weight: 600;
-            font-family: 'Khmer OS', 'Arial', sans-serif;
+            font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif;
             transition: all 0.3s ease;
             background: #e2e8f0;
             color: #4a5568;
@@ -110,7 +142,8 @@
         .stat-card.blue { border-left-color: #667eea; }
         .stat-card.blue .number { color: #667eea; }
 
-        .btn { padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-family: 'Khmer OS', 'Arial', sans-serif; transition: all 0.3s; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+        /* ===== BUTTONS ===== */
+        .btn { padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif; transition: all 0.3s; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
         .btn-success { background: #48bb78; color: white; }
         .btn-success:hover { background: #38a169; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(72,187,120,0.4); }
         .btn-sm { padding: 5px 12px; font-size: 12px; }
@@ -118,24 +151,18 @@
         .btn-secondary:hover { background: #cbd5e0; }
         .btn-fixed-width { min-width: 140px; text-align: center; justify-content: center; white-space: nowrap; }
 
+        /* ===== TABLE ===== */
         .table-responsive { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1100px; }
         table th { background: #f7fafc; padding: 10px 12px; text-align: left; color: #2d3748; font-weight: 600; border-bottom: 2px solid #e2e8f0; font-size: 12px; white-space: nowrap; }
         table td { padding: 8px 12px; border-bottom: 1px solid #f0f2f5; color: #4a5568; font-size: 13px; }
         table tr:hover td { background: #f7fafc; }
-        table tbody tr:last-child td { background: #fff9e6; }
 
-        .badge {
-            display: inline-block; padding: 2px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
-        }
+        .badge { display: inline-block; padding: 2px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
         .badge-success { background: #c6f6d5; color: #22543d; }
         .badge-danger { background: #fed7d7; color: #9b2c2c; }
         .badge-warning { background: #feebc8; color: #9c6b2e; }
         .badge-info { background: #bee3f8; color: #2a4365; }
-
-        .empty-state { text-align: center; padding: 40px 20px; color: #a0aec0; }
-        .empty-state .icon { font-size: 60px; margin-bottom: 15px; color: #e2e8f0; }
-        .empty-state h4 { font-size: 18px; color: #2d3748; margin-bottom: 5px; }
 
         .text-center { text-align: center; }
         .text-muted { color: #a0aec0; }
@@ -191,7 +218,7 @@
         .modal-body .form-group label .required { color: #fc8181; }
         .modal-body .form-group input, .modal-body .form-group select {
             width: 100%; padding: 10px 14px; border: 2px solid #e2e8f0;
-            border-radius: 8px; font-size: 14px; font-family: 'Khmer OS','Arial',sans-serif;
+            border-radius: 8px; font-size: 14px; font-family: 'Khmer OS','Noto Sans Khmer',Arial,sans-serif;
             transition: all 0.3s; height: 44px;
         }
         .modal-body .form-group input:focus, .modal-body .form-group select:focus {
@@ -216,24 +243,7 @@
         .modal-body .info-display .info-item .label { color: #718096; font-size: 13px; }
         .modal-body .info-display .info-item .value { font-weight: 600; color: #2d3748; font-size: 14px; }
 
-        @media (max-width: 768px) {
-            .sidebar { left: -260px; }
-            .sidebar.open { left: 0; }
-            .main-content { margin-left: 0; padding: 15px; }
-            .menu-toggle { display: block; }
-            .stats-grid { grid-template-columns: 1fr 1fr; }
-            .modal-box { padding: 20px; margin: 10px; }
-            .modal-body .info-display { grid-template-columns: 1fr; }
-            table { font-size: 12px; min-width: 800px; }
-        }
-        @media (max-width: 480px) {
-            .stats-grid { grid-template-columns: 1fr; }
-        }
-        .sidebar::-webkit-scrollbar { width: 4px; }
-        .sidebar::-webkit-scrollbar-track { background: transparent; }
-        .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
-
-        /* Loading Spinner */
+        /* ===== SPINNER ===== */
         .spinner {
             display: inline-block;
             width: 40px;
@@ -247,56 +257,114 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .sidebar { width: 70px; padding: 15px 0; }
+            .sidebar-brand h2, .sidebar-brand p, .menu-label,
+            .menu-item span:not(.icon), .menu-item .badge, .menu-item .arrow { display: none; }
+            .sidebar-brand .logo { font-size: 28px; }
+            .menu-item { padding: 15px 0; justify-content: center; }
+            .menu-item .icon { margin-right: 0; font-size: 24px; }
+            .submenu-container .submenu-item { padding-left: 0 !important; }
+            .main-content { margin-left: 70px; padding: 15px; }
+            .top-header h1 { font-size: 18px; }
+            .user-info .name, .user-info .role { display: none; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .modal-box { padding: 20px; margin: 10px; }
+            .modal-body .info-display { grid-template-columns: 1fr; }
+            table { font-size: 12px; min-width: 800px; }
+        }
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-track { background: transparent; }
+        .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
     </style>
 </head>
 <body>
 
     <!-- ===== SIDEBAR ===== -->
-    <nav class="sidebar" id="sidebar">
+    <nav class="sidebar">
         <div class="sidebar-brand">
-            <h2><i class="fas fa-hand-holding-usd"></i> កម្ចី<span style="color:#667eea;">Plus</span></h2>
-            <div class="subtitle">ប្រព័ន្ធគ្រប់គ្រងកម្ចី</div>
+            <span class="logo">🏦</span>
+            <h2>កម្ចី<span>Plus</span></h2>
+            <p>ប្រព័ន្ធគ្រប់គ្រងកម្ចី</p>
         </div>
 
-        <ul class="sidebar-menu">
-            <li class="menu-label">មុខម្ហូប</li>
-            <li><a href="{{ url_for('dashboard') }}"><i class="fas fa-th-large"></i> Dashboard</a></li>
-            <li><a href="{{ url_for('customers') }}"><i class="fas fa-users"></i> អតិថិជន</a></li>
-            <li><a href="{{ url_for('loans') }}"><i class="fas fa-file-invoice-dollar"></i> កម្ចី</a></li>
-            <li><a href="{{ url_for('loans_bad') }}"><i class="fas fa-exclamation-triangle"></i> កម្ចីខូច</a></li>
+        <div class="menu-label">មុខម្ហូប</div>
 
-            <!-- ===== COLLECTION WITH SUBMENU ===== -->
-            <li>
-                <a href="#" onclick="toggleCollectionSubmenu(event); return false;" style="justify-content: space-between;">
-                    <span style="display:flex; align-items:center; gap:12px;">
-                        <i class="fas fa-hand-holding-dollar"></i> ប្រមូលប្រាក់
-                    </span>
-                    <span class="arrow" id="collectionArrow">▼</span>
-                </a>
-            </li>
-            <li>
-                <ul class="submenu-container" id="collectionSubmenu" style="list-style:none; padding:0; margin:0;">
-                    <li>
-                        <a href="{{ url_for('collection') }}?tab=good" class="active" style="padding-left: 50px;">
-                            <i class="fas fa-check-circle"></i> កម្ចីល្អ
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ url_for('collection') }}?tab=late" style="padding-left: 50px;">
-                            <i class="fas fa-clock"></i> កម្ចីយឺត
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ url_for('collection') }}?tab=bad" style="padding-left: 50px;">
-                            <i class="fas fa-times-circle"></i> កម្ចីខូច
-                        </a>
-                    </li>
-                </ul>
-            </li>
+        <a href="/dashboard" class="menu-item">
+            <span class="icon">📊</span>
+            <span>Dashboard</span>
+        </a>
 
-            <li><a href="#"><i class="fas fa-chart-bar"></i> របាយការណ៍</a></li>
-            <li><a href="{{ url_for('settings') }}"><i class="fas fa-cog"></i> ការកំណត់</a></li>
-        </ul>
+        <a href="/customers" class="menu-item">
+            <span class="icon">👤</span>
+            <span>អតិថិជន</span>
+        </a>
+
+        <a href="/loans" class="menu-item">
+            <span class="icon">💰</span>
+            <span>កម្ចី</span>
+        </a>
+
+        <a href="/loans/bad" class="menu-item">
+            <span class="icon">⚠️</span>
+            <span>កម្ចីខូច</span>
+        </a>
+
+        <a href="/pawn" class="menu-item">
+            <span class="icon">🏠</span>
+            <span>បញ្ចាំ</span>
+        </a>
+
+        <a href="/payments" class="menu-item">
+            <span class="icon">📱</span>
+            <span>ទូរទាត់</span>
+        </a>
+
+        <!-- ===== COLLECTION WITH SUBMENU ===== -->
+        <div class="menu-item active" onclick="toggleCollectionSubmenu(event)">
+            <span class="icon">💵</span>
+            <span>ប្រមូលប្រាក់</span>
+            <span class="arrow" id="collectionArrow">▲</span>
+        </div>
+        <div class="submenu-container open" id="collectionSubmenu">
+            <a href="/collection_good" class="menu-item submenu-item active">
+                <span class="icon">✅</span>
+                <span>កម្ចីល្អ</span>
+            </a>
+            <a href="/collection_late" class="menu-item submenu-item">
+                <span class="icon">⏰</span>
+                <span>កម្ចីយឺត</span>
+            </a>
+            <a href="/collection_bad" class="menu-item submenu-item">
+                <span class="icon">❌</span>
+                <span>កម្ចីខូច</span>
+            </a>
+        </div>
+
+        <a href="/disbursement" class="menu-item">
+            <span class="icon">📢</span>
+            <span>បេឡា</span>
+        </a>
+
+        <a href="/reports" class="menu-item">
+            <span class="icon">📈</span>
+            <span>របាយការណ៍</span>
+        </a>
+
+        <a href="/settings" class="menu-item">
+            <span class="icon">⚙️</span>
+            <span>ការកំណត់</span>
+        </a>
+
+        <a href="/audit" class="menu-item">
+            <span class="icon">📋</span>
+            <span>សវនៈកម្ម</span>
+        </a>
     </nav>
 
     <!-- ===== MAIN CONTENT ===== -->
@@ -304,21 +372,18 @@
 
         <header class="top-header">
             <div style="display:flex;align-items:center;gap:15px;">
-                <button class="menu-toggle" id="menuToggle">
-                    <i class="fas fa-bars"></i>
-                </button>
                 <div class="page-title">
-                    <h1><i class="fas fa-check-circle" style="color:#27ae60;"></i> កម្ចីល្អ</h1>
-                    <p>បញ្ជីកម្ចីដែលដល់ថ្ងៃត្រូវបង់ (មិនយឺត)</p>
+                    <h1><i class="fas fa-check-circle"></i> <span>កម្ចីល្អ</span></h1>
+                    <p style="color:#718096; font-size:14px; margin-top:2px;">បញ្ជីកម្ចីដែលដល់ថ្ងៃត្រូវបង់ (មិនយឺត)</p>
                 </div>
             </div>
             <div class="user-info">
                 <div>
-                    <div class="user-name">{{ username }}</div>
-                    <div class="user-role">អ្នកគ្រប់គ្រង</div>
+                    <div class="name">ស្វាគមន៍, <span id="usernameDisplay">{{ username }}</span></div>
+                    <div class="role">អ្នកគ្រប់គ្រងប្រព័ន្ធ</div>
                 </div>
                 <div class="avatar">{{ username[0] if username else 'អ' }}</div>
-                <a href="{{ url_for('logout') }}" class="logout-btn"><i class="fas fa-sign-out-alt"></i> ចាកចេញ</a>
+                <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> ចាកចេញ</a>
             </div>
         </header>
 
@@ -327,13 +392,13 @@
 
             <!-- ===== FILTER TABS ===== -->
             <div class="filter-tabs">
-                <a href="{{ url_for('collection') }}?tab=good" class="filter-tab active">
+                <a href="/collection_good" class="filter-tab active">
                     <i class="fas fa-check-circle"></i> កម្ចីល្អ
                 </a>
-                <a href="{{ url_for('collection') }}?tab=late" class="filter-tab late">
+                <a href="/collection_late" class="filter-tab late">
                     <i class="fas fa-clock"></i> កម្ចីយឺត
                 </a>
-                <a href="{{ url_for('collection') }}?tab=bad" class="filter-tab bad">
+                <a href="/collection_bad" class="filter-tab bad">
                     <i class="fas fa-times-circle"></i> កម្ចីខូច
                 </a>
             </div>
@@ -364,8 +429,7 @@
                             <th>ប្រាក់ត្រូវបង់</th>
                             <th>ប្រាក់ដើម</th>
                             <th>ការប្រាក់</th>
-                            <th>យឺត</th>
-                            <th>ពិន័យ</th>
+                            <th>ស្ថានភាព</th>
                             <th>បំណុលនៅខ្វះ</th>
                             <th>អាសយដ្ឋាន</th>
                             <th>លេខទូរស័ព្ទ</th>
@@ -373,7 +437,7 @@
                     </thead>
                     <tbody id="collectionBody">
                         <tr>
-                            <td colspan="10" style="text-align:center; padding:40px;">
+                            <td colspan="9" style="text-align:center; padding:40px;">
                                 <div class="spinner"></div>
                                 <p style="margin-top:10px; color:#718096;">កំពុងផ្ទុកទិន្នន័យ...</p>
                             </td>
@@ -464,7 +528,9 @@
     <script>
         let currentLoanData = {};
 
+        // ============================================================
         // ===== TOGGLE COLLECTION SUBMENU =====
+        // ============================================================
         function toggleCollectionSubmenu(event) {
             if (event) {
                 event.preventDefault();
@@ -482,22 +548,75 @@
             }
         }
 
-        // ===== MENU TOGGLE =====
-        document.getElementById('menuToggle').addEventListener('click', function() {
-            document.getElementById('sidebar').classList.toggle('open');
-        });
+        // ============================================================
+        // ===== AUTO HIGHLIGHT ACTIVE MENU =====
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            console.log('📍 Current path:', currentPath);
 
-        document.addEventListener('click', function(event) {
-            const sidebar = document.getElementById('sidebar');
-            const toggle = document.getElementById('menuToggle');
-            if (window.innerWidth <= 768) {
-                if (!sidebar.contains(event.target) && !toggle.contains(event.target)) {
-                    sidebar.classList.remove('open');
+            // ===== លុប active ទាំងអស់ចេញ =====
+            document.querySelectorAll('.sidebar .menu-item').forEach(function(item) {
+                item.classList.remove('active');
+            });
+
+            // ===== ករណីពិសេស: Collection =====
+            const collectionPages = ['/collection', '/collection_good', '/collection_late', '/collection_bad'];
+            let isCollectionPage = collectionPages.some(page => currentPath === page);
+
+            if (isCollectionPage) {
+                const collectionParent = document.querySelector('.menu-item[onclick*="toggleCollectionSubmenu"]');
+                if (collectionParent) {
+                    collectionParent.classList.add('active');
+                }
+
+                const container = document.getElementById('collectionSubmenu');
+                const arrow = document.getElementById('collectionArrow');
+                if (container) {
+                    container.classList.add('open');
+                    if (arrow) arrow.textContent = '▲';
+                }
+
+                document.querySelectorAll('#collectionSubmenu .submenu-item').forEach(function(subItem) {
+                    const href = subItem.getAttribute('href');
+                    if (href === currentPath) {
+                        subItem.classList.add('active');
+                    }
+                });
+
+                return;
+            }
+
+            // ===== សម្រាប់មេនុយធម្មតា =====
+            let hasActiveMenu = false;
+            document.querySelectorAll('.sidebar .menu-item').forEach(function(item) {
+                const href = item.getAttribute('href');
+                if (!href || href === '#') return;
+
+                let isActive = false;
+                if (currentPath === href) {
+                    isActive = true;
+                } else if (href !== '/' && currentPath.startsWith(href + '/')) {
+                    isActive = true;
+                }
+
+                if (isActive) {
+                    item.classList.add('active');
+                    hasActiveMenu = true;
+                }
+            });
+
+            if (!hasActiveMenu && currentPath !== '/login') {
+                const dashboardItem = document.querySelector('.sidebar .menu-item[href="/dashboard"]');
+                if (dashboardItem) {
+                    dashboardItem.classList.add('active');
                 }
             }
         });
 
+        // ============================================================
         // ===== FORMAT CURRENCY =====
+        // ============================================================
         function formatCurrency(amount, currency) {
             if (amount === null || amount === undefined || isNaN(amount)) {
                 return currency === 'KHR' ? '៛ 0' : '$ 0.00';
@@ -510,12 +629,14 @@
             }
         }
 
+        // ============================================================
         // ===== LOAD COLLECTION =====
+        // ============================================================
         async function loadCollection() {
             const tbody = document.getElementById('collectionBody');
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="10" style="text-align:center; padding:40px;">
+                    <td colspan="9" style="text-align:center; padding:40px;">
                         <div class="spinner"></div>
                         <p style="margin-top:10px; color:#718096;">កំពុងផ្ទុកទិន្នន័យ...</p>
                     </td>
@@ -533,7 +654,7 @@
                 console.error('Error:', error);
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="10" style="text-align:center; padding:40px; color:#e74c3c;">
+                        <td colspan="9" style="text-align:center; padding:40px; color:#e74c3c;">
                             <span style="font-size:48px; display:block; margin-bottom:10px;">❌</span>
                             មានបញ្ហាក្នុងការផ្ទុកទិន្នន័យ<br>
                             <small style="color:#718096;">${error.message}</small>
@@ -543,7 +664,9 @@
             }
         }
 
+        // ============================================================
         // ===== RENDER TABLE =====
+        // ============================================================
         function renderTable(data) {
             const tbody = document.getElementById('collectionBody');
             tbody.innerHTML = '';
@@ -551,7 +674,7 @@
             if (!data || data.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="10" style="text-align:center; padding:40px; color:#888;">
+                        <td colspan="9" style="text-align:center; padding:40px; color:#888;">
                             <span style="font-size:48px; display:block; margin-bottom:10px;">📭</span>
                             មិនមានកម្ចីល្អដែលត្រូវប្រមូលថ្ងៃនេះ
                         </td>
@@ -586,7 +709,6 @@
                             : `<span class="badge badge-success"><i class="fas fa-check-circle"></i> ថ្ងៃនេះ</span>`
                         }
                     </td>
-                    <td>${formatCurrency(loan.penalty || 0, currency)}</td>
                     <td>
                         <button class="btn btn-success btn-sm btn-fixed-width"
                                 style="background:#48bb78; opacity:0.85; cursor:default;"
@@ -601,7 +723,9 @@
             });
         }
 
+        // ============================================================
         // ===== UPDATE STATS =====
+        // ============================================================
         function updateStats(data) {
             let total = 0;
             let todayCount = 0;
@@ -616,7 +740,9 @@
             document.getElementById('todayCount').textContent = todayCount;
         }
 
+        // ============================================================
         // ===== OPEN PAYMENT MODAL =====
+        // ============================================================
         function openPaymentModal(loanId, customerName, loanCode, totalDue, principal, interest, currency) {
             document.getElementById('paymentModal').classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -639,7 +765,9 @@
             };
         }
 
+        // ============================================================
         // ===== CLOSE PAYMENT MODAL =====
+        // ============================================================
         function closePaymentModal() {
             document.getElementById('paymentModal').classList.remove('active');
             document.body.style.overflow = 'auto';
@@ -660,7 +788,9 @@
             }
         });
 
+        // ============================================================
         // ===== SUBMIT PAYMENT =====
+        // ============================================================
         async function submitPayment(event) {
             event.preventDefault();
 
@@ -703,23 +833,17 @@
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('❌ មានបញ្ហាក្នុងការភ្ជាប់ទៅម៉ាស៊ីនមេ!');
+                alert('❌ មានបញ្ហាក្នុងការភ្ជាប់ទៅម៉ាស៊ីនបម្រើ!');
             } finally {
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
             }
         }
 
-        // ===== AUTO-LOAD =====
+        // ============================================================
+        // ===== INITIAL LOAD =====
+        // ============================================================
         document.addEventListener('DOMContentLoaded', function() {
-            // ===== Open Submenu =====
-            const container = document.getElementById('collectionSubmenu');
-            const arrow = document.getElementById('collectionArrow');
-            if (container) {
-                container.classList.add('open');
-                if (arrow) arrow.textContent = '▲';
-            }
-
             loadCollection();
         });
     </script>
