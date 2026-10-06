@@ -13,29 +13,125 @@
             display: flex;
             min-height: 100vh;
         }
-        .sidebar { width: 260px; background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%); color: white; padding: 20px 0; position: fixed; height: 100vh; overflow-y: auto; transition: all 0.3s; z-index: 1000; }
-        .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
-        .sidebar-brand h2 { font-size: 20px; display: flex; align-items: center; gap: 10px; }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            transition: all 0.3s;
+            z-index: 1000;
+            box-sizing: border-box;
+        }
+        .sidebar-brand {
+            padding: 0 20px 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+        .sidebar-brand h2 {
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0;
+            color: white;
+        }
         .sidebar-brand h2 i { color: #667eea; }
-        .sidebar-brand .subtitle { font-size: 12px; color: #a0aec0; margin-top: 5px; }
+        .sidebar-brand .subtitle {
+            font-size: 12px;
+            color: #a0aec0;
+            margin-top: 5px;
+        }
 
-        .sidebar-menu { list-style: none; padding: 0; }
-        .sidebar-menu li a { display: flex; align-items: center; gap: 12px; padding: 10px 20px; color: #cbd5e0; text-decoration: none; transition: all 0.3s; border-left: 3px solid transparent; font-size: 14px; }
-        .sidebar-menu li a:hover { background: rgba(255,255,255,0.05); color: white; border-left-color: #667eea; }
-        .sidebar-menu li a.active { background: rgba(102,126,234,0.15); color: white; border-left-color: #667eea; }
-        .sidebar-menu li a i { width: 20px; text-align: center; font-size: 14px; color: #a0aec0; }
-        .sidebar-menu li a.active i { color: #667eea; }
-        .sidebar-menu .menu-label { padding: 15px 20px 5px 20px; font-size: 11px; color: #718096; text-transform: uppercase; letter-spacing: 1px; }
+        .menu-label {
+            padding: 15px 20px 8px 20px;
+            font-size: 11px;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            display: block;
+        }
 
+        /* ===== MENU ITEM ===== */
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 13px 25px;
+            color: rgba(255,255,255,0.6);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+            font-size: 15px;
+            font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif;
+            position: relative;
+            z-index: 2;
+            background: transparent;
+            width: 100%;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .menu-item:hover { background: rgba(255,255,255,0.05); color: #fff; border-left-color: #667eea; }
+        .menu-item.active { background: rgba(102,126,234,0.15); color: #fff; border-left-color: #667eea; }
+        .menu-item .icon { font-size: 20px; margin-right: 14px; width: 28px; text-align: center; flex-shrink: 0; }
+        .menu-item .badge { margin-left: auto; background: #e74c3c; color: #fff; font-size: 11px; padding: 2px 10px; border-radius: 20px; }
+        .menu-item .arrow { margin-left: auto; font-size: 10px; transition: transform 0.3s ease; color: rgba(255,255,255,0.5); }
+
+        /* ===== SUBMENU ===== */
+        .submenu-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease-in-out;
+            background: rgba(0,0,0,0.15);
+        }
+        .submenu-container.open {
+            max-height: 500px;
+        }
+        .submenu-item {
+            padding-left: 50px !important;
+            font-size: 14px !important;
+        }
+        .submenu-item .icon {
+            font-size: 16px !important;
+            margin-right: 10px !important;
+            width: 22px !important;
+        }
+
+        /* ===== MAIN CONTENT ===== */
         .main-content { margin-left: 260px; flex: 1; padding: 20px; min-height: 100vh; }
-        .top-header { background: white; padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 10px; }
+
+        .top-header {
+            background: white; padding: 15px 25px; border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 25px; flex-wrap: wrap; gap: 10px;
+        }
         .top-header .page-title h1 { font-size: 22px; color: #2d3748; }
         .top-header .page-title p { color: #718096; font-size: 14px; }
         .top-header .user-info { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
-        .top-header .user-info .avatar { width: 40px; height: 40px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px; }
+        .top-header .user-info .avatar {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: bold; font-size: 18px;
+        }
         .top-header .user-info .user-name { font-weight: 600; color: #2d3748; font-size: 14px; }
         .top-header .user-info .user-role { font-size: 12px; color: #718096; }
-        .top-header .user-info .logout-btn { padding: 8px 18px; background: #fc8181; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-family: 'Khmer OS', 'Arial', sans-serif; transition: all 0.3s; text-decoration: none; }
+        .top-header .user-info .logout-btn {
+            padding: 8px 18px; background: #fc8181; color: white; border: none;
+            border-radius: 8px; cursor: pointer; font-size: 13px;
+            font-family: 'Khmer OS', 'Arial', sans-serif; transition: all 0.3s;
+            text-decoration: none;
+        }
         .top-header .user-info .logout-btn:hover { background: #f56565; }
         .menu-toggle { display: none; background: none; border: none; color: #2d3748; font-size: 24px; cursor: pointer; padding: 5px; }
 
@@ -161,9 +257,15 @@
         .modal-body .info-display .info-item .value { font-weight: 600; color: #2d3748; font-size: 14px; }
 
         @media (max-width: 768px) {
-            .sidebar { left: -260px; }
-            .sidebar.open { left: 0; }
-            .main-content { margin-left: 0; padding: 15px; }
+            .sidebar { width: 70px; padding: 15px 0; }
+            .sidebar-brand h2, .sidebar-brand .subtitle, .menu-label,
+            .menu-item span:not(.icon), .menu-item .badge, .menu-item .arrow { display: none; }
+            .sidebar-brand { padding: 0 0 20px 0; }
+            .sidebar-brand h2 i { font-size: 28px; }
+            .menu-item { padding: 15px 0; justify-content: center; }
+            .menu-item .icon { margin-right: 0; font-size: 24px; }
+            .submenu-container .submenu-item { padding-left: 0 !important; justify-content: center; }
+            .main-content { margin-left: 70px; padding: 15px; }
             .menu-toggle { display: block; }
             .stats-grid { grid-template-columns: 1fr 1fr; }
             .modal-box { padding: 20px; margin: 10px; }
@@ -201,17 +303,78 @@
             <h2><i class="fas fa-hand-holding-usd"></i> កម្ចី<span style="color:#667eea;">Plus</span></h2>
             <div class="subtitle">ប្រព័ន្ធគ្រប់គ្រងកម្ចី</div>
         </div>
+        <div class="menu-label">មុខម្ហូប</div>
 
-        <ul class="sidebar-menu">
-            <li class="menu-label">មុខម្ហូប</li>
-            <li><a href="{{ url_for('dashboard') }}"><i class="fas fa-th-large"></i> Dashboard</a></li>
-            <li><a href="{{ url_for('customers') }}"><i class="fas fa-users"></i> អតិថិជន</a></li>
-            <li><a href="{{ url_for('loans') }}"><i class="fas fa-file-invoice-dollar"></i> កម្ចី</a></li>
-            <li><a href="{{ url_for('loans_bad') }}"><i class="fas fa-exclamation-triangle"></i> កម្ចីខូច</a></li>
-            <li><a href="{{ url_for('collection') }}" class="active"><i class="fas fa-hand-holding-dollar"></i> ប្រមូលប្រាក់</a></li>
-            <li><a href="#"><i class="fas fa-chart-bar"></i> របាយការណ៍</a></li>
-            <li><a href="{{ url_for('settings') }}"><i class="fas fa-cog"></i> ការកំណត់</a></li>
-        </ul>
+        <a href="/dashboard" class="menu-item">
+            <span class="icon">📊</span>
+            <span>Dashboard</span>
+        </a>
+
+        <a href="/customers" class="menu-item">
+            <span class="icon">👤</span>
+            <span>អតិថិជន</span>
+        </a>
+
+        <a href="/loans" class="menu-item">
+            <span class="icon">💰</span>
+            <span>កម្ចី</span>
+        </a>
+
+        <a href="/loans/bad" class="menu-item">
+            <span class="icon">⚠️</span>
+            <span>កម្ចីខូច</span>
+        </a>
+
+        <a href="/pawn" class="menu-item">
+            <span class="icon">🏠</span>
+            <span>បញ្ចាំ</span>
+        </a>
+
+        <a href="/payments" class="menu-item">
+            <span class="icon">📱</span>
+            <span>ទូរទាត់</span>
+        </a>
+
+        <!-- ===== COLLECTION WITH SUBMENU ===== -->
+        <div class="menu-item" onclick="toggleCollectionSubmenu(event)">
+            <span class="icon">💵</span>
+            <span>ប្រមូលប្រាក់</span>
+            <span class="arrow" id="collectionArrow">▼</span>
+        </div>
+        <div class="submenu-container" id="collectionSubmenu">
+            <a href="/collection_good" class="menu-item submenu-item">
+                <span class="icon">✅</span>
+                <span>កម្ចីល្អ</span>
+            </a>
+            <a href="/collection_late" class="menu-item submenu-item">
+                <span class="icon">⏰</span>
+                <span>កម្ចីយឺត</span>
+            </a>
+            <a href="/collection_bad" class="menu-item submenu-item">
+                <span class="icon">❌</span>
+                <span>កម្ចីខូច</span>
+            </a>
+        </div>
+
+        <a href="/disbursement" class="menu-item">
+            <span class="icon">📢</span>
+            <span>បេឡា</span>
+        </a>
+
+        <a href="/reports" class="menu-item">
+            <span class="icon">📈</span>
+            <span>របាយការណ៍</span>
+        </a>
+
+        <a href="/settings" class="menu-item">
+            <span class="icon">⚙️</span>
+            <span>ការកំណត់</span>
+        </a>
+
+        <a href="/audit" class="menu-item">
+            <span class="icon">📋</span>
+            <span>សវនៈកម្ម</span>
+        </a>
     </nav>
 
     <!-- ===== MAIN CONTENT ===== -->
@@ -363,7 +526,29 @@
     <script>
         let currentLoanData = {};
 
-        // ===== MENU TOGGLE =====
+        // ============================================================
+        // ===== TOGGLE COLLECTION SUBMENU =====
+        // ============================================================
+        function toggleCollectionSubmenu(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
+            const container = document.getElementById('collectionSubmenu');
+            const arrow = document.getElementById('collectionArrow');
+
+            if (container) {
+                container.classList.toggle('open');
+                if (arrow) {
+                    arrow.textContent = container.classList.contains('open') ? '▲' : '▼';
+                }
+            }
+        }
+
+        // ============================================================
+        // ===== MENU TOGGLE (Mobile) =====
+        // ============================================================
         document.getElementById('menuToggle').addEventListener('click', function() {
             document.getElementById('sidebar').classList.toggle('open');
         });
@@ -378,7 +563,78 @@
             }
         });
 
+        // ============================================================
+        // ===== AUTO HIGHLIGHT ACTIVE MENU =====
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            console.log('📍 Current path:', currentPath);
+
+            // ===== លុប active ទាំងអស់ចេញ =====
+            document.querySelectorAll('.sidebar .menu-item').forEach(function(item) {
+                item.classList.remove('active');
+            });
+
+            // ===== ករណីពិសេស: Collection Pages =====
+            const collectionPages = ['/collection', '/collection_good', '/collection_late', '/collection_bad'];
+            let isCollectionPage = collectionPages.some(page => currentPath === page);
+
+            if (isCollectionPage) {
+                // ===== កំណត់ Parent Menu Active =====
+                const collectionParent = document.querySelector('.menu-item[onclick*="toggleCollectionSubmenu"]');
+                if (collectionParent) {
+                    collectionParent.classList.add('active');
+                }
+
+                // ===== បើក Sub Menu =====
+                const container = document.getElementById('collectionSubmenu');
+                const arrow = document.getElementById('collectionArrow');
+                if (container) {
+                    container.classList.add('open');
+                    if (arrow) arrow.textContent = '▲';
+                }
+
+                // ===== កំណត់ Sub Item Active =====
+                document.querySelectorAll('#collectionSubmenu .submenu-item').forEach(function(subItem) {
+                    const href = subItem.getAttribute('href');
+                    if (href === currentPath) {
+                        subItem.classList.add('active');
+                    }
+                });
+
+                return;
+            }
+
+            // ===== សម្រាប់មេនុយធម្មតា =====
+            let hasActiveMenu = false;
+            document.querySelectorAll('.sidebar .menu-item').forEach(function(item) {
+                const href = item.getAttribute('href');
+                if (!href || href === '#') return;
+
+                let isActive = false;
+                if (currentPath === href) {
+                    isActive = true;
+                } else if (href !== '/' && currentPath.startsWith(href + '/')) {
+                    isActive = true;
+                }
+
+                if (isActive) {
+                    item.classList.add('active');
+                    hasActiveMenu = true;
+                }
+            });
+
+            if (!hasActiveMenu && currentPath !== '/login') {
+                const dashboardItem = document.querySelector('.sidebar .menu-item[href="/dashboard"]');
+                if (dashboardItem) {
+                    dashboardItem.classList.add('active');
+                }
+            }
+        });
+
+        // ============================================================
         // ===== FORMAT CURRENCY =====
+        // ============================================================
         function formatCurrency(amount, currency) {
             if (amount === null || amount === undefined || isNaN(amount)) {
                 return currency === 'KHR' ? '៛ 0' : '$ 0.00';
@@ -391,7 +647,9 @@
             }
         }
 
+        // ============================================================
         // ===== LOAD COLLECTION =====
+        // ============================================================
         async function loadCollection() {
             const tbody = document.getElementById('collectionBody');
             tbody.innerHTML = `
@@ -424,7 +682,9 @@
             }
         }
 
+        // ============================================================
         // ===== RENDER TABLE =====
+        // ============================================================
         function renderTable(data) {
             const tbody = document.getElementById('collectionBody');
             tbody.innerHTML = '';
@@ -479,7 +739,9 @@
             });
         }
 
+        // ============================================================
         // ===== UPDATE STATS =====
+        // ============================================================
         function updateStats(data) {
             let total = 0;
             let todayCount = 0;
@@ -494,7 +756,9 @@
             document.getElementById('todayCount').textContent = todayCount;
         }
 
+        // ============================================================
         // ===== OPEN PAYMENT MODAL =====
+        // ============================================================
         function openPaymentModal(loanId, customerName, loanCode, totalDue, principal, interest, currency) {
             document.getElementById('paymentModal').classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -510,7 +774,6 @@
             amountInput.value = totalDue;
             amountInput.focus();
 
-            // Store current loan data
             currentLoanData = {
                 loanId: loanId,
                 totalDue: totalDue,
@@ -518,28 +781,30 @@
             };
         }
 
+        // ============================================================
         // ===== CLOSE PAYMENT MODAL =====
+        // ============================================================
         function closePaymentModal() {
             document.getElementById('paymentModal').classList.remove('active');
             document.body.style.overflow = 'auto';
             document.getElementById('paymentForm').reset();
         }
 
-        // ===== CLOSE MODAL ON OVERLAY CLICK =====
         document.getElementById('paymentModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closePaymentModal();
             }
         });
 
-        // ===== CLOSE MODAL ON ESCAPE KEY =====
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closePaymentModal();
             }
         });
 
+        // ============================================================
         // ===== SUBMIT PAYMENT =====
+        // ============================================================
         async function submitPayment(event) {
             event.preventDefault();
 
@@ -553,7 +818,6 @@
                 return;
             }
 
-            // Disable submit button
             const submitBtn = document.querySelector('#paymentForm .btn-success');
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> កំពុងដំណើរការ...';
@@ -577,7 +841,6 @@
                 if (result.success) {
                     alert('✅ ប្រមូលប្រាក់ជោគជ័យ!');
                     closePaymentModal();
-                    // Reload data
                     loadCollection();
                 } else {
                     alert('❌ ' + (result.error || 'មានបញ្ហាក្នុងការប្រមូលប្រាក់!'));
@@ -586,13 +849,14 @@
                 console.error('Error:', error);
                 alert('❌ មានបញ្ហាក្នុងការភ្ជាប់ទៅម៉ាស៊ីនមេ!');
             } finally {
-                // Restore button
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
             }
         }
 
+        // ============================================================
         // ===== AUTO-LOAD =====
+        // ============================================================
         document.addEventListener('DOMContentLoaded', function() {
             loadCollection();
         });
