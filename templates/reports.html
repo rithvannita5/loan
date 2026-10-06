@@ -14,6 +14,7 @@
             min-height: 100vh;
         }
 
+        /* ===== SIDEBAR ===== */
         .sidebar {
             width: 260px;
             background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
@@ -25,6 +26,8 @@
             box-shadow: 4px 0 20px rgba(0,0,0,0.2);
             transition: all 0.3s ease;
             z-index: 1000;
+            top: 0;
+            left: 0;
         }
         .sidebar-brand { text-align: center; padding: 20px 15px 30px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 20px; }
         .sidebar-brand .logo { font-size: 32px; display: block; margin-bottom: 5px; }
@@ -33,17 +36,54 @@
         .sidebar-brand p { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 3px; }
 
         .menu-label { padding: 10px 25px 5px; font-size: 11px; text-transform: uppercase; color: rgba(255,255,255,0.3); letter-spacing: 2px; font-weight: 600; }
+
+        /* ===== MENU ITEM ===== */
         .menu-item {
-            display: flex; align-items: center; padding: 13px 25px;
-            color: rgba(255,255,255,0.6); text-decoration: none;
-            transition: all 0.3s ease; border-left: 3px solid transparent;
-            cursor: pointer; font-size: 15px; font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            padding: 13px 25px;
+            color: rgba(255,255,255,0.6);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+            font-size: 15px;
+            font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif;
+            position: relative;
+            z-index: 2;
+            background: transparent;
+            width: 100%;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
         .menu-item:hover { background: rgba(255,255,255,0.05); color: #fff; border-left-color: #667eea; }
         .menu-item.active { background: rgba(102,126,234,0.15); color: #fff; border-left-color: #667eea; }
-        .menu-item .icon { font-size: 20px; margin-right: 14px; width: 28px; text-align: center; }
+        .menu-item .icon { font-size: 20px; margin-right: 14px; width: 28px; text-align: center; flex-shrink: 0; }
         .menu-item .badge { margin-left: auto; background: #e74c3c; color: #fff; font-size: 11px; padding: 2px 10px; border-radius: 20px; }
+        .menu-item .arrow { margin-left: auto; font-size: 10px; transition: transform 0.3s ease; color: rgba(255,255,255,0.5); }
 
+        /* ===== SUBMENU ===== */
+        .submenu-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease-in-out;
+            background: rgba(0,0,0,0.15);
+        }
+        .submenu-container.open {
+            max-height: 500px;
+        }
+        .submenu-item {
+            padding-left: 50px !important;
+            font-size: 14px !important;
+        }
+        .submenu-item .icon {
+            font-size: 16px !important;
+            margin-right: 10px !important;
+            width: 22px !important;
+        }
+
+        /* ===== MAIN CONTENT ===== */
         .main-content { margin-left: 260px; flex: 1; padding: 30px; min-height: 100vh; }
 
         .top-header {
@@ -207,6 +247,8 @@
         .btn-success:hover { background: #219a52; transform: translateY(-2px); }
         .btn-print { background: #3498db; color: white; }
         .btn-print:hover { background: #2980b9; transform: translateY(-2px); }
+        .btn-warning { background: #f39c12; color: white; }
+        .btn-warning:hover { background: #d68910; transform: translateY(-2px); }
         .btn-sm { padding: 5px 12px; font-size: 12px; }
 
         .spinner {
@@ -314,10 +356,11 @@
         @media (max-width: 768px) {
             .sidebar { width: 70px; padding: 15px 0; }
             .sidebar-brand h2, .sidebar-brand p, .menu-label,
-            .menu-item span:not(.icon), .menu-item .badge { display: none; }
+            .menu-item span:not(.icon), .menu-item .badge, .menu-item .arrow { display: none; }
             .sidebar-brand .logo { font-size: 28px; }
             .menu-item { padding: 15px 0; justify-content: center; }
             .menu-item .icon { margin-right: 0; font-size: 24px; }
+            .submenu-container .submenu-item { padding-left: 0 !important; justify-content: center; }
             .main-content { margin-left: 70px; padding: 15px; }
             .top-header h1 { font-size: 18px; }
             .user-info .name, .user-info .role { display: none; }
@@ -381,10 +424,26 @@
             <span>ទូរទាត់</span>
         </a>
 
-        <a href="/collection" class="menu-item">
+        <!-- ===== COLLECTION WITH SUBMENU ===== -->
+        <div class="menu-item" onclick="toggleCollectionSubmenu(event)">
             <span class="icon">💵</span>
             <span>ប្រមូលប្រាក់</span>
-        </a>
+            <span class="arrow" id="collectionArrow">▼</span>
+        </div>
+        <div class="submenu-container" id="collectionSubmenu">
+            <a href="/collection_good" class="menu-item submenu-item">
+                <span class="icon">✅</span>
+                <span>កម្ចីល្អ</span>
+            </a>
+            <a href="/collection_late" class="menu-item submenu-item">
+                <span class="icon">⏰</span>
+                <span>កម្ចីយឺត</span>
+            </a>
+            <a href="/collection_bad" class="menu-item submenu-item">
+                <span class="icon">❌</span>
+                <span>កម្ចីខូច</span>
+            </a>
+        </div>
 
         <a href="/disbursement" class="menu-item">
             <span class="icon">📢</span>
@@ -491,8 +550,8 @@
             </div>
         </div>
 
-        <!-- ===== OTHER PANELS (រក្សាទុកដដែល) ===== -->
-        <div class="report-panel" id="panel-summary">
+        <!-- ===== PANEL 1: SUMMARY ===== -->
+        <div class="report-panel active" id="panel-summary">
             <div class="panel-header">
                 <div>
                     <h2><i class="fas fa-chart-pie"></i> របាយការណ៍សង្ខេប</h2>
@@ -504,43 +563,40 @@
             </div>
 
             <div class="stats-grid" id="summaryStats">
-    <div class="stat-card blue">
-        <div class="number" id="totalCustomers">0</div>
-        <div class="label">អតិថិជនសរុប</div>
-    </div>
-    <div class="stat-card purple">
-        <div class="number" id="totalLoans">0</div>
-        <div class="label">កម្ចីសរុប</div>
-    </div>
-    <div class="stat-card green">
-        <div class="number" id="activeLoans">0</div>
-        <div class="label">កម្ចីសកម្ម</div>
-    </div>
-    <div class="stat-card red">
-        <div class="number" id="badLoans">0</div>
-        <div class="label">កម្ចីខូច</div>
-    </div>
-    <!-- ===== ទឹកប្រាក់កម្ចីសរុប (USD) ===== -->
-    <div class="stat-card blue">
-        <div class="number" id="totalAmountUSD">$0</div>
-        <div class="label">ទឹកប្រាក់កម្ចីសរុប (USD)</div>
-    </div>
-    <!-- ===== ទឹកប្រាក់កម្ចីសរុប (KHR) ===== -->
-    <div class="stat-card blue" style="border-left-color:#f39c12;">
-        <div class="number" id="totalAmountKHR">៛ 0</div>
-        <div class="label" style="color:#f39c12;">ទឹកប្រាក់កម្ចីសរុប (KHR)</div>
-    </div>
-    <!-- ===== បំណុលសរុប (USD) ===== -->
-    <div class="stat-card orange">
-        <div class="number" id="totalDebtUSD">$0</div>
-        <div class="label">បំណុលសរុប (USD)</div>
-    </div>
-    <!-- ===== បំណុលសរុប (KHR) ===== -->
-    <div class="stat-card orange" style="border-left-color:#e67e22;">
-        <div class="number" id="totalDebtKHR">៛ 0</div>
-        <div class="label" style="color:#e67e22;">បំណុលសរុប (KHR)</div>
-    </div>
-</div>
+                <div class="stat-card blue">
+                    <div class="number" id="totalCustomers">0</div>
+                    <div class="label">អតិថិជនសរុប</div>
+                </div>
+                <div class="stat-card purple">
+                    <div class="number" id="totalLoans">0</div>
+                    <div class="label">កម្ចីសរុប</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="number" id="activeLoans">0</div>
+                    <div class="label">កម្ចីសកម្ម</div>
+                </div>
+                <div class="stat-card red">
+                    <div class="number" id="badLoans">0</div>
+                    <div class="label">កម្ចីខូច</div>
+                </div>
+                <div class="stat-card blue">
+                    <div class="number" id="totalAmountUSD">$0</div>
+                    <div class="label">ទឹកប្រាក់កម្ចីសរុប (USD)</div>
+                </div>
+                <div class="stat-card blue" style="border-left-color:#f39c12;">
+                    <div class="number" id="totalAmountKHR" style="color:#f39c12;">៛ 0</div>
+                    <div class="label" style="color:#f39c12;">ទឹកប្រាក់កម្ចីសរុប (KHR)</div>
+                </div>
+                <div class="stat-card orange">
+                    <div class="number" id="totalDebtUSD">$0</div>
+                    <div class="label">បំណុលសរុប (USD)</div>
+                </div>
+                <div class="stat-card orange" style="border-left-color:#e67e22;">
+                    <div class="number" id="totalDebtKHR" style="color:#e67e22;">៛ 0</div>
+                    <div class="label" style="color:#e67e22;">បំណុលសរុប (KHR)</div>
+                </div>
+            </div>
+        </div>
 
         <!-- ===== PANEL: LOANS ===== -->
         <div class="report-panel" id="panel-loans">
@@ -699,9 +755,94 @@
 
     <script>
         // ============================================================
+        // ===== TOGGLE COLLECTION SUBMENU =====
+        // ============================================================
+        function toggleCollectionSubmenu(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
+            const container = document.getElementById('collectionSubmenu');
+            const arrow = document.getElementById('collectionArrow');
+
+            if (container) {
+                container.classList.toggle('open');
+                if (arrow) {
+                    arrow.textContent = container.classList.contains('open') ? '▲' : '▼';
+                }
+            }
+        }
+
+        // ============================================================
+        // ===== AUTO HIGHLIGHT ACTIVE MENU =====
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            console.log('📍 Current path:', currentPath);
+
+            // ===== លុប active ទាំងអស់ចេញ =====
+            document.querySelectorAll('.sidebar .menu-item').forEach(function(item) {
+                item.classList.remove('active');
+            });
+
+            // ===== ករណីពិសេស: Collection =====
+            const collectionPages = ['/collection', '/collection_good', '/collection_late', '/collection_bad'];
+            let isCollectionPage = collectionPages.some(page => currentPath === page);
+
+            if (isCollectionPage) {
+                const collectionParent = document.querySelector('.menu-item[onclick*="toggleCollectionSubmenu"]');
+                if (collectionParent) {
+                    collectionParent.classList.add('active');
+                }
+
+                const container = document.getElementById('collectionSubmenu');
+                const arrow = document.getElementById('collectionArrow');
+                if (container) {
+                    container.classList.add('open');
+                    if (arrow) arrow.textContent = '▲';
+                }
+
+                document.querySelectorAll('#collectionSubmenu .submenu-item').forEach(function(subItem) {
+                    const href = subItem.getAttribute('href');
+                    if (href === currentPath) {
+                        subItem.classList.add('active');
+                    }
+                });
+
+                return;
+            }
+
+            // ===== សម្រាប់មេនុយធម្មតា =====
+            let hasActiveMenu = false;
+            document.querySelectorAll('.sidebar .menu-item').forEach(function(item) {
+                const href = item.getAttribute('href');
+                if (!href || href === '#') return;
+
+                let isActive = false;
+                if (currentPath === href) {
+                    isActive = true;
+                } else if (href !== '/' && currentPath.startsWith(href + '/')) {
+                    isActive = true;
+                }
+
+                if (isActive) {
+                    item.classList.add('active');
+                    hasActiveMenu = true;
+                }
+            });
+
+            if (!hasActiveMenu && currentPath !== '/login') {
+                const dashboardItem = document.querySelector('.sidebar .menu-item[href="/dashboard"]');
+                if (dashboardItem) {
+                    dashboardItem.classList.add('active');
+                }
+            }
+        });
+
+        // ============================================================
         // ===== TAB SWITCHING =====
         // ============================================================
-
         function switchTab(tabName) {
             document.querySelectorAll('.report-tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.report-panel').forEach(p => p.classList.remove('active'));
@@ -723,7 +864,6 @@
         // ============================================================
         // ===== FORMAT CURRENCY =====
         // ============================================================
-
         function fmtCurrency(amount, currency) {
             if (amount === null || amount === undefined) amount = 0;
             if (currency === 'KHR') {
@@ -748,7 +888,6 @@
         // ============================================================
         // ===== LOAD SUMMARY REPORT =====
         // ============================================================
-
         async function loadSummaryReport() {
             const from = document.getElementById('summary_date_from').value;
             const to = document.getElementById('summary_date_to').value;
@@ -793,7 +932,6 @@
                         </div>
 
                         <div class="summary-report-grid">
-                            <!-- ===== អតិថិជនថ្មី ===== -->
                             <div class="summary-report-section" style="border-left-color:#3498db;">
                                 <h3><i class="fas fa-users"></i> អតិថិជន</h3>
                                 <div class="summary-item">
@@ -802,7 +940,6 @@
                                 </div>
                             </div>
 
-                            <!-- ===== ទឹកប្រាក់ទំលាក់កម្ចី ===== -->
                             <div class="summary-report-section" style="border-left-color:#667eea;">
                                 <h3><i class="fas fa-hand-holding-usd"></i> ទឹកប្រាក់ទំលាក់កម្ចី</h3>
                                 <div class="summary-item">
@@ -815,7 +952,6 @@
                                 </div>
                             </div>
 
-                            <!-- ===== ចំណូល ===== -->
                             <div class="summary-report-section" style="border-left-color:#27ae60;">
                                 <h3><i class="fas fa-arrow-up"></i> ចំណូល</h3>
                                 <div class="summary-item">
@@ -844,7 +980,6 @@
                                 </div>
                             </div>
 
-                            <!-- ===== ទូរទាត់តាមធនាគារ ===== -->
                             <div class="summary-report-section" style="border-left-color:#3498db;">
                                 <h3><i class="fas fa-university"></i> ទូរទាត់តាមធនាគារ</h3>
                                 <div class="summary-item">
@@ -865,7 +1000,6 @@
                                 </div>
                             </div>
 
-                            <!-- ===== ចំណាយ ===== -->
                             <div class="summary-report-section" style="border-left-color:#e74c3c;">
                                 <h3><i class="fas fa-arrow-down"></i> ចំណាយ</h3>
                                 <div class="summary-item">
@@ -880,7 +1014,6 @@
                                 `).join('')}
                             </div>
 
-                            <!-- ===== សមតុល្យសាច់ប្រាក់ ===== -->
                             <div class="summary-report-section" style="border-left-color:#9b59b6; grid-column: 1 / -1;">
                                 <h3><i class="fas fa-wallet"></i> សមតុល្យសាច់ប្រាក់</h3>
                                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
@@ -920,7 +1053,6 @@
                             </div>
                         </div>
 
-                        <!-- ===== TOTAL BOX ===== -->
                         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-top:20px;">
                             <div class="summary-total-box" style="background: linear-gradient(135deg, #667eea, #764ba2);">
                                 <div class="label">📊 សមតុល្យសាច់ប្រាក់សរុប (USD)</div>
@@ -959,7 +1091,6 @@
         // ============================================================
         // ===== RESET SUMMARY REPORT =====
         // ============================================================
-
         function resetSummaryReport() {
             const today = new Date().toISOString().split('T')[0];
             const monthAgo = new Date();
@@ -978,33 +1109,32 @@
         }
 
         // ============================================================
-        // ===== OTHER FUNCTIONS =====
+        // ===== LOAD SUMMARY =====
         // ============================================================
+        async function loadSummary() {
+            try {
+                const response = await fetch('/api/reports/summary');
+                if (!response.ok) throw new Error('Network error');
+                const data = await response.json();
 
-async function loadSummary() {
-    try {
-        const response = await fetch('/api/reports/summary');
-        if (!response.ok) throw new Error('Network error');
-        const data = await response.json();
+                document.getElementById('totalCustomers').textContent = data.total_customers || 0;
+                document.getElementById('totalLoans').textContent = data.total_loans || 0;
+                document.getElementById('activeLoans').textContent = data.active_loans || 0;
+                document.getElementById('badLoans').textContent = data.bad_loans || 0;
 
-        document.getElementById('totalCustomers').textContent = data.total_customers || 0;
-        document.getElementById('totalLoans').textContent = data.total_loans || 0;
-        document.getElementById('activeLoans').textContent = data.active_loans || 0;
-        document.getElementById('badLoans').textContent = data.bad_loans || 0;
+                document.getElementById('totalAmountUSD').textContent = formatCurrency(data.total_amount_usd, 'USD');
+                document.getElementById('totalDebtUSD').textContent = formatCurrency(data.total_debt_usd, 'USD');
+                document.getElementById('totalAmountKHR').textContent = formatCurrency(data.total_amount_khr, 'KHR');
+                document.getElementById('totalDebtKHR').textContent = formatCurrency(data.total_debt_khr, 'KHR');
 
-        // ===== USD =====
-        document.getElementById('totalAmountUSD').textContent = formatCurrency(data.total_amount_usd, 'USD');
-        document.getElementById('totalDebtUSD').textContent = formatCurrency(data.total_debt_usd, 'USD');
+            } catch (error) {
+                console.error('Error loading summary:', error);
+            }
+        }
 
-        // ===== KHR =====
-        document.getElementById('totalAmountKHR').textContent = formatCurrency(data.total_amount_khr, 'KHR');
-        document.getElementById('totalDebtKHR').textContent = formatCurrency(data.total_debt_khr, 'KHR');
-
-    } catch (error) {
-        console.error('Error loading summary:', error);
-    }
-}
-
+        // ============================================================
+        // ===== LOAD LOAN REPORT =====
+        // ============================================================
         async function loadLoanReport() {
             const tbody = document.getElementById('loanReportBody');
             tbody.innerHTML = `<tr><td colspan="10" class="text-center"><div class="spinner"></div> កំពុងផ្ទុក...</td></tr>`;
@@ -1046,6 +1176,9 @@ async function loadSummary() {
             }
         }
 
+        // ============================================================
+        // ===== LOAD PAYMENT REPORT =====
+        // ============================================================
         async function loadPaymentReport() {
             const tbody = document.getElementById('paymentReportBody');
             tbody.innerHTML = `<tr><td colspan="7" class="text-center"><div class="spinner"></div> កំពុងផ្ទុក...</td></tr>`;
@@ -1077,6 +1210,9 @@ async function loadSummary() {
             }
         }
 
+        // ============================================================
+        // ===== LOAD COLLECTION REPORT =====
+        // ============================================================
         async function loadCollectionReport() {
             const tbody = document.getElementById('collectionReportBody');
             tbody.innerHTML = `<tr><td colspan="4" class="text-center"><div class="spinner"></div> កំពុងផ្ទុក...</td></tr>`;
@@ -1111,6 +1247,9 @@ async function loadSummary() {
             }
         }
 
+        // ============================================================
+        // ===== LOAD CUSTOMER REPORT =====
+        // ============================================================
         async function loadCustomerReport() {
             const tbody = document.getElementById('customerReportBody');
             tbody.innerHTML = `<tr><td colspan="8" class="text-center"><div class="spinner"></div> កំពុងផ្ទុក...</td></tr>`;
@@ -1143,6 +1282,9 @@ async function loadSummary() {
             }
         }
 
+        // ============================================================
+        // ===== LOAD INCOME REPORT =====
+        // ============================================================
         async function loadIncomeReport() {
             const tbody = document.getElementById('incomeReportBody');
             tbody.innerHTML = `<tr><td colspan="4" class="text-center"><div class="spinner"></div> កំពុងផ្ទុក...</td></tr>`;
@@ -1174,7 +1316,6 @@ async function loadSummary() {
         // ============================================================
         // ===== INITIALIZATION =====
         // ============================================================
-
         document.addEventListener('DOMContentLoaded', function() {
             const today = new Date().toISOString().split('T')[0];
             const monthAgo = new Date();
