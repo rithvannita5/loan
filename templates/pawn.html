@@ -14,6 +14,7 @@
             min-height: 100vh;
         }
 
+        /* ===== SIDEBAR ===== */
         .sidebar {
             width: 260px;
             background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
@@ -25,6 +26,8 @@
             box-shadow: 4px 0 20px rgba(0,0,0,0.2);
             transition: all 0.3s ease;
             z-index: 1000;
+            top: 0;
+            left: 0;
         }
         .sidebar-brand { text-align: center; padding: 20px 15px 30px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 20px; }
         .sidebar-brand .logo { font-size: 32px; display: block; margin-bottom: 5px; }
@@ -33,17 +36,54 @@
         .sidebar-brand p { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 3px; }
 
         .menu-label { padding: 10px 25px 5px; font-size: 11px; text-transform: uppercase; color: rgba(255,255,255,0.3); letter-spacing: 2px; font-weight: 600; }
+
+        /* ===== MENU ITEM ===== */
         .menu-item {
-            display: flex; align-items: center; padding: 13px 25px;
-            color: rgba(255,255,255,0.6); text-decoration: none;
-            transition: all 0.3s ease; border-left: 3px solid transparent;
-            cursor: pointer; font-size: 15px; font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            padding: 13px 25px;
+            color: rgba(255,255,255,0.6);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+            font-size: 15px;
+            font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif;
+            position: relative;
+            z-index: 2;
+            background: transparent;
+            width: 100%;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
         .menu-item:hover { background: rgba(255,255,255,0.05); color: #fff; border-left-color: #667eea; }
         .menu-item.active { background: rgba(102,126,234,0.15); color: #fff; border-left-color: #667eea; }
-        .menu-item .icon { font-size: 20px; margin-right: 14px; width: 28px; text-align: center; }
+        .menu-item .icon { font-size: 20px; margin-right: 14px; width: 28px; text-align: center; flex-shrink: 0; }
         .menu-item .badge { margin-left: auto; background: #e74c3c; color: #fff; font-size: 11px; padding: 2px 10px; border-radius: 20px; }
+        .menu-item .arrow { margin-left: auto; font-size: 10px; transition: transform 0.3s ease; color: rgba(255,255,255,0.5); }
 
+        /* ===== SUBMENU ===== */
+        .submenu-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease-in-out;
+            background: rgba(0,0,0,0.15);
+        }
+        .submenu-container.open {
+            max-height: 500px;
+        }
+        .submenu-item {
+            padding-left: 50px !important;
+            font-size: 14px !important;
+        }
+        .submenu-item .icon {
+            font-size: 16px !important;
+            margin-right: 10px !important;
+            width: 22px !important;
+        }
+
+        /* ===== MAIN CONTENT ===== */
         .main-content { margin-left: 260px; flex: 1; padding: 30px; min-height: 100vh; }
 
         .top-header {
@@ -287,10 +327,11 @@
         @media (max-width: 768px) {
             .sidebar { width: 70px; padding: 15px 0; }
             .sidebar-brand h2, .sidebar-brand p, .menu-label,
-            .menu-item span:not(.icon), .menu-item .badge { display: none; }
+            .menu-item span:not(.icon), .menu-item .badge, .menu-item .arrow { display: none; }
             .sidebar-brand .logo { font-size: 28px; }
             .menu-item { padding: 15px 0; justify-content: center; }
             .menu-item .icon { margin-right: 0; font-size: 24px; }
+            .submenu-container .submenu-item { padding-left: 0 !important; }
             .main-content { margin-left: 70px; padding: 15px; }
             .top-header h1 { font-size: 18px; }
             .user-info .name, .user-info .role { display: none; }
@@ -351,10 +392,26 @@
             <span>ទូរទាត់</span>
         </a>
 
-        <a href="/collection" class="menu-item">
+        <!-- ===== COLLECTION WITH SUBMENU ===== -->
+        <div class="menu-item" onclick="toggleCollectionSubmenu(event)">
             <span class="icon">💵</span>
             <span>ប្រមូលប្រាក់</span>
-        </a>
+            <span class="arrow" id="collectionArrow">▼</span>
+        </div>
+        <div class="submenu-container" id="collectionSubmenu">
+            <a href="/collection_good" class="menu-item submenu-item">
+                <span class="icon">✅</span>
+                <span>កម្ចីល្អ</span>
+            </a>
+            <a href="/collection_late" class="menu-item submenu-item">
+                <span class="icon">⏰</span>
+                <span>កម្ចីយឺត</span>
+            </a>
+            <a href="/collection_bad" class="menu-item submenu-item">
+                <span class="icon">❌</span>
+                <span>កម្ចីខូច</span>
+            </a>
+        </div>
 
         <a href="/disbursement" class="menu-item">
             <span class="icon">📢</span>
@@ -489,7 +546,6 @@
                 <form id="pawnForm" onsubmit="savePawn(event)">
                     <input type="hidden" id="pawn_id" value="">
 
-                    <!-- ===== អតិថិជន ===== -->
                     <div class="form-group">
                         <label>អតិថិជន <span class="required">*</span></label>
                         <input type="text" id="customer_search" list="customer_list"
@@ -511,7 +567,6 @@
                         </div>
                     </div>
 
-                    <!-- ===== ព័ត៌មានទំនិញ ===== -->
                     <div class="form-group">
                         <label>ឈ្មោះទំនិញ <span class="required">*</span></label>
                         <input type="text" id="item_name" placeholder="ឧ. ខ្សែកមាស" required>
@@ -544,7 +599,6 @@
                         <textarea id="item_description" rows="2" placeholder="ពណ៌នាអំពីទំនិញ..."></textarea>
                     </div>
 
-                    <!-- ===== ព័ត៌មានកម្ចី ===== -->
                     <div class="form-row">
                         <div class="form-group">
                             <label>ទឹកប្រាក់កម្ចី <span class="required">*</span></label>
@@ -653,9 +707,94 @@
         let currentStatus = 'all';
 
         // ============================================================
+        // ===== TOGGLE COLLECTION SUBMENU =====
+        // ============================================================
+        function toggleCollectionSubmenu(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
+            const container = document.getElementById('collectionSubmenu');
+            const arrow = document.getElementById('collectionArrow');
+
+            if (container) {
+                container.classList.toggle('open');
+                if (arrow) {
+                    arrow.textContent = container.classList.contains('open') ? '▲' : '▼';
+                }
+            }
+        }
+
+        // ============================================================
+        // ===== AUTO HIGHLIGHT ACTIVE MENU =====
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            console.log('📍 Current path:', currentPath);
+
+            // ===== លុប active ទាំងអស់ចេញ =====
+            document.querySelectorAll('.sidebar .menu-item').forEach(function(item) {
+                item.classList.remove('active');
+            });
+
+            // ===== ករណីពិសេស: Collection =====
+            const collectionPages = ['/collection', '/collection_good', '/collection_late', '/collection_bad'];
+            let isCollectionPage = collectionPages.some(page => currentPath === page);
+
+            if (isCollectionPage) {
+                const collectionParent = document.querySelector('.menu-item[onclick*="toggleCollectionSubmenu"]');
+                if (collectionParent) {
+                    collectionParent.classList.add('active');
+                }
+
+                const container = document.getElementById('collectionSubmenu');
+                const arrow = document.getElementById('collectionArrow');
+                if (container) {
+                    container.classList.add('open');
+                    if (arrow) arrow.textContent = '▲';
+                }
+
+                document.querySelectorAll('#collectionSubmenu .submenu-item').forEach(function(subItem) {
+                    const href = subItem.getAttribute('href');
+                    if (href === currentPath) {
+                        subItem.classList.add('active');
+                    }
+                });
+
+                return;
+            }
+
+            // ===== សម្រាប់មេនុយធម្មតា =====
+            let hasActiveMenu = false;
+            document.querySelectorAll('.sidebar .menu-item').forEach(function(item) {
+                const href = item.getAttribute('href');
+                if (!href || href === '#') return;
+
+                let isActive = false;
+                if (currentPath === href) {
+                    isActive = true;
+                } else if (href !== '/' && currentPath.startsWith(href + '/')) {
+                    isActive = true;
+                }
+
+                if (isActive) {
+                    item.classList.add('active');
+                    hasActiveMenu = true;
+                }
+            });
+
+            if (!hasActiveMenu && currentPath !== '/login') {
+                const dashboardItem = document.querySelector('.sidebar .menu-item[href="/dashboard"]');
+                if (dashboardItem) {
+                    dashboardItem.classList.add('active');
+                }
+            }
+        });
+
+        // ============================================================
         // ===== FORMAT CURRENCY =====
         // ============================================================
-
         function formatCurrency(amount, currency) {
             if (amount === null || amount === undefined || isNaN(amount)) {
                 return currency === 'KHR' ? '៛ 0' : '$ 0.00';
@@ -671,7 +810,6 @@
         // ============================================================
         // ===== SEARCH CUSTOMER =====
         // ============================================================
-
         async function searchCustomer(value) {
             if (!value || value.length < 1) {
                 document.getElementById('customer_id').value = '';
@@ -708,7 +846,6 @@
         // ============================================================
         // ===== CALCULATE PAWN =====
         // ============================================================
-
         function calculatePawn() {
             const loanAmount = parseFloat(document.getElementById('loan_amount').value) || 0;
             const interestRate = parseFloat(document.getElementById('interest_rate').value) || 0;
@@ -724,51 +861,48 @@
         // ============================================================
         // ===== LOAD PAWNS =====
         // ============================================================
-
         async function loadPawns(page = 1, status = 'all') {
-    const tbody = document.getElementById('pawnBody');
-    tbody.innerHTML = `
-        <tr>
-            <td colspan="15" style="text-align:center; padding:40px; color:#888;">
-                <div class="spinner"></div>
-                <p style="margin-top:8px;">កំពុងផ្ទុកទិន្នន័យ...</p>
-            </td>
-        </tr>
-    `;
+            const tbody = document.getElementById('pawnBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="15" style="text-align:center; padding:40px; color:#888;">
+                        <div class="spinner"></div>
+                        <p style="margin-top:8px;">កំពុងផ្ទុកទិន្នន័យ...</p>
+                    </td>
+                </tr>
+            `;
 
-    try {
-        const statusParam = status !== 'all' ? `&status=${status}` : '';
-        const response = await fetch(`/api/pawns?page=${page}&per_page=${perPage}${statusParam}`);
-        if (!response.ok) throw new Error('Network error');
-        pawns = await response.json();
+            try {
+                const statusParam = status !== 'all' ? `&status=${status}` : '';
+                const response = await fetch(`/api/pawns?page=${page}&per_page=${perPage}${statusParam}`);
+                if (!response.ok) throw new Error('Network error');
+                pawns = await response.json();
 
-        // ===== រាប់ចំនួនសរុប (ប្រើទិន្នន័យដែលមាន) =====
-        totalPawns = pawns.length;
-        totalPages = Math.ceil(totalPawns / perPage);
+                totalPawns = pawns.length;
+                totalPages = Math.ceil(totalPawns / perPage);
 
-        renderTable(pawns);
-        updatePagination();
-        document.getElementById('footerInfo').textContent =
-            `បង្ហាញចំនួន ${pawns.length} បញ្ចាំ (សរុប ${totalPawns})`;
+                renderTable(pawns);
+                updatePagination();
+                document.getElementById('footerInfo').textContent =
+                    `បង្ហាញចំនួន ${pawns.length} បញ្ចាំ (សរុប ${totalPawns})`;
 
-    } catch (error) {
-        console.error('Error loading pawns:', error);
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="15" style="text-align:center; padding:40px; color:#e74c3c;">
-                    <i class="fas fa-exclamation-circle" style="font-size:48px; display:block; margin-bottom:10px;"></i>
-                    មានបញ្ហាក្នុងការផ្ទុកទិន្នន័យ<br>
-                    <small style="color:#888;">${error.message}</small>
-                </td>
-            </tr>
-        `;
-    }
-}
+            } catch (error) {
+                console.error('Error loading pawns:', error);
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="15" style="text-align:center; padding:40px; color:#e74c3c;">
+                            <i class="fas fa-exclamation-circle" style="font-size:48px; display:block; margin-bottom:10px;"></i>
+                            មានបញ្ហាក្នុងការផ្ទុកទិន្នន័យ<br>
+                            <small style="color:#888;">${error.message}</small>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
 
         // ============================================================
         // ===== UPDATE COUNTS =====
         // ============================================================
-
         async function updateCounts() {
             const statuses = ['all', 'Active', 'Redeemed', 'Forfeited', 'Expired'];
             for (const status of statuses) {
@@ -787,7 +921,6 @@
         // ============================================================
         // ===== RENDER TABLE =====
         // ============================================================
-
         function renderTable(data) {
             const tbody = document.getElementById('pawnBody');
             tbody.innerHTML = '';
@@ -860,7 +993,6 @@
         // ============================================================
         // ===== FILTER =====
         // ============================================================
-
         function filterPawns(status) {
             currentStatus = status;
             currentPage = 1;
@@ -878,7 +1010,6 @@
         // ============================================================
         // ===== PAGINATION =====
         // ============================================================
-
         function updatePagination() {
             document.getElementById('pageInfo').textContent = `ទំព័រ ${currentPage} នៃ ${totalPages || 1}`;
             document.getElementById('prevPage').disabled = currentPage <= 1;
@@ -900,7 +1031,6 @@
         // ============================================================
         // ===== TOGGLE MENU =====
         // ============================================================
-
         function toggleMenu(btn) {
             document.querySelectorAll('.action-menu').forEach(m => {
                 if (m !== btn.nextElementSibling) m.classList.remove('show');
@@ -920,7 +1050,6 @@
         // ============================================================
         // ===== CREATE/EDIT PAWN =====
         // ============================================================
-
         function openCreatePawnModal() {
             document.getElementById('pawn_id').value = '';
             document.getElementById('pawnForm').reset();
@@ -931,7 +1060,6 @@
             document.getElementById('interest_amount').value = '';
             document.getElementById('total_amount').value = '';
 
-            // ===== កំណត់កាលបរិច្ឆេទ =====
             const today = new Date().toISOString().split('T')[0];
             const due = new Date();
             due.setDate(due.getDate() + 30);
@@ -1017,7 +1145,6 @@
                 const url = id ? `/api/pawns/${id}` : '/api/pawns';
                 const method = id ? 'PUT' : 'POST';
 
-                // ===== ប្រសិនបើជា PUT ត្រូវបញ្ជូន id =====
                 const body = id ? { ...data, id: parseInt(id) } : data;
 
                 const response = await fetch(url, {
@@ -1047,7 +1174,6 @@
         // ============================================================
         // ===== REDEEM PAWN =====
         // ============================================================
-
         async function openRedeemModal(pawnId) {
             try {
                 const response = await fetch(`/api/pawns/${pawnId}`);
@@ -1127,7 +1253,6 @@
         // ============================================================
         // ===== FORFEIT PAWN =====
         // ============================================================
-
         async function forfeitPawn(pawnId) {
             if (!confirm('តើអ្នកចង់បោះបង់បញ្ចាំនេះមែនទេ? (មិនអាចស្តារឡើងវិញបានទេ)')) {
                 return;
@@ -1156,7 +1281,6 @@
         // ============================================================
         // ===== DELETE PAWN =====
         // ============================================================
-
         async function deletePawn(pawnId) {
             if (!confirm('តើអ្នកចង់លុបបញ្ចាំនេះមែនទេ?')) {
                 return;
@@ -1182,50 +1306,8 @@
         }
 
         // ============================================================
-        // ===== FORFEIT PAWN API (បន្ថែមក្នុង flask_app.py) =====
-        // ============================================================
-
-        // ===== បន្ថែមកូដនេះក្នុង flask_app.py =====
-        /*
-        @app.route('/api/pawns/<int:pawn_id>/forfeit', methods=['POST'])
-        def api_forfeit_pawn(pawn_id):
-            if 'username' not in session:
-                return jsonify({'error': 'Unauthorized'}), 401
-
-            try:
-                pawn = db.get_pawn_by_id(pawn_id)
-                if pawn:
-                    db.update_pawn_status(pawn_id, 'Forfeited')
-                    db.log_activity(pawn['customer_id'], None, 'forfeit_pawn', f'បានបោះបង់បញ្ចាំ: {pawn["item_name"]}')
-                return jsonify({'success': True})
-            except Exception as e:
-                return jsonify({'error': str(e)}), 500
-        */
-
-        // ============================================================
-        // ===== UPDATE PAWN API (បន្ថែមក្នុង flask_app.py) =====
-        // ============================================================
-
-        // ===== បន្ថែមកូដនេះក្នុង flask_app.py =====
-        /*
-        @app.route('/api/pawns/<int:pawn_id>', methods=['PUT'])
-        def api_update_pawn(pawn_id):
-            if 'username' not in session:
-                return jsonify({'error': 'Unauthorized'}), 401
-
-            data = request.json
-            try:
-                db.update_pawn(pawn_id, data)
-                db.log_activity(data['customer_id'], None, 'update_pawn', f'បានកែប្រែបញ្ចាំ: {data["item_name"]}')
-                return jsonify({'success': True})
-            except Exception as e:
-                return jsonify({'error': str(e)}), 500
-        */
-
-        // ============================================================
         // ===== INITIAL LOAD =====
         // ============================================================
-
         document.addEventListener('DOMContentLoaded', function() {
             loadPawns(1, 'all');
         });
