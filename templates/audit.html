@@ -14,6 +14,7 @@
             min-height: 100vh;
         }
 
+        /* ===== SIDEBAR ===== */
         .sidebar {
             width: 260px;
             background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
@@ -25,6 +26,8 @@
             box-shadow: 4px 0 20px rgba(0,0,0,0.2);
             transition: all 0.3s ease;
             z-index: 1000;
+            top: 0;
+            left: 0;
         }
         .sidebar-brand { text-align: center; padding: 20px 15px 30px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 20px; }
         .sidebar-brand .logo { font-size: 32px; display: block; margin-bottom: 5px; }
@@ -33,17 +36,54 @@
         .sidebar-brand p { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 3px; }
 
         .menu-label { padding: 10px 25px 5px; font-size: 11px; text-transform: uppercase; color: rgba(255,255,255,0.3); letter-spacing: 2px; font-weight: 600; }
+
+        /* ===== MENU ITEM ===== */
         .menu-item {
-            display: flex; align-items: center; padding: 13px 25px;
-            color: rgba(255,255,255,0.6); text-decoration: none;
-            transition: all 0.3s ease; border-left: 3px solid transparent;
-            cursor: pointer; font-size: 15px; font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            padding: 13px 25px;
+            color: rgba(255,255,255,0.6);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+            font-size: 15px;
+            font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif;
+            position: relative;
+            z-index: 2;
+            background: transparent;
+            width: 100%;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
         .menu-item:hover { background: rgba(255,255,255,0.05); color: #fff; border-left-color: #667eea; }
         .menu-item.active { background: rgba(102,126,234,0.15); color: #fff; border-left-color: #667eea; }
-        .menu-item .icon { font-size: 20px; margin-right: 14px; width: 28px; text-align: center; }
+        .menu-item .icon { font-size: 20px; margin-right: 14px; width: 28px; text-align: center; flex-shrink: 0; }
         .menu-item .badge { margin-left: auto; background: #e74c3c; color: #fff; font-size: 11px; padding: 2px 10px; border-radius: 20px; }
+        .menu-item .arrow { margin-left: auto; font-size: 10px; transition: transform 0.3s ease; color: rgba(255,255,255,0.5); }
 
+        /* ===== SUBMENU ===== */
+        .submenu-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease-in-out;
+            background: rgba(0,0,0,0.15);
+        }
+        .submenu-container.open {
+            max-height: 500px;
+        }
+        .submenu-item {
+            padding-left: 50px !important;
+            font-size: 14px !important;
+        }
+        .submenu-item .icon {
+            font-size: 16px !important;
+            margin-right: 10px !important;
+            width: 22px !important;
+        }
+
+        /* ===== MAIN CONTENT ===== */
         .main-content { margin-left: 260px; flex: 1; padding: 30px; min-height: 100vh; }
 
         .top-header {
@@ -61,6 +101,7 @@
         .logout-btn { background: #e74c3c; color: #fff; border: none; padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 14px; transition: all 0.3s ease; font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif; text-decoration: none; }
         .logout-btn:hover { background: #c0392b; transform: scale(1.02); }
 
+        /* ===== FILTER BAR ===== */
         .filter-bar {
             background: #fff;
             padding: 20px 25px;
@@ -104,6 +145,7 @@
             align-items: center;
         }
 
+        /* ===== BUTTONS ===== */
         .btn {
             padding: 10px 20px;
             border: none;
@@ -118,13 +160,14 @@
             gap: 6px;
         }
         .btn-primary { background: #667eea; color: white; }
-        .btn-primary:hover { background: #5a67d8; transform: translateY(-2px); }
+        .btn-primary:hover { background: #5a67d8; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(102,126,234,0.4); }
         .btn-warning { background: #f39c12; color: white; }
         .btn-warning:hover { background: #d68910; transform: translateY(-2px); }
         .btn-print { background: #27ae60; color: white; }
         .btn-print:hover { background: #219a52; transform: translateY(-2px); }
         .btn-sm { padding: 5px 12px; font-size: 12px; }
 
+        /* ===== TABLE ===== */
         .table-wrapper {
             background: #fff;
             border-radius: 15px;
@@ -144,6 +187,7 @@
         table tbody tr:nth-child(even) { background: #fafafa; }
         table tbody tr:nth-child(even):hover { background: #f0f2ff; }
 
+        /* ===== BADGES ===== */
         .badge {
             display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;
         }
@@ -155,6 +199,7 @@
         .badge-payment { background: #fff3cd; color: #856404; }
         .badge-default { background: #e2e8f0; color: #4a5568; }
 
+        /* ===== SPINNER ===== */
         .spinner {
             display: inline-block;
             width: 30px;
@@ -176,13 +221,15 @@
             margin-top: 20px;
         }
 
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .sidebar { width: 70px; padding: 15px 0; }
             .sidebar-brand h2, .sidebar-brand p, .menu-label,
-            .menu-item span:not(.icon), .menu-item .badge { display: none; }
+            .menu-item span:not(.icon), .menu-item .badge, .menu-item .arrow { display: none; }
             .sidebar-brand .logo { font-size: 28px; }
             .menu-item { padding: 15px 0; justify-content: center; }
             .menu-item .icon { margin-right: 0; font-size: 24px; }
+            .submenu-container .submenu-item { padding-left: 0 !important; }
             .main-content { margin-left: 70px; padding: 15px; }
             .top-header h1 { font-size: 18px; }
             .user-info .name, .user-info .role { display: none; }
@@ -239,10 +286,26 @@
             <span>ទូរទាត់</span>
         </a>
 
-        <a href="/collection" class="menu-item">
+        <!-- ===== COLLECTION WITH SUBMENU ===== -->
+        <div class="menu-item" onclick="toggleCollectionSubmenu(event)">
             <span class="icon">💵</span>
             <span>ប្រមូលប្រាក់</span>
-        </a>
+            <span class="arrow" id="collectionArrow">▼</span>
+        </div>
+        <div class="submenu-container" id="collectionSubmenu">
+            <a href="/collection_good" class="menu-item submenu-item">
+                <span class="icon">✅</span>
+                <span>កម្ចីល្អ</span>
+            </a>
+            <a href="/collection_late" class="menu-item submenu-item">
+                <span class="icon">⏰</span>
+                <span>កម្ចីយឺត</span>
+            </a>
+            <a href="/collection_bad" class="menu-item submenu-item">
+                <span class="icon">❌</span>
+                <span>កម្ចីខូច</span>
+            </a>
+        </div>
 
         <a href="/disbursement" class="menu-item">
             <span class="icon">📢</span>
@@ -349,6 +412,92 @@
     </div>
 
     <script>
+        // ============================================================
+        // ===== TOGGLE COLLECTION SUBMENU =====
+        // ============================================================
+        function toggleCollectionSubmenu(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
+            const container = document.getElementById('collectionSubmenu');
+            const arrow = document.getElementById('collectionArrow');
+
+            if (container) {
+                container.classList.toggle('open');
+                if (arrow) {
+                    arrow.textContent = container.classList.contains('open') ? '▲' : '▼';
+                }
+            }
+        }
+
+        // ============================================================
+        // ===== AUTO HIGHLIGHT ACTIVE MENU =====
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            console.log('📍 Current path:', currentPath);
+
+            // ===== លុប active ទាំងអស់ចេញ =====
+            document.querySelectorAll('.sidebar .menu-item').forEach(function(item) {
+                item.classList.remove('active');
+            });
+
+            // ===== ករណីពិសេស: Collection =====
+            const collectionPages = ['/collection', '/collection_good', '/collection_late', '/collection_bad'];
+            let isCollectionPage = collectionPages.some(page => currentPath === page);
+
+            if (isCollectionPage) {
+                const collectionParent = document.querySelector('.menu-item[onclick*="toggleCollectionSubmenu"]');
+                if (collectionParent) {
+                    collectionParent.classList.add('active');
+                }
+
+                const container = document.getElementById('collectionSubmenu');
+                const arrow = document.getElementById('collectionArrow');
+                if (container) {
+                    container.classList.add('open');
+                    if (arrow) arrow.textContent = '▲';
+                }
+
+                document.querySelectorAll('#collectionSubmenu .submenu-item').forEach(function(subItem) {
+                    const href = subItem.getAttribute('href');
+                    if (href === currentPath) {
+                        subItem.classList.add('active');
+                    }
+                });
+
+                return;
+            }
+
+            // ===== សម្រាប់មេនុយធម្មតា =====
+            let hasActiveMenu = false;
+            document.querySelectorAll('.sidebar .menu-item').forEach(function(item) {
+                const href = item.getAttribute('href');
+                if (!href || href === '#') return;
+
+                let isActive = false;
+                if (currentPath === href) {
+                    isActive = true;
+                } else if (href !== '/' && currentPath.startsWith(href + '/')) {
+                    isActive = true;
+                }
+
+                if (isActive) {
+                    item.classList.add('active');
+                    hasActiveMenu = true;
+                }
+            });
+
+            if (!hasActiveMenu && currentPath !== '/login') {
+                const dashboardItem = document.querySelector('.sidebar .menu-item[href="/dashboard"]');
+                if (dashboardItem) {
+                    dashboardItem.classList.add('active');
+                }
+            }
+        });
+
         // ============================================================
         // ===== LOAD AUDIT =====
         // ============================================================
