@@ -2372,56 +2372,56 @@ def audit():
         return redirect(url_for('index'))
     return render_template('audit.html', username=session.get('full_name', session['username']))
 
+# ============================================================
+# ===== AUDIT ROUTES =====
+# ============================================================
+
+@app.route('/audit')
+def audit():
+    if 'username' not in session:
+        return redirect(url_for('index'))
+    return render_template('audit.html', username=session.get('full_name', session['username']))
+
+
 @app.route('/api/audit')
 def api_audit():
     if 'username' not in session:
         return jsonify([])
 
-    limit = request.args.get('limit', 100, type=int)
-    action = request.args.get('action', '')
-    from_date = request.args.get('from', '')
-    to_date = request.args.get('to', '')
-    user = request.args.get('user', '')
+    try:
+        limit = request.args.get('limit', 500, type=int)
+        action = request.args.get('action', '')
+        from_date = request.args.get('from', '')
+        to_date = request.args.get('to', '')
+        user = request.args.get('user', '')
 
-    conn = db.get_db_connection()
-    query = '''
-        SELECT
-            a.*,
-            u.username as user_name,
-            u.full_name,
-            c.name as customer_name,
-            l.loan_code
-        FROM activities a
-        LEFT JOIN users u ON a.user_id = u.id
-        LEFT JOIN customers c ON a.customer_id = c.id
-        LEFT JOIN loans l ON a.loan_id = l.id
-        WHERE 1=1
-    '''
-    params = []
+        logs = db.get_audit_logs(
+            action=action,
+            user=user,
+            from_date=from_date,
+            to_date=to_date,
+            limit=limit
+        )
+        return jsonify(logs)
 
-    if action:
-        query += ' AND a.action = ?'
-        params.append(action)
+    except Exception as e:
+        print(f"❌ Error in api_audit: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
 
-    if from_date:
-        query += ' AND a.created_at >= ?'
-        params.append(from_date + ' 00:00:00')
 
-    if to_date:
-        query += ' AND a.created_at <= ?'
-        params.append(to_date + ' 23:59:59')
+@app.route('/api/audit/actions')
+def api_audit_actions():
+    if 'username' not in session:
+        return jsonify([])
 
-    if user:
-        query += ' AND u.username LIKE ?'
-        params.append(f'%{user}%')
-
-    query += ' ORDER BY a.created_at DESC LIMIT ?'
-    params.append(limit)
-
-    activities = conn.execute(query, params).fetchall()
-    conn.close()
-
-    return jsonify([dict(a) for a in activities])
+    try:
+        actions = db.get_audit_actions()
+        return jsonify(actions)
+    except Exception as e:
+        print(f"❌ Error in api_audit_actions: {e}")
+        return jsonify([])
 
 @app.route('/api/audit/actions')
 def api_audit_actions():
