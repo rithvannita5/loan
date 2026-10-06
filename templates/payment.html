@@ -9,25 +9,59 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Khmer OS', 'Khmer OS Muol', 'Moul', 'Arial', sans-serif;
-            background: #f0f2f5;
+            background: #f4f6f9;
             display: flex;
             min-height: 100vh;
         }
 
         /* ===== SIDEBAR ===== */
-        .sidebar { width: 260px; background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%); color: white; padding: 20px 0; position: fixed; height: 100vh; overflow-y: auto; transition: all 0.3s; z-index: 1000; }
-        .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
-        .sidebar-brand h2 { font-size: 20px; display: flex; align-items: center; gap: 10px; }
-        .sidebar-brand h2 i { color: #667eea; }
-        .sidebar-brand .subtitle { font-size: 12px; color: #a0aec0; margin-top: 5px; }
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+        }
+        .sidebar-brand { text-align: center; padding: 20px 15px 30px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 20px; }
+        .sidebar-brand .logo { font-size: 32px; display: block; margin-bottom: 5px; }
+        .sidebar-brand h2 { font-size: 20px; font-weight: 700; color: #fff; letter-spacing: 1px; }
+        .sidebar-brand h2 span { color: #667eea; }
+        .sidebar-brand p { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 3px; }
 
-        .sidebar-menu { list-style: none; padding: 0; }
-        .sidebar-menu li a { display: flex; align-items: center; gap: 12px; padding: 10px 20px; color: #cbd5e0; text-decoration: none; transition: all 0.3s; border-left: 3px solid transparent; font-size: 14px; }
-        .sidebar-menu li a:hover { background: rgba(255,255,255,0.05); color: white; border-left-color: #667eea; }
-        .sidebar-menu li a.active { background: rgba(102,126,234,0.15); color: white; border-left-color: #667eea; }
-        .sidebar-menu li a i { width: 20px; text-align: center; font-size: 14px; color: #a0aec0; }
-        .sidebar-menu li a.active i { color: #667eea; }
-        .sidebar-menu .menu-label { padding: 15px 20px 5px 20px; font-size: 11px; color: #718096; text-transform: uppercase; letter-spacing: 1px; }
+        .menu-label { padding: 10px 25px 5px; font-size: 11px; text-transform: uppercase; color: rgba(255,255,255,0.3); letter-spacing: 2px; font-weight: 600; }
+
+        /* ===== MENU ITEM ===== */
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 13px 25px;
+            color: rgba(255,255,255,0.6);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+            font-size: 15px;
+            font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif;
+            position: relative;
+            z-index: 2;
+            background: transparent;
+            width: 100%;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .menu-item:hover { background: rgba(255,255,255,0.05); color: #fff; border-left-color: #667eea; }
+        .menu-item.active { background: rgba(102,126,234,0.15); color: #fff; border-left-color: #667eea; }
+        .menu-item .icon { font-size: 20px; margin-right: 14px; width: 28px; text-align: center; flex-shrink: 0; }
+        .menu-item .badge { margin-left: auto; background: #e74c3c; color: #fff; font-size: 11px; padding: 2px 10px; border-radius: 20px; }
+        .menu-item .arrow { margin-left: auto; font-size: 10px; transition: transform 0.3s ease; color: rgba(255,255,255,0.5); }
 
         /* ===== SUBMENU ===== */
         .submenu-container {
@@ -37,22 +71,29 @@
             background: rgba(0,0,0,0.15);
         }
         .submenu-container.open { max-height: 500px; }
-        .arrow { margin-left: auto; font-size: 10px; color: rgba(255,255,255,0.5); }
+        .submenu-item { padding-left: 50px !important; font-size: 14px !important; }
+        .submenu-item .icon { font-size: 16px !important; margin-right: 10px !important; width: 22px !important; }
 
-        .main-content { margin-left: 260px; flex: 1; padding: 20px; min-height: 100vh; }
-        .top-header { background: white; padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 10px; }
-        .top-header .page-title h1 { font-size: 22px; color: #2d3748; }
-        .top-header .page-title p { color: #718096; font-size: 14px; }
-        .top-header .user-info { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
-        .top-header .user-info .avatar { width: 40px; height: 40px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px; }
-        .top-header .user-info .user-name { font-weight: 600; color: #2d3748; font-size: 14px; }
-        .top-header .user-info .user-role { font-size: 12px; color: #718096; }
-        .top-header .user-info .logout-btn { padding: 8px 18px; background: #fc8181; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-family: inherit; transition: all 0.3s; text-decoration: none; }
-        .top-header .user-info .logout-btn:hover { background: #f56565; }
-        .menu-toggle { display: none; background: none; border: none; color: #2d3748; font-size: 24px; cursor: pointer; padding: 5px; }
+        /* ===== MAIN CONTENT ===== */
+        .main-content { margin-left: 260px; flex: 1; padding: 30px; min-height: 100vh; }
+
+        .top-header {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #fff; padding: 18px 30px; border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 25px; flex-wrap: wrap; gap: 15px;
+        }
+        .top-header h1 { font-size: 24px; color: #1a1a2e; }
+        .top-header h1 span { color: #27ae60; }
+        .user-info { display: flex; align-items: center; gap: 15px; }
+        .user-info .avatar { width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 22px; font-weight: 700; }
+        .user-info .name { font-weight: 600; color: #333; }
+        .user-info .role { font-size: 12px; color: #888; }
+        .logout-btn { background: #e74c3c; color: #fff; border: none; padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 14px; transition: all 0.3s ease; font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif; text-decoration: none; }
+        .logout-btn:hover { background: #c0392b; transform: scale(1.02); }
 
         /* ===== PAGE CONTENT ===== */
-        .page-content { background: white; border-radius: 16px; padding: 25px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
+        .page-content { background: #fff; border-radius: 16px; padding: 25px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
 
         /* ===== SEARCH SECTION ===== */
         .search-section {
@@ -62,323 +103,120 @@
             margin-bottom: 25px;
             color: white;
         }
-        .search-section h2 {
-            font-size: 20px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .search-box {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
+        .search-section h2 { font-size: 20px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .search-box { display: flex; gap: 10px; flex-wrap: wrap; }
         .search-box input {
-            flex: 1;
-            min-width: 250px;
-            padding: 14px 20px;
+            flex: 1; min-width: 250px; padding: 14px 20px;
             border: 2px solid rgba(255,255,255,0.3);
             background: rgba(255,255,255,0.95);
-            border-radius: 10px;
-            font-size: 15px;
-            font-family: inherit;
-            outline: none;
+            border-radius: 10px; font-size: 15px; font-family: inherit; outline: none;
         }
-        .search-box input:focus {
-            border-color: white;
-            box-shadow: 0 0 0 4px rgba(255,255,255,0.2);
-        }
+        .search-box input:focus { border-color: white; box-shadow: 0 0 0 4px rgba(255,255,255,0.2); }
         .search-box button {
-            padding: 14px 30px;
-            background: #27ae60;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 15px;
-            font-weight: 600;
-            font-family: inherit;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            padding: 14px 30px; background: #27ae60; color: white;
+            border: none; border-radius: 10px; cursor: pointer;
+            font-size: 15px; font-weight: 600; font-family: inherit;
+            transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px;
         }
-        .search-box button:hover {
-            background: #219a52;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(39,174,96,0.4);
-        }
+        .search-box button:hover { background: #219a52; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(39,174,96,0.4); }
 
         /* ===== CUSTOMER INFO ===== */
         .customer-info {
-            display: none;
-            background: #f7fafc;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 25px;
-            border-left: 5px solid #667eea;
+            display: none; background: #f7fafc; border-radius: 12px;
+            padding: 20px; margin-bottom: 25px; border-left: 5px solid #667eea;
         }
         .customer-info.active { display: block; }
-        .customer-info h3 {
-            font-size: 18px;
-            color: #2d3748;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px dashed #e2e8f0;
-        }
-        .customer-info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 10px 20px;
-        }
-        .customer-info-grid .item {
-            display: flex;
-            justify-content: space-between;
-            padding: 5px 0;
-            border-bottom: 1px dashed #edf2f7;
-        }
+        .customer-info h3 { font-size: 18px; color: #2d3748; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px dashed #e2e8f0; }
+        .customer-info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px 20px; }
+        .customer-info-grid .item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dashed #edf2f7; }
         .customer-info-grid .item .label { color: #718096; font-size: 13px; }
         .customer-info-grid .item .value { font-weight: 600; color: #2d3748; font-size: 14px; }
 
         /* ===== LOAN SELECTOR ===== */
-        .loan-selector {
-            display: none;
-            margin-bottom: 25px;
-        }
+        .loan-selector { display: none; margin-bottom: 25px; }
         .loan-selector.active { display: block; }
-        .loan-selector h3 {
-            font-size: 16px;
-            color: #2d3748;
-            margin-bottom: 12px;
-        }
-        .loan-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 12px;
-        }
+        .loan-selector h3 { font-size: 16px; color: #2d3748; margin-bottom: 12px; }
+        .loan-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
         .loan-card {
-            background: white;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 15px;
-            cursor: pointer;
-            transition: all 0.3s;
+            background: white; border: 2px solid #e2e8f0; border-radius: 12px;
+            padding: 15px; cursor: pointer; transition: all 0.3s;
         }
-        .loan-card:hover {
-            border-color: #667eea;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102,126,234,0.2);
-        }
-        .loan-card.selected {
-            border-color: #27ae60;
-            background: linear-gradient(135deg, #f0fff4 0%, #ffffff 100%);
-            box-shadow: 0 5px 15px rgba(39,174,96,0.3);
-        }
-        .loan-card .loan-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #edf2f7;
-        }
-        .loan-card .loan-code {
-            font-weight: 700;
-            color: #667eea;
-            font-size: 15px;
-        }
-        .loan-card .loan-status {
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-        }
+        .loan-card:hover { border-color: #667eea; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102,126,234,0.2); }
+        .loan-card.selected { border-color: #27ae60; background: linear-gradient(135deg, #f0fff4 0%, #ffffff 100%); box-shadow: 0 5px 15px rgba(39,174,96,0.3); }
+        .loan-card .loan-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #edf2f7; }
+        .loan-card .loan-code { font-weight: 700; color: #667eea; font-size: 15px; }
+        .loan-card .loan-status { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
         .loan-card .loan-status.approved { background: #d4edda; color: #155724; }
         .loan-card .loan-status.pending { background: #fff3cd; color: #856404; }
         .loan-card .loan-status.bad { background: #f8d7da; color: #721c24; }
-        .loan-card .loan-body {
-            font-size: 13px;
-        }
-        .loan-card .loan-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 3px 0;
-        }
+        .loan-card .loan-body { font-size: 13px; }
+        .loan-card .loan-row { display: flex; justify-content: space-between; padding: 3px 0; }
         .loan-card .loan-row .l { color: #718096; }
         .loan-card .loan-row .v { font-weight: 600; color: #2d3748; }
         .loan-card .loan-row.highlight .v { color: #e74c3c; font-size: 15px; }
 
         /* ===== PAYMENT FORM ===== */
-        .payment-form {
-            display: none;
-            background: #fff;
-            border: 2px solid #e2e8f0;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 25px;
-        }
+        .payment-form { display: none; background: #fff; border: 2px solid #e2e8f0; border-radius: 15px; padding: 25px; margin-bottom: 25px; }
         .payment-form.active { display: block; }
-        .payment-form h3 {
-            font-size: 18px;
-            color: #2d3748;
-            margin-bottom: 20px;
-            padding-bottom: 12px;
-            border-bottom: 2px solid #f0f0f0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .payment-form h3 { font-size: 18px; color: #2d3748; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid #f0f0f0; display: flex; align-items: center; gap: 10px; }
         .payment-form h3 i { color: #27ae60; }
 
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 15px;
-            margin-bottom: 15px;
-        }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 15px; }
         .form-group { margin-bottom: 15px; }
-        .form-group label {
-            display: block;
-            font-size: 14px;
-            font-weight: 600;
-            color: #2d3748;
-            margin-bottom: 6px;
-        }
+        .form-group label { display: block; font-size: 14px; font-weight: 600; color: #2d3748; margin-bottom: 6px; }
         .form-group label .required { color: #e74c3c; }
         .form-group label i { color: #667eea; margin-right: 5px; }
         .form-group input,
         .form-group select,
         .form-group textarea {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            font-size: 15px;
-            font-family: inherit;
-            outline: none;
-            transition: all 0.3s;
-            background: #f8f9fa;
+            width: 100%; padding: 12px 15px; border: 2px solid #e2e8f0;
+            border-radius: 10px; font-size: 15px; font-family: inherit;
+            outline: none; transition: all 0.3s; background: #f8f9fa;
         }
         .form-group input:focus,
         .form-group select:focus,
         .form-group textarea:focus {
-            border-color: #667eea;
-            background: #fff;
-            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+            border-color: #667eea; background: #fff; box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
         }
-        .form-group input:read-only {
-            background: #f0fff4;
-            border-color: #c6f6d5;
-            color: #27ae60;
-            font-weight: 700;
-            cursor: not-allowed;
-        }
-        .form-group input.locked {
-            background: #fff5f5;
-            border-color: #fed7d7;
-            color: #e74c3c;
-            font-weight: 700;
-        }
-        .help-text {
-            font-size: 12px;
-            color: #718096;
-            margin-top: 4px;
-            display: block;
-        }
+        .form-group input:read-only { background: #f0fff4; border-color: #c6f6d5; color: #27ae60; font-weight: 700; cursor: not-allowed; }
+        .form-group input.locked { background: #fff5f5; border-color: #fed7d7; color: #e74c3c; font-weight: 700; }
+        .help-text { font-size: 12px; color: #718096; margin-top: 4px; display: block; }
 
         /* ===== CHECKBOX ===== */
-        .checkbox-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 0;
-        }
-        .checkbox-wrapper input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-            accent-color: #667eea;
-        }
-        .checkbox-wrapper label {
-            cursor: pointer;
-            font-size: 13px;
-            color: #2d3748;
-            font-weight: 600;
-        }
+        .checkbox-wrapper { display: flex; align-items: center; gap: 8px; padding: 8px 0; }
+        .checkbox-wrapper input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: #667eea; }
+        .checkbox-wrapper label { cursor: pointer; font-size: 13px; color: #2d3748; font-weight: 600; }
 
         /* ===== SUMMARY BOX ===== */
         .summary-box {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
+            color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;
         }
-        .summary-box .summary-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 5px 0;
-            font-size: 14px;
-        }
+        .summary-box .summary-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 14px; }
         .summary-box .summary-row.total {
-            font-size: 20px;
-            font-weight: 700;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 2px dashed rgba(255,255,255,0.3);
+            font-size: 20px; font-weight: 700; margin-top: 10px;
+            padding-top: 10px; border-top: 2px dashed rgba(255,255,255,0.3);
         }
 
         /* ===== BUTTONS ===== */
         .btn {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 15px;
-            font-weight: 600;
-            font-family: inherit;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            padding: 12px 25px; border: none; border-radius: 10px; cursor: pointer;
+            font-size: 15px; font-weight: 600; font-family: inherit;
+            transition: all 0.3s; display: inline-flex;
+            align-items: center; justify-content: center; gap: 8px;
         }
         .btn-submit {
             background: linear-gradient(135deg, #27ae60, #2ecc71);
-            color: white;
-            width: 100%;
-            padding: 15px;
-            font-size: 16px;
+            color: white; width: 100%; padding: 15px; font-size: 16px;
         }
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(39,174,96,0.4);
-        }
-        .btn-submit:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-        .btn-cancel {
-            background: #e2e8f0;
-            color: #2d3748;
-            padding: 12px 25px;
-        }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(39,174,96,0.4); }
+        .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .btn-cancel { background: #e2e8f0; color: #2d3748; padding: 12px 25px; }
         .btn-cancel:hover { background: #cbd5e0; }
 
         /* ===== HISTORY TABLE ===== */
-        .history-section {
-            margin-top: 25px;
-        }
-        .history-section h3 {
-            font-size: 18px;
-            color: #2d3748;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .history-section { margin-top: 25px; }
+        .history-section h3 { font-size: 18px; color: #2d3748; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
         .history-section h3 i { color: #667eea; }
         .table-responsive { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 900px; }
@@ -386,49 +224,35 @@
         table td { padding: 10px 12px; border-bottom: 1px solid #f0f2f5; color: #4a5568; font-size: 13px; }
         table tr:hover td { background: #f7fafc; }
 
-        .badge {
-            display: inline-block;
-            padding: 3px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
+        .badge { display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
         .badge-cash { background: #c6f6d5; color: #22543d; }
         .badge-aba { background: #bee3f8; color: #2a4365; }
         .badge-acleda { background: #feebc8; color: #9c6b2e; }
 
         .spinner {
-            display: inline-block;
-            width: 30px;
-            height: 30px;
-            border: 3px solid #e2e8f0;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+            display: inline-block; width: 30px; height: 30px;
+            border: 3px solid #e2e8f0; border-top: 3px solid #667eea;
+            border-radius: 50%; animation: spin 1s linear infinite;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        .alert {
-            padding: 15px 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .alert { padding: 15px 20px; border-radius: 10px; margin-bottom: 20px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
         .alert-success { background: #d4edda; color: #155724; border-left: 4px solid #27ae60; }
         .alert-error { background: #f8d7da; color: #721c24; border-left: 4px solid #e74c3c; }
         .alert-info { background: #d1ecf1; color: #0c5460; border-left: 4px solid #3498db; }
 
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
-            .sidebar { left: -260px; }
-            .sidebar.open { left: 0; }
-            .main-content { margin-left: 0; padding: 15px; }
-            .menu-toggle { display: block; }
+            .sidebar { width: 70px; padding: 15px 0; }
+            .sidebar-brand h2, .sidebar-brand p, .menu-label,
+            .menu-item span:not(.icon), .menu-item .badge, .menu-item .arrow { display: none; }
+            .sidebar-brand .logo { font-size: 28px; }
+            .menu-item { padding: 15px 0; justify-content: center; }
+            .menu-item .icon { margin-right: 0; font-size: 24px; }
+            .submenu-container .submenu-item { padding-left: 0 !important; }
+            .main-content { margin-left: 70px; padding: 15px; }
+            .top-header h1 { font-size: 18px; }
+            .user-info .name, .user-info .role { display: none; }
             .form-grid { grid-template-columns: 1fr; }
             table { font-size: 12px; min-width: 700px; }
         }
@@ -440,37 +264,85 @@
 <body>
 
     <!-- ===== SIDEBAR ===== -->
-    <nav class="sidebar" id="sidebar">
+    <nav class="sidebar">
         <div class="sidebar-brand">
-            <h2><i class="fas fa-hand-holding-usd"></i> កម្ចី<span style="color:#667eea;">Plus</span></h2>
-            <div class="subtitle">ប្រព័ន្ធគ្រប់គ្រងកម្ចី</div>
+            <span class="logo">🏦</span>
+            <h2>កម្ចី<span>Plus</span></h2>
+            <p>ប្រព័ន្ធគ្រប់គ្រងកម្ចី</p>
         </div>
 
-        <ul class="sidebar-menu">
-            <li class="menu-label">មុខម្ហូប</li>
-            <li><a href="{{ url_for('dashboard') }}"><i class="fas fa-th-large"></i> Dashboard</a></li>
-            <li><a href="{{ url_for('customers') }}"><i class="fas fa-users"></i> អតិថិជន</a></li>
-            <li><a href="{{ url_for('loans') }}"><i class="fas fa-file-invoice-dollar"></i> កម្ចី</a></li>
-            <li><a href="{{ url_for('loans_bad') }}"><i class="fas fa-exclamation-triangle"></i> កម្ចីខូច</a></li>
-            <li>
-                <a href="#" onclick="toggleCollectionSubmenu(event); return false;" style="justify-content: space-between;">
-                    <span style="display:flex; align-items:center; gap:12px;">
-                        <i class="fas fa-hand-holding-dollar"></i> ប្រមូលប្រាក់
-                    </span>
-                    <span class="arrow" id="collectionArrow">▼</span>
-                </a>
-            </li>
-            <li>
-                <ul class="submenu-container" id="collectionSubmenu" style="list-style:none; padding:0; margin:0;">
-                    <li><a href="{{ url_for('collection') }}?tab=good" style="padding-left: 50px;"><i class="fas fa-check-circle"></i> កម្ចីល្អ</a></li>
-                    <li><a href="{{ url_for('collection') }}?tab=late" style="padding-left: 50px;"><i class="fas fa-clock"></i> កម្ចីយឺត</a></li>
-                    <li><a href="{{ url_for('collection') }}?tab=bad" style="padding-left: 50px;"><i class="fas fa-times-circle"></i> កម្ចីខូច</a></li>
-                </ul>
-            </li>
-            <li><a href="{{ url_for('payments') }}" class="active"><i class="fas fa-money-bill-wave"></i> ទូរទាត់</a></li>
-            <li><a href="#"><i class="fas fa-chart-bar"></i> របាយការណ៍</a></li>
-            <li><a href="{{ url_for('settings') }}"><i class="fas fa-cog"></i> ការកំណត់</a></li>
-        </ul>
+        <div class="menu-label">មុខម្ហូប</div>
+
+        <a href="/dashboard" class="menu-item">
+            <span class="icon">📊</span>
+            <span>Dashboard</span>
+        </a>
+
+        <a href="/customers" class="menu-item">
+            <span class="icon">👤</span>
+            <span>អតិថិជន</span>
+        </a>
+
+        <a href="/loans" class="menu-item">
+            <span class="icon">💰</span>
+            <span>កម្ចី</span>
+        </a>
+
+        <a href="/loans/bad" class="menu-item">
+            <span class="icon">⚠️</span>
+            <span>កម្ចីខូច</span>
+        </a>
+
+        <a href="/pawn" class="menu-item">
+            <span class="icon">🏠</span>
+            <span>បញ្ចាំ</span>
+        </a>
+
+        <a href="/payments" class="menu-item active">
+            <span class="icon">📱</span>
+            <span>ទូរទាត់</span>
+        </a>
+
+        <!-- ===== COLLECTION WITH SUBMENU ===== -->
+        <div class="menu-item" onclick="toggleCollectionSubmenu(event)">
+            <span class="icon">💵</span>
+            <span>ប្រមូលប្រាក់</span>
+            <span class="arrow" id="collectionArrow">▼</span>
+        </div>
+        <div class="submenu-container" id="collectionSubmenu">
+            <a href="/collection_good" class="menu-item submenu-item">
+                <span class="icon">✅</span>
+                <span>កម្ចីល្អ</span>
+            </a>
+            <a href="/collection_late" class="menu-item submenu-item">
+                <span class="icon">⏰</span>
+                <span>កម្ចីយឺត</span>
+            </a>
+            <a href="/collection_bad" class="menu-item submenu-item">
+                <span class="icon">❌</span>
+                <span>កម្ចីខូច</span>
+            </a>
+        </div>
+
+        <a href="/disbursement" class="menu-item">
+            <span class="icon">📢</span>
+            <span>បេឡា</span>
+        </a>
+
+        <a href="/reports" class="menu-item">
+            <span class="icon">📈</span>
+            <span>របាយការណ៍</span>
+        </a>
+
+        <a href="/settings" class="menu-item">
+            <span class="icon">⚙️</span>
+            <span>ការកំណត់</span>
+        </a>
+
+        <a href="/audit" class="menu-item">
+            <span class="icon">📋</span>
+            <span>សវនៈកម្ម</span>
+        </a>
     </nav>
 
     <!-- ===== MAIN CONTENT ===== -->
@@ -478,21 +350,18 @@
 
         <header class="top-header">
             <div style="display:flex;align-items:center;gap:15px;">
-                <button class="menu-toggle" id="menuToggle">
-                    <i class="fas fa-bars"></i>
-                </button>
                 <div class="page-title">
-                    <h1><i class="fas fa-money-bill-wave" style="color:#27ae60;"></i> ទូរទាត់</h1>
-                    <p>ស្វែងរកអតិថិជន និងទទួលប្រាក់បង់</p>
+                    <h1><i class="fas fa-money-bill-wave"></i> <span>ទូរទាត់</span></h1>
+                    <p style="color:#718096; font-size:14px; margin-top:2px;">ស្វែងរកអតិថិជន និងទទួលប្រាក់បង់</p>
                 </div>
             </div>
             <div class="user-info">
                 <div>
-                    <div class="user-name">{{ username }}</div>
-                    <div class="user-role">អ្នកគ្រប់គ្រង</div>
+                    <div class="name">ស្វាគមន៍, <span id="usernameDisplay">{{ username }}</span></div>
+                    <div class="role">អ្នកគ្រប់គ្រងប្រព័ន្ធ</div>
                 </div>
                 <div class="avatar">{{ username[0] if username else 'អ' }}</div>
-                <a href="{{ url_for('logout') }}" class="logout-btn"><i class="fas fa-sign-out-alt"></i> ចាកចេញ</a>
+                <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> ចាកចេញ</a>
             </div>
         </header>
 
@@ -685,23 +554,95 @@
         let currentCustomer = null;
         let currentLoan = null;
 
-        // ===== TOGGLE SUBMENU =====
+        // ============================================================
+        // ===== TOGGLE COLLECTION SUBMENU =====
+        // ============================================================
         function toggleCollectionSubmenu(event) {
-            if (event) { event.preventDefault(); event.stopPropagation(); }
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
             const container = document.getElementById('collectionSubmenu');
             const arrow = document.getElementById('collectionArrow');
+
             if (container) {
                 container.classList.toggle('open');
-                if (arrow) arrow.textContent = container.classList.contains('open') ? '▲' : '▼';
+                if (arrow) {
+                    arrow.textContent = container.classList.contains('open') ? '▲' : '▼';
+                }
             }
         }
 
-        // ===== MENU TOGGLE =====
-        document.getElementById('menuToggle').addEventListener('click', function() {
-            document.getElementById('sidebar').classList.toggle('open');
+        // ============================================================
+        // ===== AUTO HIGHLIGHT ACTIVE MENU =====
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            console.log('📍 Current path:', currentPath);
+
+            // ===== លុប active ទាំងអស់ចេញ =====
+            document.querySelectorAll('.sidebar .menu-item').forEach(function(item) {
+                item.classList.remove('active');
+            });
+
+            // ===== ករណីពិសេស: Collection =====
+            const collectionPages = ['/collection', '/collection_good', '/collection_late', '/collection_bad'];
+            let isCollectionPage = collectionPages.some(page => currentPath === page);
+
+            if (isCollectionPage) {
+                const collectionParent = document.querySelector('.menu-item[onclick*="toggleCollectionSubmenu"]');
+                if (collectionParent) {
+                    collectionParent.classList.add('active');
+                }
+
+                const container = document.getElementById('collectionSubmenu');
+                const arrow = document.getElementById('collectionArrow');
+                if (container) {
+                    container.classList.add('open');
+                    if (arrow) arrow.textContent = '▲';
+                }
+
+                document.querySelectorAll('#collectionSubmenu .submenu-item').forEach(function(subItem) {
+                    const href = subItem.getAttribute('href');
+                    if (href === currentPath) {
+                        subItem.classList.add('active');
+                    }
+                });
+
+                return;
+            }
+
+            // ===== សម្រាប់មេនុយធម្មតា =====
+            let hasActiveMenu = false;
+            document.querySelectorAll('.sidebar .menu-item').forEach(function(item) {
+                const href = item.getAttribute('href');
+                if (!href || href === '#') return;
+
+                let isActive = false;
+                if (currentPath === href) {
+                    isActive = true;
+                } else if (href !== '/' && currentPath.startsWith(href + '/')) {
+                    isActive = true;
+                }
+
+                if (isActive) {
+                    item.classList.add('active');
+                    hasActiveMenu = true;
+                }
+            });
+
+            if (!hasActiveMenu && currentPath !== '/login') {
+                const dashboardItem = document.querySelector('.sidebar .menu-item[href="/dashboard"]');
+                if (dashboardItem) {
+                    dashboardItem.classList.add('active');
+                }
+            }
         });
 
+        // ============================================================
         // ===== FORMAT CURRENCY =====
+        // ============================================================
         function formatCurrency(amount, currency) {
             if (amount === null || amount === undefined || isNaN(amount)) {
                 return currency === 'KHR' ? '៛ 0' : '$ 0.00';
@@ -714,7 +655,9 @@
             }
         }
 
+        // ============================================================
         // ===== SHOW ALERT =====
+        // ============================================================
         function showAlert(message, type) {
             const box = document.getElementById('alertBox');
             const cls = type === 'success' ? 'alert-success' : type === 'error' ? 'alert-error' : 'alert-info';
@@ -723,7 +666,9 @@
             setTimeout(() => { box.innerHTML = ''; }, 5000);
         }
 
+        // ============================================================
         // ===== SEARCH CUSTOMER =====
+        // ============================================================
         async function searchCustomer() {
             const query = document.getElementById('searchInput').value.trim();
             if (!query) {
@@ -757,7 +702,9 @@
             }
         }
 
+        // ============================================================
         // ===== SHOW CUSTOMER SELECTION =====
+        // ============================================================
         function showCustomerSelection(customers) {
             const info = document.getElementById('customerInfo');
             let html = `<h3><i class="fas fa-users"></i> រកឃើញអតិថិជន ${customers.length} នាក់ - សូមជ្រើសរើស</h3>`;
@@ -783,7 +730,9 @@
             document.getElementById('paymentFormSection').classList.remove('active');
         }
 
+        // ============================================================
         // ===== SELECT CUSTOMER BY ID =====
+        // ============================================================
         async function selectCustomerById(customerId) {
             try {
                 const response = await fetch(`/api/customer/${customerId}`);
@@ -796,7 +745,9 @@
             }
         }
 
+        // ============================================================
         // ===== SELECT CUSTOMER =====
+        // ============================================================
         async function selectCustomer(customer) {
             currentCustomer = customer;
 
@@ -821,7 +772,9 @@
             await loadCustomerLoans(customer.id);
         }
 
+        // ============================================================
         // ===== LOAD CUSTOMER LOANS =====
+        // ============================================================
         async function loadCustomerLoans(customerId) {
             try {
                 const response = await fetch(`/api/collection/customer/${customerId}`);
@@ -871,7 +824,9 @@
             }
         }
 
+        // ============================================================
         // ===== SELECT LOAN =====
+        // ============================================================
         function selectLoan(loan) {
             currentLoan = loan;
 
@@ -913,7 +868,9 @@
             form.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
+        // ============================================================
         // ===== CALCULATE PAYMENT =====
+        // ============================================================
         function calculatePayment() {
             if (!currentLoan) return;
 
@@ -946,7 +903,9 @@
             }
         }
 
+        // ============================================================
         // ===== TOGGLE PAY FULL =====
+        // ============================================================
         function togglePayFull() {
             if (!currentLoan) return;
 
@@ -972,7 +931,9 @@
             }
         }
 
+        // ============================================================
         // ===== SUBMIT PAYMENT =====
+        // ============================================================
         async function submitPayment(event) {
             event.preventDefault();
 
@@ -1032,7 +993,9 @@
             }
         }
 
+        // ============================================================
         // ===== RESET FORM =====
+        // ============================================================
         function resetForm() {
             document.getElementById('paymentForm').reset();
             document.getElementById('searchInput').value = '';
@@ -1049,7 +1012,9 @@
             amountInput.classList.remove('locked');
         }
 
+        // ============================================================
         // ===== LOAD HISTORY =====
+        // ============================================================
         async function loadHistory() {
             const tbody = document.getElementById('historyBody');
             try {
@@ -1087,7 +1052,9 @@
             }
         }
 
+        // ============================================================
         // ===== INIT =====
+        // ============================================================
         document.addEventListener('DOMContentLoaded', function() {
             loadHistory();
             // ===== Set today's date =====
