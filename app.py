@@ -174,21 +174,15 @@ def collection():
 
 @app.route('/collection_good')
 def collection_good():
-    if 'username' not in session:
-        return redirect(url_for('index'))
-    return render_template('collection_good.html', username=session.get('full_name', session['username']))
+    return redirect(url_for('collection', tab='good'))
 
 @app.route('/collection_late')
 def collection_late():
-    if 'username' not in session:
-        return redirect(url_for('index'))
-    return render_template('collection_late.html', username=session.get('full_name', session['username']))
+    return redirect(url_for('collection', tab='late'))
 
 @app.route('/collection_bad')
 def collection_bad():
-    if 'username' not in session:
-        return redirect(url_for('index'))
-    return render_template('collection_bad.html', username=session.get('full_name', session['username']))
+    return redirect(url_for('collection', tab='bad'))
 
 @app.route('/settings')
 def settings():
