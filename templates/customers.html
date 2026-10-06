@@ -8,89 +8,262 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Khmer OS', 'Noto Sans Khmer', 'Moul', Arial, sans-serif;
-            background: #f4f6f9;
+            font-family: 'Khmer OS', 'Khmer OS Muol', 'Moul', 'Arial', sans-serif;
+            background: #f0f2f5;
             display: flex;
             min-height: 100vh;
         }
 
+        /* ===== SIDEBAR ===== */
         .sidebar {
             width: 260px;
-            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            color: #fff;
+            background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%);
+            color: white;
             padding: 20px 0;
             position: fixed;
+            top: 0;
+            left: 0;
             height: 100vh;
             overflow-y: auto;
-            box-shadow: 4px 0 20px rgba(0,0,0,0.2);
-            transition: all 0.3s ease;
+            overflow-x: hidden;
+            transition: all 0.3s;
             z-index: 1000;
+            box-sizing: border-box;
         }
-        .sidebar-brand { text-align: center; padding: 20px 15px 30px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 20px; }
-        .sidebar-brand .logo { font-size: 32px; display: block; margin-bottom: 5px; }
-        .sidebar-brand h2 { font-size: 20px; font-weight: 700; color: #fff; letter-spacing: 1px; }
-        .sidebar-brand h2 span { color: #667eea; }
-        .sidebar-brand p { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 3px; }
+        .sidebar-brand {
+            padding: 0 20px 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+        .sidebar-brand h2 {
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0;
+            color: white;
+        }
+        .sidebar-brand h2 i { color: #667eea; }
+        .sidebar-brand .subtitle {
+            font-size: 12px;
+            color: #a0aec0;
+            margin-top: 5px;
+        }
 
-        .menu-label { padding: 10px 25px 5px; font-size: 11px; text-transform: uppercase; color: rgba(255,255,255,0.3); letter-spacing: 2px; font-weight: 600; }
-        .menu-item {
-            display: flex; align-items: center; padding: 13px 25px;
-            color: rgba(255,255,255,0.6); text-decoration: none;
-            transition: all 0.3s ease; border-left: 3px solid transparent;
-            cursor: pointer; font-size: 15px; font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif;
+        .menu-label {
+            padding: 15px 20px 8px 20px;
+            font-size: 11px;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            display: block;
         }
-        .menu-item:hover { background: rgba(255,255,255,0.05); color: #fff; border-left-color: #667eea; }
-        .menu-item.active { background: rgba(102,126,234,0.15); color: #fff; border-left-color: #667eea; }
-        .menu-item .icon { font-size: 20px; margin-right: 14px; width: 28px; text-align: center; }
-        .menu-item .badge { margin-left: auto; background: #e74c3c; color: #fff; font-size: 11px; padding: 2px 10px; border-radius: 20px; }
-        .main-content { margin-left: 260px; flex: 1; padding: 30px; min-height: 100vh; }
+
+        /* ===== MENU ITEM ===== */
+        .sidebar .menu-item {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            gap: 12px !important;
+            padding: 12px 20px !important;
+            color: #cbd5e0 !important;
+            text-decoration: none !important;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent !important;
+            font-size: 14px;
+            font-family: 'Khmer OS', 'Arial', sans-serif;
+            cursor: pointer;
+            width: 100% !important;
+            box-sizing: border-box;
+            position: relative;
+            z-index: 2;
+            background: transparent;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            line-height: 1.4;
+        }
+        .sidebar .menu-item:hover {
+            background: rgba(255, 255, 255, 0.05) !important;
+            color: white !important;
+            border-left-color: #667eea !important;
+        }
+        .sidebar .menu-item.active {
+            background: rgba(102, 126, 234, 0.15) !important;
+            color: white !important;
+            border-left-color: #667eea !important;
+        }
+
+        .sidebar .menu-item .icon {
+            width: 20px !important;
+            min-width: 20px !important;
+            text-align: center;
+            font-size: 16px;
+            color: #a0aec0;
+            flex-shrink: 0;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+        .sidebar .menu-item:hover .icon,
+        .sidebar .menu-item.active .icon {
+            color: #667eea;
+        }
+
+        .sidebar .menu-item > span:not(.icon):not(.badge):not(.arrow) {
+            flex: 1;
+            display: inline-block !important;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sidebar .menu-item .badge {
+            margin-left: auto;
+            background: #e74c3c;
+            color: #fff;
+            font-size: 11px;
+            padding: 2px 10px;
+            border-radius: 20px;
+            flex-shrink: 0;
+        }
+
+        /* ===== ARROW ===== */
+        .sidebar .menu-item .arrow {
+            margin-left: auto;
+            font-size: 10px;
+            transition: all 0.3s ease;
+            color: #a0aec0;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            flex-shrink: 0;
+        }
+        .sidebar .menu-item:hover .arrow {
+            background: rgba(102, 126, 234, 0.3);
+            color: #fff;
+        }
+
+        /* ===== SUBMENU ===== */
+        .submenu-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(0, 0, 0, 0.15);
+        }
+        .submenu-container.open {
+            max-height: 500px;
+        }
+
+        .sidebar .submenu-item {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            gap: 10px !important;
+            padding: 10px 20px 10px 50px !important;
+            font-size: 13px !important;
+            color: #a0aec0 !important;
+            border-left: 3px solid transparent !important;
+            position: relative;
+            transition: all 0.3s ease;
+            background: transparent;
+            width: 100% !important;
+            box-sizing: border-box;
+            text-decoration: none !important;
+            cursor: pointer;
+        }
+        .submenu-item::before {
+            content: '';
+            position: absolute;
+            left: 32px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        .submenu-item:hover {
+            background: rgba(255, 255, 255, 0.06) !important;
+            color: white !important;
+        }
+        .submenu-item:hover::before {
+            background: #667eea;
+            box-shadow: 0 0 6px rgba(102, 126, 234, 0.6);
+        }
+        .submenu-item.active {
+            background: rgba(102, 126, 234, 0.2) !important;
+            color: white !important;
+            border-left-color: #667eea !important;
+        }
+        .submenu-item.active::before {
+            background: #667eea;
+            width: 7px;
+            height: 7px;
+            left: 31px;
+            box-shadow: 0 0 8px rgba(102, 126, 234, 0.8);
+        }
+        .submenu-item .icon {
+            width: 18px !important;
+            min-width: 18px !important;
+            text-align: center;
+            font-size: 13px !important;
+            flex-shrink: 0;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+        }
+        .submenu-item > span:not(.icon) {
+            flex: 1;
+            display: inline-block !important;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content { margin-left: 260px; flex: 1; padding: 20px; min-height: 100vh; }
 
         .top-header {
-            display: flex; justify-content: space-between; align-items: center;
-            background: #fff; padding: 18px 30px; border-radius: 15px;
+            background: white; padding: 15px 25px; border-radius: 12px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            margin-bottom: 25px; flex-wrap: wrap; gap: 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 25px; flex-wrap: wrap; gap: 10px;
         }
-        /* ===== SUBMENU ANIMATION ===== */
-.submenu-container {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.35s ease-in-out;
-    background: rgba(0,0,0,0.15);
-}
-.submenu-container.open {
-    max-height: 500px;
-}
-.submenu-item {
-    padding-left: 50px !important;
-    font-size: 14px !important;
-}
-.submenu-item .icon {
-    font-size: 16px !important;
-    margin-right: 10px !important;
-    width: 22px !important;
-}
-.menu-item .arrow {
-    margin-left: auto;
-    font-size: 10px;
-    transition: transform 0.3s ease;
-    color: rgba(255,255,255,0.5);
-}
-        .top-header h1 { font-size: 24px; color: #1a1a2e; }
-        .top-header h1 span { color: #667eea; }
-        .user-info { display: flex; align-items: center; gap: 15px; }
-        .user-info .avatar { width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 22px; font-weight: 700; }
-        .user-info .name { font-weight: 600; color: #333; }
-        .user-info .role { font-size: 12px; color: #888; }
-        .logout-btn { background: #e74c3c; color: #fff; border: none; padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 14px; transition: all 0.3s ease; font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif; text-decoration: none; }
-        .logout-btn:hover { background: #c0392b; transform: scale(1.02); }
+        .top-header .page-title h1 { font-size: 22px; color: #2d3748; }
+        .top-header .page-title p { color: #718096; font-size: 14px; }
+        .top-header .user-info { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .top-header .user-info .avatar {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: bold; font-size: 18px;
+        }
+        .top-header .user-info .user-name { font-weight: 600; color: #2d3748; font-size: 14px; }
+        .top-header .user-info .user-role { font-size: 12px; color: #718096; }
+        .top-header .user-info .logout-btn {
+            padding: 8px 18px; background: #fc8181; color: white; border: none;
+            border-radius: 8px; cursor: pointer; font-size: 13px;
+            font-family: 'Khmer OS', 'Arial', sans-serif; transition: all 0.3s;
+            text-decoration: none;
+        }
+        .top-header .user-info .logout-btn:hover { background: #f56565; }
+        .menu-toggle { display: none; background: none; border: none; color: #2d3748; font-size: 24px; cursor: pointer; padding: 5px; }
 
-        /* ===== STATS ===== */
+        .page-content { background: white; border-radius: 16px; padding: 25px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
+
+        /* ===== STATS MINI ===== */
         .stats-mini {
             display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;
         }
         .stat-mini {
-            background: #fff; padding: 15px 25px; border-radius: 12px;
+            background: white; padding: 15px 25px; border-radius: 12px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             display: flex; align-items: center; gap: 15px; flex: 1; min-width: 150px;
         }
@@ -98,9 +271,10 @@
         .stat-mini .number { font-size: 24px; font-weight: 700; color: #667eea; }
         .stat-mini .label { font-size: 13px; color: #888; }
 
+        /* ===== TOOLBAR ===== */
         .toolbar {
             display: flex; justify-content: space-between; align-items: center;
-            background: #fff; padding: 15px 25px; border-radius: 15px;
+            background: white; padding: 15px 25px; border-radius: 15px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             margin-bottom: 20px; flex-wrap: wrap; gap: 15px;
         }
@@ -146,6 +320,7 @@
             color: #718096; font-size: 14px;
         }
 
+        /* ===== TABLE ===== */
         .table-wrapper {
             background: #fff; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             padding: 5px 0; overflow: hidden;
@@ -162,13 +337,30 @@
         table tbody tr:nth-child(even) { background: #fafafa; }
         table tbody tr:nth-child(even):hover { background: #f0f2ff; }
 
+        /* ===== ACTION DROPDOWN ===== */
         .action-dropdown { position: relative; display: inline-block; }
-        .action-btn { background: transparent; border: none; font-size: 20px; cursor: pointer; padding: 5px 10px; border-radius: 8px; transition: all 0.3s ease; color: #555; }
+        .action-btn {
+            background: transparent;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            color: #555;
+        }
         .action-btn:hover { background: #f0f0f0; }
+
         .action-menu {
-            display: none; position: absolute; right: 0; top: 30px;
-            background: #fff; min-width: 160px; box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-            border-radius: 12px; z-index: 9999; padding: 8px 0; animation: fadeIn 0.2s ease;
+            display: none;
+            position: fixed;
+            background: #fff;
+            min-width: 160px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            border-radius: 12px;
+            z-index: 99999;
+            padding: 8px 0;
+            animation: fadeIn 0.2s ease;
         }
         .action-menu.show { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
@@ -206,14 +398,11 @@
         }
 
         @media (max-width: 768px) {
-            .sidebar { width: 70px; padding: 15px 0; }
-            .sidebar-brand h2, .sidebar-brand p, .menu-label,
-            .menu-item span:not(.icon), .menu-item .badge { display: none; }
-            .sidebar-brand .logo { font-size: 28px; }
-            .menu-item { padding: 15px 0; justify-content: center; }
-            .menu-item .icon { margin-right: 0; font-size: 24px; }
-            .main-content { margin-left: 70px; padding: 15px; }
-            .top-header h1 { font-size: 18px; }
+            .sidebar { left: -260px; }
+            .sidebar.open { left: 0; }
+            .main-content { margin-left: 0; padding: 15px; }
+            .menu-toggle { display: block; }
+            .top-header .page-title h1 { font-size: 18px; }
             .search-box input { width: 150px; }
             .user-info .name, .user-info .role { display: none; }
             .stats-mini { flex-direction: column; }
@@ -232,11 +421,10 @@
 <body>
 
     <!-- ===== SIDEBAR ===== -->
-    <nav class="sidebar">
+    <nav class="sidebar" id="sidebar">
         <div class="sidebar-brand">
-            <span class="logo">🏦</span>
-            <h2>កម្ចី<span>Plus</span></h2>
-            <p>ប្រព័ន្ធគ្រប់គ្រងកម្ចី</p>
+            <h2><i class="fas fa-hand-holding-usd"></i> កម្ចី<span style="color:#667eea;">Plus</span></h2>
+            <div class="subtitle">ប្រព័ន្ធគ្រប់គ្រងកម្ចី</div>
         </div>
         <div class="menu-label">មុខម្ហូប</div>
 
@@ -316,14 +504,22 @@
     <div class="main-content">
 
         <div class="top-header">
-            <h1>👤 <span>អតិថិជន</span></h1>
+            <div style="display:flex;align-items:center;gap:15px;">
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="page-title">
+                    <h1><i class="fas fa-users" style="color:#667eea;"></i> អតិថិជន</h1>
+                    <p>គ្រប់គ្រងអតិថិជនទាំងអស់ក្នុងប្រព័ន្ធ</p>
+                </div>
+            </div>
             <div class="user-info">
                 <div>
-                    <div class="name">ស្វាគមន៍, <span id="usernameDisplay">{{ username }}</span></div>
-                    <div class="role">អ្នកគ្រប់គ្រងប្រព័ន្ធ</div>
+                    <div class="user-name">{{ username }}</div>
+                    <div class="user-role">អ្នកគ្រប់គ្រង</div>
                 </div>
                 <div class="avatar">{{ username[0] if username else 'អ' }}</div>
-                <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> ចាកចេញ</a>
+                <a href="{{ url_for('logout') }}" class="logout-btn"><i class="fas fa-sign-out-alt"></i> ចាកចេញ</a>
             </div>
         </div>
 
@@ -420,92 +616,138 @@
     </div>
 
     <script>
-        // ============================================================
-// ===== TOGGLE COLLECTION SUBMENU =====
-// ============================================================
-function toggleCollectionSubmenu(event) {
-    if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-    }
-
-    const container = document.getElementById('collectionSubmenu');
-    const arrow = document.getElementById('collectionArrow');
-
-    if (container) {
-        const isOpen = container.classList.contains('open');
-        
-        // ===== បិទ Sub Menu ទាំងអស់ជាមុន =====
-        closeAllSubmenus();
-        
-        // ===== បើក Sub Menu នេះបើមិនទាន់បើក =====
-        if (!isOpen) {
-            container.classList.add('open');
-            if (arrow) arrow.textContent = '▲';
-        }
-    }
-}
-
-// ============================================================
-// ===== បិទ Sub Menu ទាំងអស់ =====
-// ============================================================
-function closeAllSubmenus() {
-    const container = document.getElementById('collectionSubmenu');
-    const arrow = document.getElementById('collectionArrow');
-    
-    if (container) {
-        container.classList.remove('open');
-        if (arrow) arrow.textContent = '▼';
-    }
-}
-
-// ============================================================
-// ===== បិទ Sub Menu ពេលចុចលើមេនុយផ្សេង =====
-// ============================================================
-document.addEventListener('DOMContentLoaded', function() {
-    // ===== ចាប់ព្រឹត្តិការណ៍ Click លើគ្រប់មេនុយក្នុង Sidebar =====
-    const allMenuItems = document.querySelectorAll('.sidebar .menu-item');
-    
-    allMenuItems.forEach(function(menuItem) {
-        // ===== ឆែកមើលថាមេនុយនេះជា "ប្រមូលប្រាក់" ឬអត់ =====
-        const isCollectionParent = menuItem.querySelector('#collectionArrow');
-        
-        menuItem.addEventListener('click', function(e) {
-            // ===== បើមិនមែនជាមេនុយ "ប្រមូលប្រាក់" → បិទ Sub Menu =====
-            if (!isCollectionParent) {
-                closeAllSubmenus();
-            }
-        });
-    });
-    
-    // ===== បិទ Sub Menu ពេលចុចលើ Sub Item =====
-    const subItems = document.querySelectorAll('#collectionSubmenu .submenu-item');
-    subItems.forEach(function(subItem) {
-        subItem.addEventListener('click', function() {
-            closeAllSubmenus();
-        });
-    });
-});
-
-// ============================================================
-// ===== បិទ Sub Menu ពេលចុចខាងក្រៅ Sidebar =====
-// ============================================================
-document.addEventListener('click', function(event) {
-    const sidebar = document.querySelector('.sidebar');
-    
-    if (sidebar && !sidebar.contains(event.target)) {
-        closeAllSubmenus();
-    }
-});
         let customers = [];
-        let allCustomers = []; // សម្រាប់រក្សាទុកទិន្នន័យទាំងអស់
+        let allCustomers = [];
         let currentPage = 1;
         let totalPages = 1;
-        const perPage = 50; // កំណត់ 50 ក្នុងមួយទំព័រ
+        const perPage = 50;
         let totalCustomers = 0;
         let isSearching = false;
 
+        // ============================================================
+        // ===== TOGGLE COLLECTION SUBMENU =====
+        // ============================================================
+        function toggleCollectionSubmenu(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
+            const container = document.getElementById('collectionSubmenu');
+            const arrow = document.getElementById('collectionArrow');
+
+            if (container) {
+                container.classList.toggle('open');
+                if (arrow) {
+                    arrow.textContent = container.classList.contains('open') ? '▲' : '▼';
+                }
+            }
+        }
+
+        // ===== បិទ Sub Menu ពេលចុចលើមេនុយផ្សេង =====
+        document.addEventListener('DOMContentLoaded', function() {
+            const allMenuItems = document.querySelectorAll('.sidebar .menu-item');
+            allMenuItems.forEach(function(menuItem) {
+                const isCollectionParent = menuItem.querySelector('#collectionArrow');
+                menuItem.addEventListener('click', function(e) {
+                    if (!isCollectionParent) {
+                        const container = document.getElementById('collectionSubmenu');
+                        const arrow = document.getElementById('collectionArrow');
+                        if (container && container.classList.contains('open')) {
+                            container.classList.remove('open');
+                            if (arrow) arrow.textContent = '▼';
+                        }
+                    }
+                });
+            });
+        });
+
+        // ============================================================
+        // ===== MENU TOGGLE (Mobile) =====
+        // ============================================================
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.getElementById('menuToggle');
+            if (window.innerWidth <= 768) {
+                if (!sidebar.contains(event.target) && !toggle.contains(event.target)) {
+                    sidebar.classList.remove('open');
+                }
+            }
+        });
+
+        // ============================================================
+        // ===== AUTO HIGHLIGHT ACTIVE MENU (កែរួច) =====
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            console.log('📍 Current path:', currentPath);
+
+            // ===== លុប active ទាំងអស់ចេញ =====
+            document.querySelectorAll('.sidebar .menu-item').forEach(function(item) {
+                item.classList.remove('active');
+            });
+
+            // ===== ករណីពិសេស: Collection =====
+            const collectionPages = ['/collection', '/collection_good', '/collection_late', '/collection_bad'];
+            let isCollectionPage = collectionPages.some(page => currentPath === page);
+
+            if (isCollectionPage) {
+                const collectionParent = document.querySelector('.menu-item[onclick*="toggleCollectionSubmenu"]');
+                if (collectionParent) {
+                    collectionParent.classList.add('active');
+                }
+
+                const container = document.getElementById('collectionSubmenu');
+                const arrow = document.getElementById('collectionArrow');
+                if (container) {
+                    container.classList.add('open');
+                    if (arrow) arrow.textContent = '▲';
+                }
+
+                document.querySelectorAll('#collectionSubmenu .submenu-item').forEach(function(subItem) {
+                    const href = subItem.getAttribute('href');
+                    if (href === currentPath) {
+                        subItem.classList.add('active');
+                    }
+                });
+
+                return;
+            }
+
+            // ===== សម្រាប់មេនុយធម្មតា =====
+            let hasActiveMenu = false;
+            document.querySelectorAll('.sidebar .menu-item').forEach(function(item) {
+                const href = item.getAttribute('href');
+                if (!href || href === '#') return;
+
+                let isActive = false;
+                if (currentPath === href) {
+                    isActive = true;
+                } else if (href !== '/' && currentPath.startsWith(href + '/')) {
+                    isActive = true;
+                }
+
+                if (isActive) {
+                    item.classList.add('active');
+                    hasActiveMenu = true;
+                }
+            });
+
+            if (!hasActiveMenu && currentPath !== '/login') {
+                const dashboardItem = document.querySelector('.sidebar .menu-item[href="/dashboard"]');
+                if (dashboardItem) {
+                    dashboardItem.classList.add('active');
+                }
+            }
+        });
+
+        // ============================================================
         // ===== LOAD CUSTOMERS =====
+        // ============================================================
         async function loadCustomers(page = 1) {
             const tbody = document.getElementById('customerBody');
             tbody.innerHTML = `
@@ -518,18 +760,15 @@ document.addEventListener('click', function(event) {
             `;
 
             try {
-                // ទាញតែទិន្នន័យក្នុងទំព័របច្ចុប្បន្ន
                 const response = await fetch(`/api/customers?page=${page}&per_page=${perPage}`);
                 if (!response.ok) throw new Error('Network response was not ok');
                 customers = await response.json();
 
-                // ទាញចំនួនសរុប
                 const countResponse = await fetch('/api/customers/count');
                 const countData = await countResponse.json();
                 totalCustomers = countData.count || 0;
                 totalPages = Math.ceil(totalCustomers / perPage);
 
-                // រក្សាទុកទិន្នន័យទាំងអស់សម្រាប់ Search
                 if (!isSearching) {
                     allCustomers = customers;
                 }
@@ -553,19 +792,20 @@ document.addEventListener('click', function(event) {
             }
         }
 
+        // ============================================================
         // ===== UPDATE PAGINATION =====
+        // ============================================================
         function updatePagination() {
             document.getElementById('pageInfo').textContent = `ទំព័រ ${currentPage} នៃ ${totalPages || 1}`;
             document.getElementById('prevPage').disabled = currentPage <= 1;
             document.getElementById('nextPage').disabled = currentPage >= totalPages;
         }
 
+        // ============================================================
         // ===== CHANGE PAGE =====
+        // ============================================================
         function changePage(direction) {
-            if (isSearching) {
-                // បើកំពុងស្វែងរក កុំប្តូរទំព័រ
-                return;
-            }
+            if (isSearching) return;
             if (direction === 'prev' && currentPage > 1) {
                 currentPage--;
             } else if (direction === 'next' && currentPage < totalPages) {
@@ -574,11 +814,12 @@ document.addEventListener('click', function(event) {
                 return;
             }
             loadCustomers(currentPage);
-            // រំកិលទៅកំពូលតារាង
             document.querySelector('.table-wrapper').scrollIntoView({ behavior: 'smooth' });
         }
 
+        // ============================================================
         // ===== UPDATE STATS =====
+        // ============================================================
         function updateStats(data) {
             let male = 0, female = 0;
             data.forEach(c => {
@@ -591,7 +832,9 @@ document.addEventListener('click', function(event) {
             document.getElementById('femaleCount').textContent = female;
         }
 
+        // ============================================================
         // ===== RENDER TABLE =====
+        // ============================================================
         function renderTable(data) {
             const tbody = document.getElementById('customerBody');
             tbody.innerHTML = '';
@@ -625,10 +868,6 @@ document.addEventListener('click', function(event) {
 
                 const genderHtml = genderClass ? `<span class="badge-gender ${genderClass}">${genderDisplay}</span>` : genderDisplay;
 
-                // ការពារបញ្ហា Single Quote
-                const name = (customer.name || '-').replace(/'/g, "\\'");
-                const guarantorName = (customer.guarantor_name || '-').replace(/'/g, "\\'");
-
                 row.innerHTML = `
                     <td>${startIndex + index + 1}</td>
                     <td><strong>${customer.code || '-'}</strong></td>
@@ -647,7 +886,7 @@ document.addEventListener('click', function(event) {
                     <td>${customer.relation || '-'}</td>
                     <td>
                         <div class="action-dropdown">
-                            <button class="action-btn" onclick="toggleMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
+                            <button class="action-btn" onclick="toggleMenu(event, this)"><i class="fas fa-ellipsis-v"></i></button>
                             <div class="action-menu">
                                 <button class="action-menu-item edit" onclick="handleAction('edit', ${customer.id})">
                                     <i class="fas fa-edit"></i> កែប្រែ
@@ -663,28 +902,61 @@ document.addEventListener('click', function(event) {
             });
         }
 
-        // ===== TOGGLE MENU =====
-        function toggleMenu(btn) {
-            document.querySelectorAll('.action-menu').forEach(m => {
-                if (m !== btn.nextElementSibling) {
-                    m.classList.remove('show');
-                }
+        // ============================================================
+        // ===== TOGGLE MENU (Position Fixed) =====
+        // ============================================================
+        function toggleMenu(event, btn) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
+            document.querySelectorAll('.action-menu.show').forEach(m => {
+                if (m !== btn.nextElementSibling) m.classList.remove('show');
             });
+
             const menu = btn.nextElementSibling;
-            menu.classList.toggle('show');
+
             if (menu.classList.contains('show')) {
+                menu.classList.remove('show');
+                return;
+            }
+
+            const rect = btn.getBoundingClientRect();
+            const menuWidth = 180;
+            const menuHeight = 100;
+
+            let top = rect.bottom + 5;
+            if (top + menuHeight > window.innerHeight) {
+                top = rect.top - menuHeight - 5;
+            }
+
+            let left = rect.right - menuWidth;
+            if (left < 10) left = rect.left;
+            if (left + menuWidth > window.innerWidth - 10) {
+                left = window.innerWidth - menuWidth - 10;
+            }
+
+            menu.style.position = 'fixed';
+            menu.style.top = top + 'px';
+            menu.style.left = left + 'px';
+            menu.style.right = 'auto';
+            menu.classList.add('show');
+
+            setTimeout(() => {
                 document.addEventListener('click', function closeMenu(e) {
-                    if (!btn.parentElement.contains(e.target)) {
+                    if (!btn.parentElement.contains(e.target) && !menu.contains(e.target)) {
                         menu.classList.remove('show');
                         document.removeEventListener('click', closeMenu);
                     }
                 });
-            }
+            }, 10);
         }
 
+        // ============================================================
         // ===== HANDLE ACTION =====
+        // ============================================================
         async function handleAction(action, id) {
-            // ស្វែងរកអតិថិជនក្នុង allCustomers
             const customer = allCustomers.find(c => c.id === id) || customers.find(c => c.id === id);
             if (!customer) {
                 alert('មិនឃើញអតិថិជននេះទេ!');
@@ -700,7 +972,6 @@ document.addEventListener('click', function(event) {
                 if (confirm(`🗑️ តើអ្នកពិតជាចង់លុប "${name}" មែនទេ?`)) {
                     await deleteCustomer(id);
                     alert(`✅ បានលុប "${name}" រួចរាល់!`);
-                    // បើកំពុងស្វែងរក ផ្ទុកឡើងវិញ
                     if (isSearching) {
                         searchTable();
                     } else {
@@ -710,7 +981,9 @@ document.addEventListener('click', function(event) {
             }
         }
 
+        // ============================================================
         // ===== DELETE CUSTOMER =====
+        // ============================================================
         async function deleteCustomer(customerId) {
             try {
                 const response = await fetch('/api/delete_customer', {
@@ -728,13 +1001,14 @@ document.addEventListener('click', function(event) {
             }
         }
 
+        // ============================================================
         // ===== SEARCH =====
+        // ============================================================
         async function searchTable() {
             const input = document.getElementById('searchInput');
             const filter = input.value.toLowerCase().trim();
 
             if (!filter) {
-                // បើគ្មានពាក្យស្វែងរក បង្ហាញទំព័រដើម
                 isSearching = false;
                 document.getElementById('pagination').style.display = 'flex';
                 currentPage = 1;
@@ -746,12 +1020,10 @@ document.addEventListener('click', function(event) {
             document.getElementById('pagination').style.display = 'none';
 
             try {
-                // ស្វែងរកពី Server
                 const response = await fetch(`/api/search_customers?q=${encodeURIComponent(filter)}&limit=100`);
                 if (!response.ok) throw new Error('Network response was not ok');
                 const results = await response.json();
 
-                // រក្សាទុកលទ្ធផល
                 allCustomers = results;
                 customers = results;
                 updateStats(results);
@@ -772,7 +1044,9 @@ document.addEventListener('click', function(event) {
             }
         }
 
+        // ============================================================
         // ===== RESET SEARCH =====
+        // ============================================================
         document.getElementById('searchInput').addEventListener('search', function() {
             if (!this.value) {
                 isSearching = false;
@@ -782,71 +1056,32 @@ document.addEventListener('click', function(event) {
             }
         });
 
+        // ============================================================
+        // ===== បិទ Menu ពេល Scroll ឬ Resize =====
+        // ============================================================
+        document.querySelector('.table-scroll').addEventListener('scroll', function() {
+            document.querySelectorAll('.action-menu.show').forEach(m => m.classList.remove('show'));
+        });
+
+        window.addEventListener('resize', function() {
+            document.querySelectorAll('.action-menu.show').forEach(m => m.classList.remove('show'));
+        });
+
+        // ============================================================
         // ===== INITIAL LOAD =====
-        document.addEventListener('DOMContentLoaded', () => {
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', function() {
             loadCustomers(1);
         });
 
+        // ============================================================
         // ===== AUTO REFRESH =====
+        // ============================================================
         setInterval(() => {
-            // កុំធ្វើ auto refresh បើកំពុងស្វែងរក
             if (!isSearching && !document.getElementById('searchInput').value) {
                 loadCustomers(currentPage);
             }
         }, 120000);
-        // ============================================================
-// ===== AUTO HIGHLIGHT ACTIVE MENU =====
-// ============================================================
-document.addEventListener('DOMContentLoaded', function() {
-    // ===== ទាញយក URL បច្ចុប្បន្ន =====
-    const currentPath = window.location.pathname;
-    
-    console.log('📍 Current path:', currentPath);
-    
-    // ===== លុប active ទាំងអស់ចេញជាមុន =====
-    document.querySelectorAll('.sidebar .menu-item').forEach(function(item) {
-        item.classList.remove('active');
-    });
-    
-    // ===== កំណត់ active តាម URL =====
-    const menuItems = document.querySelectorAll('.sidebar .menu-item');
-    
-    menuItems.forEach(function(item) {
-        const href = item.getAttribute('href');
-        
-        if (!href || href === '#') return;
-        
-        // ===== ឆែកមើលថា URL ត្រូវគ្នាឬអត់ =====
-        let isActive = false;
-        
-        // ករណី ១: URL ដូចគ្នាទាំងស្រុង
-        if (currentPath === href) {
-            isActive = true;
-        }
-        // ករណី ២: Sub path (ឧ. /loans/bad ត្រូវនឹង /loans)
-        else if (href !== '/' && currentPath.startsWith(href + '/')) {
-            isActive = true;
-        }
-        // ករណី ៣: Root path
-        else if (href === '/' && currentPath === '/') {
-            isActive = true;
-        }
-        
-        if (isActive) {
-            item.classList.add('active');
-            console.log('✅ Activated:', href);
-        }
-    });
-    
-    // ===== ករណីពិសេស: បើគ្មានមេនុយ Active ត្រូវកំណត់ Dashboard =====
-    const activeMenu = document.querySelector('.sidebar .menu-item.active');
-    if (!activeMenu && currentPath !== '/login') {
-        const dashboardItem = document.querySelector('.sidebar .menu-item[href="/dashboard"]');
-        if (dashboardItem) {
-            dashboardItem.classList.add('active');
-        }
-    }
-});
     </script>
 
 </body>
