@@ -1061,6 +1061,106 @@ def api_collection(type):
         print(traceback.format_exc())
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/collection/customer/<int:customer_id>')
+def api_collection_customer(customer_id):
+    """ទាញយកកម្ចីទាំងអស់របស់អតិថិជន សម្រាប់ការទូរទាត់"""
+    if 'username' not in session:
+        return jsonify([])
+
+    try:
+        # ===== ទាញយកកម្ចីទាំងអស់របស់អតិថិជន =====
+        loans = list(db.loans_col.find({
+            'customer_id': int(customer_id),
+            'status': {'$in': ['Approved', 'Pending', 'Bad Debt']},
+            'remaining_balance': {'$gt': 0}
+        }).sort('_id', -1))
+
+        today = db.get_cambodia_date()
+        result = []
+
+        for loan in loans:
+            customer = db.customers_col.find_one({'_id': loan.get('customer_id')}) or {}
+
+            # ===== គណនា days_overdue =====
+            days_overdue = 0
+            days_to_pay = 0
+
+            loan_date_str = loan.get('loan_date', '')
+            if loan_date_str:
+                try:
+                    loan_date = datetime.strptime(loan_date_str, '%Y-%m-%d').date()
+                    days_diff = (today - loan_date).days
+                    if days_diff <= 0:
+                        days_overdue = 0
+                        days_to_pay = 0
+                    else:
+                        days_overdue = max(days_diff - 1, 0)
+                        days_to_pay = days_diff
+                except:
+                    pass
+
+            # ===== គណនាប្រាក់ =====
+            duration_num = loan.get('duration_num', 1) or 1
+            loan_amount = loan.get('loan_amount', 0)
+            total_interest = loan.get('total_interest', 0)
+            total_amount = loan_amount + total_interest
+            daily_payment = total_amount / duration_num
+            daily_principal = loan_amount / duration_num
+            daily_interest = total_interest / duration_num
+
+            total_due = daily_payment * days_to_pay
+            total_principal = daily_principal * days_to_pay
+            total_interest_due = daily_interest * days_to_pay
+
+            amount_paid = loan.get('amount_paid', 0) or 0
+            total_due = total_due - amount_paid
+
+            remaining_balance = loan.get('remaining_balance', 0) or 0
+            if remaining_balance < total_due:
+                total_due = remaining_balance
+                if (daily_payment * days_to_pay) > 0:
+                    ratio = total_due / (daily_payment * days_to_pay)
+                    total_principal = total_principal * ratio
+                    total_interest_due = total_interest_due * ratio
+                else:
+                    total_principal = 0
+                    total_interest_due = 0
+
+            # ===== បង្គត់តម្លៃ =====
+            currency = loan.get('currency', 'USD')
+            if currency == 'KHR':
+                total_due = round(total_due / 100) * 100
+                total_principal = round(total_principal / 100) * 100
+                total_interest_due = round(total_interest_due / 100) * 100
+            else:
+                total_due = round(total_due, 2)
+                total_principal = round(total_principal, 2)
+                total_interest_due = round(total_interest_due, 2)
+
+            result.append({
+                'id': loan['_id'],
+                'loan_code': loan.get('loan_code', ''),
+                'customer_name': customer.get('name', ''),
+                'loan_amount': loan_amount,
+                'currency': currency,
+                'total_interest': total_interest,
+                'amount_paid': amount_paid,
+                'remaining_balance': remaining_balance,
+                'days_overdue': days_overdue,
+                'total_due': max(total_due, 0),
+                'principal': max(total_principal, 0),
+                'interest': max(total_interest_due, 0),
+                'status': loan.get('status', 'Pending'),
+                'penalty': 0
+            })
+
+        return jsonify(result)
+
+    except Exception as e:
+        import traceback
+        print(f"❌ Error in api_collection_customer: {e}")
+        print(traceback.format_exc())
+        return jsonify([])
 
 @app.route('/api/collection/count/<string:type>')
 def api_collection_count(type):
