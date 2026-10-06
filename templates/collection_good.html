@@ -13,6 +13,8 @@
             display: flex;
             min-height: 100vh;
         }
+
+        /* ===== SIDEBAR ===== */
         .sidebar { width: 260px; background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%); color: white; padding: 20px 0; position: fixed; height: 100vh; overflow-y: auto; transition: all 0.3s; z-index: 1000; }
         .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
         .sidebar-brand h2 { font-size: 20px; display: flex; align-items: center; gap: 10px; }
@@ -26,6 +28,26 @@
         .sidebar-menu li a i { width: 20px; text-align: center; font-size: 14px; color: #a0aec0; }
         .sidebar-menu li a.active i { color: #667eea; }
         .sidebar-menu .menu-label { padding: 15px 20px 5px 20px; font-size: 11px; color: #718096; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* ===== SUBMENU ===== */
+        .submenu-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease-in-out;
+            background: rgba(0,0,0,0.15);
+        }
+        .submenu-container.open { max-height: 500px; }
+        .submenu-container .menu-item {
+            padding-left: 50px;
+            font-size: 14px;
+        }
+        .submenu-container .menu-item i { font-size: 16px; margin-right: 10px; width: 22px; }
+        .menu-item .arrow {
+            margin-left: auto;
+            font-size: 10px;
+            transition: transform 0.3s ease;
+            color: rgba(255,255,255,0.5);
+        }
 
         .main-content { margin-left: 260px; flex: 1; padding: 20px; min-height: 100vh; }
         .top-header { background: white; padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 10px; }
@@ -41,6 +63,37 @@
 
         .page-content { background: white; border-radius: 16px; padding: 25px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
 
+        /* ===== FILTER TABS ===== */
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .filter-tab {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Khmer OS', 'Arial', sans-serif;
+            transition: all 0.3s ease;
+            background: #e2e8f0;
+            color: #4a5568;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .filter-tab:hover { transform: translateY(-2px); }
+        .filter-tab.active { background: #48bb78; color: #fff; box-shadow: 0 4px 15px rgba(72,187,120,0.4); }
+        .filter-tab.late { background: #fff3cd; color: #856404; }
+        .filter-tab.late:hover { background: #ffe69c; }
+        .filter-tab.bad { background: #f8d7da; color: #721c24; }
+        .filter-tab.bad:hover { background: #f5c6cb; }
+
+        /* ===== STATS ===== */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -66,17 +119,19 @@
         .btn-fixed-width { min-width: 140px; text-align: center; justify-content: center; white-space: nowrap; }
 
         .table-responsive { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1000px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1100px; }
         table th { background: #f7fafc; padding: 10px 12px; text-align: left; color: #2d3748; font-weight: 600; border-bottom: 2px solid #e2e8f0; font-size: 12px; white-space: nowrap; }
         table td { padding: 8px 12px; border-bottom: 1px solid #f0f2f5; color: #4a5568; font-size: 13px; }
         table tr:hover td { background: #f7fafc; }
+        table tbody tr:last-child td { background: #fff9e6; }
 
         .badge {
             display: inline-block; padding: 2px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
         }
         .badge-success { background: #c6f6d5; color: #22543d; }
-        .badge-info { background: #bee3f8; color: #2a4365; }
+        .badge-danger { background: #fed7d7; color: #9b2c2c; }
         .badge-warning { background: #feebc8; color: #9c6b2e; }
+        .badge-info { background: #bee3f8; color: #2a4365; }
 
         .empty-state { text-align: center; padding: 40px 20px; color: #a0aec0; }
         .empty-state .icon { font-size: 60px; margin-bottom: 15px; color: #e2e8f0; }
@@ -86,6 +141,7 @@
         .text-muted { color: #a0aec0; }
         .mt-20 { margin-top: 20px; }
 
+        /* ===== MODAL ===== */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -208,7 +264,36 @@
             <li><a href="{{ url_for('customers') }}"><i class="fas fa-users"></i> អតិថិជន</a></li>
             <li><a href="{{ url_for('loans') }}"><i class="fas fa-file-invoice-dollar"></i> កម្ចី</a></li>
             <li><a href="{{ url_for('loans_bad') }}"><i class="fas fa-exclamation-triangle"></i> កម្ចីខូច</a></li>
-            <li><a href="{{ url_for('collection') }}" class="active"><i class="fas fa-hand-holding-dollar"></i> ប្រមូលប្រាក់</a></li>
+
+            <!-- ===== COLLECTION WITH SUBMENU ===== -->
+            <li>
+                <a href="#" onclick="toggleCollectionSubmenu(event); return false;" style="justify-content: space-between;">
+                    <span style="display:flex; align-items:center; gap:12px;">
+                        <i class="fas fa-hand-holding-dollar"></i> ប្រមូលប្រាក់
+                    </span>
+                    <span class="arrow" id="collectionArrow">▼</span>
+                </a>
+            </li>
+            <li>
+                <ul class="submenu-container" id="collectionSubmenu" style="list-style:none; padding:0; margin:0;">
+                    <li>
+                        <a href="{{ url_for('collection') }}?tab=good" class="active" style="padding-left: 50px;">
+                            <i class="fas fa-check-circle"></i> កម្ចីល្អ
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('collection') }}?tab=late" style="padding-left: 50px;">
+                            <i class="fas fa-clock"></i> កម្ចីយឺត
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('collection') }}?tab=bad" style="padding-left: 50px;">
+                            <i class="fas fa-times-circle"></i> កម្ចីខូច
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
             <li><a href="#"><i class="fas fa-chart-bar"></i> របាយការណ៍</a></li>
             <li><a href="{{ url_for('settings') }}"><i class="fas fa-cog"></i> ការកំណត់</a></li>
         </ul>
@@ -240,6 +325,20 @@
         <!-- ===== PAGE CONTENT ===== -->
         <div class="page-content">
 
+            <!-- ===== FILTER TABS ===== -->
+            <div class="filter-tabs">
+                <a href="{{ url_for('collection') }}?tab=good" class="filter-tab active">
+                    <i class="fas fa-check-circle"></i> កម្ចីល្អ
+                </a>
+                <a href="{{ url_for('collection') }}?tab=late" class="filter-tab late">
+                    <i class="fas fa-clock"></i> កម្ចីយឺត
+                </a>
+                <a href="{{ url_for('collection') }}?tab=bad" class="filter-tab bad">
+                    <i class="fas fa-times-circle"></i> កម្ចីខូច
+                </a>
+            </div>
+
+            <!-- ===== STATS ===== -->
             <div class="stats-grid">
                 <div class="stat-card green">
                     <div class="number" id="totalAmount">$0.00</div>
@@ -255,6 +354,7 @@
                 </div>
             </div>
 
+            <!-- ===== TABLE ===== -->
             <div class="table-responsive">
                 <table>
                     <thead>
@@ -264,7 +364,8 @@
                             <th>ប្រាក់ត្រូវបង់</th>
                             <th>ប្រាក់ដើម</th>
                             <th>ការប្រាក់</th>
-                            <th>ស្ថានភាព</th>
+                            <th>យឺត</th>
+                            <th>ពិន័យ</th>
                             <th>បំណុលនៅខ្វះ</th>
                             <th>អាសយដ្ឋាន</th>
                             <th>លេខទូរស័ព្ទ</th>
@@ -272,7 +373,7 @@
                     </thead>
                     <tbody id="collectionBody">
                         <tr>
-                            <td colspan="9" style="text-align:center; padding:40px;">
+                            <td colspan="10" style="text-align:center; padding:40px;">
                                 <div class="spinner"></div>
                                 <p style="margin-top:10px; color:#718096;">កំពុងផ្ទុកទិន្នន័យ...</p>
                             </td>
@@ -363,6 +464,24 @@
     <script>
         let currentLoanData = {};
 
+        // ===== TOGGLE COLLECTION SUBMENU =====
+        function toggleCollectionSubmenu(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
+            const container = document.getElementById('collectionSubmenu');
+            const arrow = document.getElementById('collectionArrow');
+
+            if (container) {
+                container.classList.toggle('open');
+                if (arrow) {
+                    arrow.textContent = container.classList.contains('open') ? '▲' : '▼';
+                }
+            }
+        }
+
         // ===== MENU TOGGLE =====
         document.getElementById('menuToggle').addEventListener('click', function() {
             document.getElementById('sidebar').classList.toggle('open');
@@ -396,7 +515,7 @@
             const tbody = document.getElementById('collectionBody');
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="9" style="text-align:center; padding:40px;">
+                    <td colspan="10" style="text-align:center; padding:40px;">
                         <div class="spinner"></div>
                         <p style="margin-top:10px; color:#718096;">កំពុងផ្ទុកទិន្នន័យ...</p>
                     </td>
@@ -414,7 +533,7 @@
                 console.error('Error:', error);
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="9" style="text-align:center; padding:40px; color:#e74c3c;">
+                        <td colspan="10" style="text-align:center; padding:40px; color:#e74c3c;">
                             <span style="font-size:48px; display:block; margin-bottom:10px;">❌</span>
                             មានបញ្ហាក្នុងការផ្ទុកទិន្នន័យ<br>
                             <small style="color:#718096;">${error.message}</small>
@@ -432,7 +551,7 @@
             if (!data || data.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="9" style="text-align:center; padding:40px; color:#888;">
+                        <td colspan="10" style="text-align:center; padding:40px; color:#888;">
                             <span style="font-size:48px; display:block; margin-bottom:10px;">📭</span>
                             មិនមានកម្ចីល្អដែលត្រូវប្រមូលថ្ងៃនេះ
                         </td>
@@ -447,13 +566,14 @@
                 const currency = loan.currency || 'USD';
                 const loanCode = loan.loan_code || loan.customer_code || '-';
                 const customerName = loan.customer_name || 'មិនស្គាល់';
+                const daysOverdue = loan.days_overdue || 0;
 
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td><strong>${loanCode}</strong></td>
                     <td>${customerName}</td>
                     <td>
-                        <button class="btn btn-success btn-sm btn-fixed-width" 
+                        <button class="btn btn-success btn-sm btn-fixed-width"
                                 onclick="openPaymentModal(${loan.id}, '${customerName.replace(/'/g, "\\'")}', '${loanCode}', ${totalDue}, ${loan.principal || 0}, ${loan.interest || 0}, '${currency}')">
                             ${formatCurrency(totalDue, currency)}
                         </button>
@@ -461,13 +581,15 @@
                     <td>${formatCurrency(loan.principal || 0, currency)}</td>
                     <td>${formatCurrency(loan.interest || 0, currency)}</td>
                     <td>
-                        <span class="badge badge-success">
-                            <i class="fas fa-check-circle"></i> ថ្ងៃនេះ
-                        </span>
+                        ${daysOverdue > 0
+                            ? `<span class="badge badge-danger">${daysOverdue} ថ្ងៃ</span>`
+                            : `<span class="badge badge-success"><i class="fas fa-check-circle"></i> ថ្ងៃនេះ</span>`
+                        }
                     </td>
+                    <td>${formatCurrency(loan.penalty || 0, currency)}</td>
                     <td>
-                        <button class="btn btn-success btn-sm btn-fixed-width" 
-                                style="background:#48bb78; opacity:0.85; cursor:default;" 
+                        <button class="btn btn-success btn-sm btn-fixed-width"
+                                style="background:#48bb78; opacity:0.85; cursor:default;"
                                 onclick="alert('បំណុលនៅខ្វះសរុប: ${formatCurrency(remainingBalance, currency)}')">
                             ${formatCurrency(remainingBalance, currency)}
                         </button>
@@ -486,7 +608,7 @@
 
             data.forEach(loan => {
                 total += loan.total_due || 0;
-                if (loan.days_overdue === 0) todayCount++;
+                if ((loan.days_overdue || 0) === 0) todayCount++;
             });
 
             document.getElementById('totalAmount').textContent = formatCurrency(total, 'USD');
@@ -510,7 +632,6 @@
             amountInput.value = totalDue;
             amountInput.focus();
 
-            // Store current loan data
             currentLoanData = {
                 loanId: loanId,
                 totalDue: totalDue,
@@ -553,7 +674,6 @@
                 return;
             }
 
-            // Disable submit button
             const submitBtn = document.querySelector('#paymentForm .btn-success');
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> កំពុងដំណើរការ...';
@@ -577,7 +697,6 @@
                 if (result.success) {
                     alert('✅ ប្រមូលប្រាក់ជោគជ័យ!');
                     closePaymentModal();
-                    // Reload data
                     loadCollection();
                 } else {
                     alert('❌ ' + (result.error || 'មានបញ្ហាក្នុងការប្រមូលប្រាក់!'));
@@ -586,7 +705,6 @@
                 console.error('Error:', error);
                 alert('❌ មានបញ្ហាក្នុងការភ្ជាប់ទៅម៉ាស៊ីនមេ!');
             } finally {
-                // Restore button
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
             }
@@ -594,6 +712,14 @@
 
         // ===== AUTO-LOAD =====
         document.addEventListener('DOMContentLoaded', function() {
+            // ===== Open Submenu =====
+            const container = document.getElementById('collectionSubmenu');
+            const arrow = document.getElementById('collectionArrow');
+            if (container) {
+                container.classList.add('open');
+                if (arrow) arrow.textContent = '▲';
+            }
+
             loadCollection();
         });
     </script>
