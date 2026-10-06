@@ -1,10 +1,11 @@
-# database.py - MongoDB Version
+# database.py - MongoDB Version (Complete & Corrected)
 import os
 import re
 import json
 from datetime import datetime, timedelta
 from bson import ObjectId
 from pymongo import MongoClient, ASCENDING, DESCENDING
+
 
 # ============================================================
 # ===== CONNECT TO MONGODB =====
@@ -60,7 +61,7 @@ def get_next_sequence(name):
 
 
 def _to_dict(doc):
-    """បម្លែង MongoDB document ទៅ dict ធម្មតា"""
+    """បម្លែង MongoDB document ទៅ dict ធម្មតា ដោយបម្លែង _id ទៅ id"""
     if doc is None:
         return None
     doc = dict(doc)
@@ -80,8 +81,8 @@ def _to_dict_list(docs):
 
 def init_database():
     """បង្កើត Index និង Admin User ដំបូង"""
-    # ===== បង្កើត Index =====
     try:
+        # ===== បង្កើត Index =====
         customers_col.create_index('code', unique=True)
         loans_col.create_index('loan_code', unique=True)
         users_col.create_index('username', unique=True)
@@ -95,6 +96,7 @@ def init_database():
         customers_col.create_index('phone')
         activities_col.create_index('loan_id')
         activities_col.create_index('customer_id')
+        activities_col.create_index('user_id')
         activities_col.create_index('created_at')
         payment_history_col.create_index([('loan_id', 1), ('period', 1)])
         expenses_col.create_index('expense_date')
@@ -324,7 +326,7 @@ def generate_customer_code():
 
 def _build_loan_pipeline(match_query, skip=0, limit=50):
     """បង្កើត Aggregation Pipeline សម្រាប់ Loans"""
-    pipeline = [
+    return [
         {'$match': match_query},
         {'$sort': {'_id': DESCENDING}},
         {'$skip': skip},
@@ -337,7 +339,6 @@ def _build_loan_pipeline(match_query, skip=0, limit=50):
         }},
         {'$unwind': {'path': '$customer_info', 'preserveNullAndEmptyArrays': True}}
     ]
-    return pipeline
 
 
 def _format_loan_doc(loan):
@@ -357,7 +358,6 @@ def _format_loan_doc(loan):
     doc['guarantor_address'] = customer.get('guarantor_address', '')
     doc['guarantor_phone'] = customer.get('guarantor_phone', '')
     doc['relation'] = customer.get('relation', '')
-    # ===== លុប customer_info ចេញ =====
     doc.pop('customer_info', None)
     return doc
 
@@ -554,11 +554,30 @@ def update_loan_payment(loan_id, amount_paid, remaining_balance, status):
     )
 
 
+def get_loans_by_officer(officer_name, page=1, per_page=50, status=None):
+    skip = (page - 1) * per_page
+    match_query = {'co_officer': officer_name}
+    if status:
+        match_query['status'] = status
+
+    pipeline = _build_loan_pipeline(match_query, skip, per_page)
+    loans = list(loans_col.aggregate(pipeline))
+    return [_format_loan_doc(l) for l in loans]
+
+
+def get_loans_paginated_excluding_status(page=1, per_page=50, exclude_status='Bad Debt'):
+    skip = (page - 1) * per_page
+    match_query = {'status': {'$ne': exclude_status}}
+    pipeline = _build_loan_pipeline(match_query, skip, per_page)
+    loans = list(loans_col.aggregate(pipeline))
+    return [_format_loan_doc(l) for l in loans]
+
+
 # ============================================================
 # ===== PAYMENT HISTORY FUNCTIONS =====
 # ============================================================
 
-def record_payment(loan_id, period, amount, payment_method, notes):
+def record_payment(loan_id, period, amount, payment_method, notes, penalty=0):
     payment_id = get_next_sequence('payment_history')
     today = datetime.now().date().isoformat()
 
@@ -569,6 +588,7 @@ def record_payment(loan_id, period, amount, payment_method, notes):
         'amount': float(amount),
         'payment_date': today,
         'payment_method': payment_method,
+        'penalty': float(penalty),
         'notes': notes,
         'created_at': datetime.now()
     }
@@ -609,7 +629,6 @@ def get_payment_history(limit=100):
         customer = p.get('customer_info', {}) or {}
         description = p.get('description', '')
 
-        # ===== ទាញយកចំនួនទឹកប្រាក់ =====
         match = re.search(r'\$([0-9.]+)', description)
         amount = float(match.group(1)) if match else 0
 
@@ -658,7 +677,6 @@ def get_collection_loans(collection_type, page=1, per_page=50):
     offset = (page - 1) * per_page
     today = get_cambodia_date()
 
-    # ===== ទាញយកកម្ចីទាំងអស់ =====
     query = {
         'status': {'$in': ['Approved', 'Pending', 'Bad Debt']},
         'remaining_balance': {'$gt': 0}
@@ -666,10 +684,8 @@ def get_collection_loans(collection_type, page=1, per_page=50):
 
     loans = list(loans_col.find(query).sort('due_date', ASCENDING))
 
-    # ===== បន្ថែមព័ត៌មានអតិថិជន =====
     result = []
     for loan in loans:
-        # ===== ទាញយកអតិថិជន =====
         customer = customers_col.find_one({'_id': loan.get('customer_id')}) or {}
 
         # ===== គណនា days_overdue =====
@@ -775,8 +791,173 @@ def get_collection_loans(collection_type, page=1, per_page=50):
         loan_dict['penalty'] = 0
         result.append(loan_dict)
 
-    # ===== Pagination =====
     return result[offset:offset + per_page]
+
+
+def get_collection_loans_by_officer(collection_type, officer_name, page=1, per_page=50):
+    """ទាញយកកម្ចីសម្រាប់ការប្រមូលប្រាក់ តាម CO"""
+    offset = (page - 1) * per_page
+    today = get_cambodia_date()
+
+    query = {
+        'status': {'$in': ['Approved', 'Pending', 'Bad Debt']},
+        'remaining_balance': {'$gt': 0},
+        'co_officer': officer_name
+    }
+
+    loans = list(loans_col.find(query).sort('due_date', ASCENDING))
+
+    result = []
+    for loan in loans:
+        customer = customers_col.find_one({'_id': loan.get('customer_id')}) or {}
+
+        days_overdue = 0
+        days_to_pay = 0
+
+        loan_date_str = loan.get('loan_date', '')
+        if loan_date_str:
+            try:
+                loan_date = datetime.strptime(loan_date_str, '%Y-%m-%d').date()
+                days_diff = (today - loan_date).days
+
+                if days_diff <= 0:
+                    days_overdue = 0
+                    days_to_pay = 0
+                else:
+                    days_overdue = days_diff - 1
+                    if days_overdue < 0:
+                        days_overdue = 0
+                    days_to_pay = days_diff
+            except:
+                pass
+
+        duration_num = loan.get('duration_num', 1) or 1
+        loan_amount = loan.get('loan_amount', 0)
+        total_interest = loan.get('total_interest', 0)
+        total_amount = loan_amount + total_interest
+        daily_payment = total_amount / duration_num
+        daily_principal = loan_amount / duration_num
+        daily_interest = total_interest / duration_num
+
+        total_due = daily_payment * days_to_pay
+        total_principal = daily_principal * days_to_pay
+        total_interest_due = daily_interest * days_to_pay
+
+        amount_paid = loan.get('amount_paid', 0) or 0
+        total_due = total_due - amount_paid
+
+        remaining_balance = loan.get('remaining_balance', 0) or 0
+        if remaining_balance < total_due:
+            total_due = remaining_balance
+            if (daily_payment * days_to_pay) > 0:
+                ratio = total_due / (daily_payment * days_to_pay)
+                total_principal = total_principal * ratio
+                total_interest_due = total_interest_due * ratio
+            else:
+                total_principal = 0
+                total_interest_due = 0
+
+        currency = loan.get('currency', 'USD')
+        if currency == 'KHR':
+            total_due = round(total_due / 100) * 100
+            total_principal = round(total_principal / 100) * 100
+            total_interest_due = round(total_interest_due / 100) * 100
+        else:
+            total_due = round(total_due, 2)
+            total_principal = round(total_principal, 2)
+            total_interest_due = round(total_interest_due, 2)
+
+        if total_due < 0:
+            total_due = 0
+        if total_principal < 0:
+            total_principal = 0
+        if total_interest_due < 0:
+            total_interest_due = 0
+
+        if total_due == 0:
+            continue
+
+        if collection_type == 'good':
+            if loan.get('status') == 'Bad Debt':
+                continue
+            if days_overdue > 0 and total_due > daily_payment:
+                continue
+
+        elif collection_type == 'late':
+            if loan.get('status') == 'Bad Debt':
+                continue
+            if days_overdue < 1 or days_overdue > 30:
+                continue
+            if total_due <= daily_payment:
+                continue
+
+        else:  # 'bad'
+            if loan.get('status') != 'Bad Debt':
+                continue
+
+        loan_dict = dict(loan)
+        loan_dict['id'] = loan_dict.pop('_id', None)
+        loan_dict['customer_code'] = customer.get('code', '')
+        loan_dict['customer_name'] = customer.get('name', '')
+        loan_dict['customer_phone'] = customer.get('phone', '')
+        loan_dict['customer_address'] = customer.get('address', '')
+        loan_dict['days_overdue'] = days_overdue
+        loan_dict['total_due'] = total_due
+        loan_dict['principal_due'] = total_principal
+        loan_dict['interest_due'] = total_interest_due
+        loan_dict['principal'] = total_principal
+        loan_dict['interest'] = total_interest_due
+        loan_dict['penalty'] = 0
+        result.append(loan_dict)
+
+    return result[offset:offset + per_page]
+
+
+def count_collection_loans(type='good'):
+    """រាប់ចំនួនកម្ចីសម្រាប់ការប្រមូលប្រាក់"""
+    try:
+        loans = get_collection_loans(type, 1, 10000)
+        return len(loans)
+    except:
+        return 0
+
+
+def get_collection_summary():
+    """ទាញយកសង្ខេបស្ថានភាពប្រមូលប្រាក់"""
+    today = get_cambodia_date()
+    today_str = today.isoformat()
+
+    # ===== កម្ចីល្អ =====
+    good_loans = list(loans_col.find({
+        'status': {'$in': ['Approved', 'Pending']},
+        'remaining_balance': {'$gt': 0},
+        'due_date': {'$gte': today_str}
+    }))
+    good_total = sum(l.get('remaining_balance', 0) for l in good_loans)
+
+    # ===== កម្ចីយឺត =====
+    thirty_days_ago = (today - timedelta(days=30)).isoformat()
+    late_loans = list(loans_col.find({
+        'status': {'$in': ['Approved', 'Pending']},
+        'remaining_balance': {'$gt': 0},
+        'due_date': {'$lt': today_str, '$gte': thirty_days_ago}
+    }))
+    late_total = sum(l.get('remaining_balance', 0) for l in late_loans)
+
+    # ===== កម្ចីខូច =====
+    bad_loans = list(loans_col.find({
+        '$or': [
+            {'status': 'Bad Debt'},
+            {'remaining_balance': {'$gt': 0}, 'due_date': {'$lt': thirty_days_ago}}
+        ]
+    }))
+    bad_total = sum(l.get('remaining_balance', 0) for l in bad_loans)
+
+    return {
+        'good': {'count': len(good_loans), 'total': good_total or 0},
+        'late': {'count': len(late_loans), 'total': late_total or 0},
+        'bad': {'count': len(bad_loans), 'total': bad_total or 0}
+    }
 
 
 # ============================================================
@@ -1000,7 +1181,7 @@ def get_permissions(role):
 
 
 # ============================================================
-# ===== ACTIVITY FUNCTIONS =====
+# ===== ACTIVITY FUNCTIONS (តែ ១ ដងគត់!) =====
 # ============================================================
 
 def log_activity(customer_id, loan_id, action, description, status=None, user_id=None):
@@ -1048,6 +1229,102 @@ def get_activities_by_loan(loan_id, limit=20):
 def get_activities_by_customer(customer_id, limit=20):
     activities = activities_col.find({'customer_id': int(customer_id)}).sort('created_at', DESCENDING).limit(limit)
     return _to_dict_list(activities)
+
+
+# ============================================================
+# ===== AUDIT FUNCTIONS =====
+# ============================================================
+
+def get_audit_logs(action='', user='', from_date='', to_date='', limit=500):
+    """ទាញយក Audit Logs ជាមួយ Filter"""
+    match_query = {}
+
+    if action:
+        match_query['action'] = action
+
+    if from_date or to_date:
+        date_query = {}
+        if from_date:
+            try:
+                date_query['$gte'] = datetime.strptime(from_date, '%Y-%m-%d')
+            except:
+                pass
+        if to_date:
+            try:
+                to_dt = datetime.strptime(to_date, '%Y-%m-%d') + timedelta(days=1)
+                date_query['$lt'] = to_dt
+            except:
+                pass
+        if date_query:
+            match_query['created_at'] = date_query
+
+    pipeline = [
+        {'$match': match_query},
+        {'$sort': {'created_at': DESCENDING}},
+        {'$limit': limit},
+        {'$lookup': {
+            'from': 'users',
+            'localField': 'user_id',
+            'foreignField': '_id',
+            'as': 'user_info'
+        }},
+        {'$unwind': {'path': '$user_info', 'preserveNullAndEmptyArrays': True}},
+        {'$lookup': {
+            'from': 'customers',
+            'localField': 'customer_id',
+            'foreignField': '_id',
+            'as': 'customer_info'
+        }},
+        {'$unwind': {'path': '$customer_info', 'preserveNullAndEmptyArrays': True}},
+        {'$lookup': {
+            'from': 'loans',
+            'localField': 'loan_id',
+            'foreignField': '_id',
+            'as': 'loan_info'
+        }},
+        {'$unwind': {'path': '$loan_info', 'preserveNullAndEmptyArrays': True}}
+    ]
+
+    activities = list(activities_col.aggregate(pipeline))
+
+    result = []
+    for a in activities:
+        user_info = a.get('user_info', {}) or {}
+        customer_info = a.get('customer_info', {}) or {}
+        loan_info = a.get('loan_info', {}) or {}
+
+        created = a.get('created_at', '')
+        if hasattr(created, 'strftime'):
+            created = created.strftime('%Y-%m-%d %H:%M:%S')
+
+        result.append({
+            'id': a['_id'],
+            'user_id': a.get('user_id'),
+            'user_name': user_info.get('username', ''),
+            'full_name': user_info.get('full_name', ''),
+            'action': a.get('action', ''),
+            'description': a.get('description', ''),
+            'customer_id': a.get('customer_id'),
+            'customer_name': customer_info.get('name', ''),
+            'loan_id': a.get('loan_id'),
+            'loan_code': loan_info.get('loan_code', ''),
+            'status': a.get('status', 'Pending') or 'Pending',
+            'created_at': created
+        })
+
+    # ===== Filter by User =====
+    if user:
+        user_lower = user.lower()
+        result = [r for r in result if user_lower in (r['user_name'] or '').lower()
+                  or user_lower in (r['full_name'] or '').lower()]
+
+    return result
+
+
+def get_audit_actions():
+    """ទាញយកបញ្ជី Action Types ទាំងអស់"""
+    actions = activities_col.distinct('action')
+    return sorted([a for a in actions if a])
 
 
 # ============================================================
@@ -1104,44 +1381,6 @@ def get_dashboard_stats():
     }
 
 
-def get_collection_summary():
-    """ទាញយកសង្ខេបស្ថានភាពប្រមូលប្រាក់"""
-    today = get_cambodia_date()
-    today_str = today.isoformat()
-
-    # ===== កម្ចីល្អ =====
-    good_loans = list(loans_col.find({
-        'status': {'$in': ['Approved', 'Pending']},
-        'remaining_balance': {'$gt': 0},
-        'due_date': {'$gte': today_str}
-    }))
-    good_total = sum(l.get('remaining_balance', 0) for l in good_loans)
-
-    # ===== កម្ចីយឺត =====
-    thirty_days_ago = (today - timedelta(days=30)).isoformat()
-    late_loans = list(loans_col.find({
-        'status': {'$in': ['Approved', 'Pending']},
-        'remaining_balance': {'$gt': 0},
-        'due_date': {'$lt': today_str, '$gte': thirty_days_ago}
-    }))
-    late_total = sum(l.get('remaining_balance', 0) for l in late_loans)
-
-    # ===== កម្ចីខូច =====
-    bad_loans = list(loans_col.find({
-        '$or': [
-            {'status': 'Bad Debt'},
-            {'remaining_balance': {'$gt': 0}, 'due_date': {'$lt': thirty_days_ago}}
-        ]
-    }))
-    bad_total = sum(l.get('remaining_balance', 0) for l in bad_loans)
-
-    return {
-        'good': {'count': len(good_loans), 'total': good_total or 0},
-        'late': {'count': len(late_loans), 'total': late_total or 0},
-        'bad': {'count': len(bad_loans), 'total': bad_total or 0}
-    }
-
-
 def get_recent_loans(limit=100):
     pipeline = [
         {'$sort': {'_id': DESCENDING}},
@@ -1156,6 +1395,266 @@ def get_recent_loans(limit=100):
     ]
     loans = list(loans_col.aggregate(pipeline))
     return [_format_loan_doc(l) for l in loans]
+
+
+# ============================================================
+# ===== DASHBOARD FUNCTIONS =====
+# ============================================================
+
+def get_dashboard_full_stats():
+    """ទាញយកស្ថិតិពេញលេញសម្រាប់ Dashboard"""
+
+    # ===== ១. ទុនទំលាក់សរុប =====
+    disb_usd = list(loans_col.aggregate([
+        {'$match': {'currency': 'USD'}},
+        {'$group': {'_id': None, 'total': {'$sum': '$loan_amount'}}}
+    ]))
+    total_disbursement_usd = disb_usd[0]['total'] if disb_usd else 0
+
+    disb_khr = list(loans_col.aggregate([
+        {'$match': {'currency': 'KHR'}},
+        {'$group': {'_id': None, 'total': {'$sum': '$loan_amount'}}}
+    ]))
+    total_disbursement_khr = disb_khr[0]['total'] if disb_khr else 0
+
+    # ===== ២. ការប្រាក់សរុប =====
+    interest_usd = list(loans_col.aggregate([
+        {'$match': {'currency': 'USD'}},
+        {'$group': {'_id': None, 'total': {'$sum': '$total_interest'}}}
+    ]))
+    total_interest_usd = interest_usd[0]['total'] if interest_usd else 0
+
+    interest_khr = list(loans_col.aggregate([
+        {'$match': {'currency': 'KHR'}},
+        {'$group': {'_id': None, 'total': {'$sum': '$total_interest'}}}
+    ]))
+    total_interest_khr = interest_khr[0]['total'] if interest_khr else 0
+
+    # ===== ៣. ទឹកប្រាក់សងសរុប =====
+    collect_usd = list(loans_col.aggregate([
+        {'$match': {'currency': 'USD'}},
+        {'$group': {'_id': None, 'total': {'$sum': '$amount_paid'}}}
+    ]))
+    total_collection_usd = collect_usd[0]['total'] if collect_usd else 0
+
+    collect_khr = list(loans_col.aggregate([
+        {'$match': {'currency': 'KHR'}},
+        {'$group': {'_id': None, 'total': {'$sum': '$amount_paid'}}}
+    ]))
+    total_collection_khr = collect_khr[0]['total'] if collect_khr else 0
+
+    # ===== ៤. បំណុលសរុបរួមការប្រាក់ =====
+    debt_usd = list(loans_col.aggregate([
+        {'$match': {'currency': 'USD', 'status': {'$nin': ['Completed', 'Rejected']}}},
+        {'$group': {'_id': None, 'total': {'$sum': '$remaining_balance'}}}
+    ]))
+    total_debt_usd = debt_usd[0]['total'] if debt_usd else 0
+
+    debt_khr = list(loans_col.aggregate([
+        {'$match': {'currency': 'KHR', 'status': {'$nin': ['Completed', 'Rejected']}}},
+        {'$group': {'_id': None, 'total': {'$sum': '$remaining_balance'}}}
+    ]))
+    total_debt_khr = debt_khr[0]['total'] if debt_khr else 0
+
+    # ===== ៥. ចំណាយសរុប =====
+    expense_result = list(expenses_col.aggregate([
+        {'$group': {'_id': None, 'total': {'$sum': '$amount'}}}
+    ]))
+    total_expense = expense_result[0]['total'] if expense_result else 0
+
+    # ===== ៦. ចំណូលសុទ្ធ =====
+    net_income = (total_interest_usd + total_interest_khr) - total_expense
+
+    return {
+        'total_disbursement_usd': total_disbursement_usd or 0,
+        'total_disbursement_khr': total_disbursement_khr or 0,
+        'total_interest_usd': total_interest_usd or 0,
+        'total_interest_khr': total_interest_khr or 0,
+        'total_collection_usd': total_collection_usd or 0,
+        'total_collection_khr': total_collection_khr or 0,
+        'total_debt_usd': total_debt_usd or 0,
+        'total_debt_khr': total_debt_khr or 0,
+        'total_expense': total_expense or 0,
+        'net_income': net_income or 0,
+        'total_loans': loans_col.count_documents({}),
+        'active_loans': loans_col.count_documents({'status': {'$in': ['Approved', 'Pending']}}),
+        'bad_loans': loans_col.count_documents({'status': 'Bad Debt'}),
+        'total_customers': customers_col.count_documents({})
+    }
+
+
+def get_dashboard_charts_data():
+    """ទាញយកទិន្នន័យសម្រាប់ Charts"""
+    six_months_ago = datetime.now() - timedelta(days=180)
+
+    # ===== កម្ចីតាមស្ថានភាព =====
+    status_result = list(loans_col.aggregate([
+        {'$group': {'_id': '$status', 'count': {'$sum': 1}}}
+    ]))
+    loans_by_status = {item['_id']: item['count'] for item in status_result if item['_id']}
+
+    # ===== កម្ចីតាមរូបិយប័ណ្ណ =====
+    currency_result = list(loans_col.aggregate([
+        {'$group': {'_id': '$currency', 'count': {'$sum': 1}, 'total': {'$sum': '$loan_amount'}}}
+    ]))
+    loans_by_currency = {}
+    for item in currency_result:
+        if item['_id']:
+            loans_by_currency[item['_id']] = {
+                'count': item['count'],
+                'total': item.get('total', 0)
+            }
+
+    # ===== កម្ចីប្រចាំខែ =====
+    monthly_result = list(loans_col.aggregate([
+        {'$match': {'created_at': {'$gte': six_months_ago}}},
+        {'$group': {
+            '_id': {'$dateToString': {'format': '%Y-%m', 'date': '$created_at'}},
+            'count': {'$sum': 1},
+            'total': {'$sum': '$loan_amount'}
+        }},
+        {'$sort': {'_id': 1}}
+    ]))
+    monthly_loans = [
+        {'month': item['_id'], 'count': item['count'], 'total': item.get('total', 0)}
+        for item in monthly_result
+    ]
+
+    # ===== ការប្រមូលប្រាក់ប្រចាំខែ =====
+    collection_result = list(payment_history_col.aggregate([
+        {'$match': {'created_at': {'$gte': six_months_ago}}},
+        {'$group': {
+            '_id': {'$dateToString': {'format': '%Y-%m', 'date': '$created_at'}},
+            'count': {'$sum': 1},
+            'total': {'$sum': '$amount'}
+        }},
+        {'$sort': {'_id': 1}}
+    ]))
+    monthly_collections = [
+        {'month': item['_id'], 'count': item['count'], 'total': item.get('total', 0)}
+        for item in collection_result
+    ]
+
+    return {
+        'loans_by_status': loans_by_status,
+        'loans_by_currency': loans_by_currency,
+        'monthly_loans': monthly_loans,
+        'monthly_collections': monthly_collections
+    }
+
+
+def get_calendar_data(year, month):
+    """ទាញយកទិន្នន័យសម្រាប់ Calendar តាមខែ/ឆ្នាំ"""
+
+    first_day = datetime(year, month, 1)
+    if month == 12:
+        last_day = datetime(year + 1, 1, 1) - timedelta(days=1)
+    else:
+        last_day = datetime(year, month + 1, 1) - timedelta(days=1)
+
+    start_str = first_day.strftime('%Y-%m-%d')
+    end_str = last_day.strftime('%Y-%m-%d')
+
+    # ===== ១. កម្ចីថ្មីក្នុងខែ =====
+    loans_in_month = list(loans_col.find({
+        'loan_date': {'$gte': start_str, '$lte': end_str}
+    }))
+
+    # ===== ២. ការប្រមូលប្រាក់ក្នុងខែ =====
+    payments_in_month = list(payment_history_col.find({
+        'payment_date': {'$gte': start_str, '$lte': end_str}
+    }))
+
+    # ===== ៣. ចំណាយក្នុងខែ =====
+    expenses_in_month = list(expenses_col.find({
+        'expense_date': {'$gte': start_str, '$lte': end_str}
+    }))
+
+    # ===== ៤. បង្កើត Daily Summary =====
+    daily_data = {}
+    current = first_day
+    while current <= last_day:
+        date_str = current.strftime('%Y-%m-%d')
+        daily_data[date_str] = {
+            'date': date_str,
+            'day': current.day,
+            'loans_count': 0,
+            'loans_amount_usd': 0,
+            'loans_amount_khr': 0,
+            'collections_usd': 0,
+            'collections_khr': 0,
+            'expenses': 0,
+            'events': []
+        }
+        current += timedelta(days=1)
+
+    # ===== បន្ថែមកម្ចី =====
+    for loan in loans_in_month:
+        date_str = loan.get('loan_date', '')
+        if date_str in daily_data:
+            daily_data[date_str]['loans_count'] += 1
+            if loan.get('currency') == 'USD':
+                daily_data[date_str]['loans_amount_usd'] += loan.get('loan_amount', 0)
+            else:
+                daily_data[date_str]['loans_amount_khr'] += loan.get('loan_amount', 0)
+
+    # ===== បន្ថែមការប្រមូល =====
+    for payment in payments_in_month:
+        date_str = payment.get('payment_date', '')
+        if date_str in daily_data:
+            amount = payment.get('amount', 0)
+            # ===== ពិនិត្យ currency ពី loan =====
+            loan_id = payment.get('loan_id')
+            currency = 'USD'
+            if loan_id:
+                loan = loans_col.find_one({'_id': int(loan_id)})
+                if loan and loan.get('currency') == 'KHR':
+                    currency = 'KHR'
+
+            if currency == 'KHR':
+                daily_data[date_str]['collections_khr'] += amount
+            else:
+                daily_data[date_str]['collections_usd'] += amount
+
+    # ===== បន្ថែមចំណាយ =====
+    for exp in expenses_in_month:
+        date_str = exp.get('expense_date', '')
+        if date_str in daily_data:
+            daily_data[date_str]['expenses'] += exp.get('amount', 0)
+            daily_data[date_str]['events'].append({
+                'type': 'expense',
+                'name': exp.get('name', ''),
+                'amount': exp.get('amount', 0)
+            })
+
+    # ===== បន្ថែមព្រឹត្តិការណ៍កម្ចី =====
+    for loan in loans_in_month:
+        date_str = loan.get('loan_date', '')
+        if date_str in daily_data:
+            daily_data[date_str]['events'].append({
+                'type': 'loan',
+                'code': loan.get('loan_code', ''),
+                'amount': loan.get('loan_amount', 0),
+                'currency': loan.get('currency', 'USD')
+            })
+
+    # ===== សរុបខែ =====
+    monthly_summary = {
+        'total_loans': len(loans_in_month),
+        'total_loans_usd': sum(l.get('loan_amount', 0) for l in loans_in_month if l.get('currency') == 'USD'),
+        'total_loans_khr': sum(l.get('loan_amount', 0) for l in loans_in_month if l.get('currency') == 'KHR'),
+        'total_collections': sum(p.get('amount', 0) for p in payments_in_month),
+        'total_collections_usd': 0,
+        'total_collections_khr': 0,
+        'total_expenses': sum(e.get('amount', 0) for e in expenses_in_month),
+    }
+
+    return {
+        'year': year,
+        'month': month,
+        'days': list(daily_data.values()),
+        'summary': monthly_summary
+    }
 
 
 # ============================================================
@@ -1227,25 +1726,16 @@ def delete_expense(expense_id):
 
 
 def get_total_expenses_by_date_range(from_date, to_date):
-    pipeline = [
+    result = list(expenses_col.aggregate([
         {'$match': {'expense_date': {'$gte': from_date, '$lte': to_date}}},
         {'$group': {'_id': None, 'total': {'$sum': '$amount'}}}
-    ]
-    result = list(expenses_col.aggregate(pipeline))
+    ]))
     return result[0]['total'] if result else 0
 
 
 def get_expense_categories():
     categories = expenses_col.distinct('category')
     return [c for c in categories if c]
-
-
-def get_loans_paginated_excluding_status(page=1, per_page=50, exclude_status='Bad Debt'):
-    skip = (page - 1) * per_page
-    match_query = {'status': {'$ne': exclude_status}}
-    pipeline = _build_loan_pipeline(match_query, skip, per_page)
-    loans = list(loans_col.aggregate(pipeline))
-    return [_format_loan_doc(l) for l in loans]
 
 
 # ============================================================
@@ -1424,119 +1914,6 @@ def update_pawn(pawn_id, data):
     pawns_col.update_one({'_id': int(pawn_id)}, {'$set': update_fields})
 
 
-def get_loans_by_officer(officer_name, page=1, per_page=50, status=None):
-    skip = (page - 1) * per_page
-    match_query = {'co_officer': officer_name}
-    if status:
-        match_query['status'] = status
-
-    pipeline = _build_loan_pipeline(match_query, skip, per_page)
-    loans = list(loans_col.aggregate(pipeline))
-    return [_format_loan_doc(l) for l in loans]
-
-# ============================================================
-# ===== AUDIT FUNCTIONS (MongoDB) =====
-# ============================================================
-
-def get_audit_logs(action='', user='', from_date='', to_date='', limit=500):
-    """ទាញយក Audit Logs ជាមួយ Filter"""
-    # ===== Build Match Query =====
-    match_query = {}
-
-    if action:
-        match_query['action'] = action
-
-    if from_date or to_date:
-        date_query = {}
-        if from_date:
-            try:
-                date_query['$gte'] = datetime.strptime(from_date, '%Y-%m-%d')
-            except:
-                pass
-        if to_date:
-            try:
-                # ===== បន្ថែម ១ ថ្ងៃ ដើម្បីរាប់បញ្ចូលថ្ងៃចុងក្រោយ =====
-                to_dt = datetime.strptime(to_date, '%Y-%m-%d') + timedelta(days=1)
-                date_query['$lt'] = to_dt
-            except:
-                pass
-        if date_query:
-            match_query['created_at'] = date_query
-
-    # ===== Aggregation Pipeline =====
-    pipeline = [
-        {'$match': match_query},
-        {'$sort': {'created_at': DESCENDING}},
-        {'$limit': limit},
-        # ===== Lookup User =====
-        {'$lookup': {
-            'from': 'users',
-            'localField': 'user_id',
-            'foreignField': '_id',
-            'as': 'user_info'
-        }},
-        {'$unwind': {'path': '$user_info', 'preserveNullAndEmptyArrays': True}},
-        # ===== Lookup Customer =====
-        {'$lookup': {
-            'from': 'customers',
-            'localField': 'customer_id',
-            'foreignField': '_id',
-            'as': 'customer_info'
-        }},
-        {'$unwind': {'path': '$customer_info', 'preserveNullAndEmptyArrays': True}},
-        # ===== Lookup Loan =====
-        {'$lookup': {
-            'from': 'loans',
-            'localField': 'loan_id',
-            'foreignField': '_id',
-            'as': 'loan_info'
-        }},
-        {'$unwind': {'path': '$loan_info', 'preserveNullAndEmptyArrays': True}}
-    ]
-
-    activities = list(activities_col.aggregate(pipeline))
-
-    # ===== Format Result =====
-    result = []
-    for a in activities:
-        user_info = a.get('user_info', {}) or {}
-        customer_info = a.get('customer_info', {}) or {}
-        loan_info = a.get('loan_info', {}) or {}
-
-        # ===== Format Date =====
-        created = a.get('created_at', '')
-        if hasattr(created, 'strftime'):
-            created = created.strftime('%Y-%m-%d %H:%M:%S')
-
-        result.append({
-            'id': a['_id'],
-            'user_id': a.get('user_id'),
-            'user_name': user_info.get('username', ''),
-            'full_name': user_info.get('full_name', ''),
-            'action': a.get('action', ''),
-            'description': a.get('description', ''),
-            'customer_id': a.get('customer_id'),
-            'customer_name': customer_info.get('name', ''),
-            'loan_id': a.get('loan_id'),
-            'loan_code': loan_info.get('loan_code', ''),
-            'status': a.get('status', 'Pending') or 'Pending',
-            'created_at': created
-        })
-
-    # ===== Filter by User (បើមាន) =====
-    if user:
-        user_lower = user.lower()
-        result = [r for r in result if user_lower in (r['user_name'] or '').lower()
-                  or user_lower in (r['full_name'] or '').lower()]
-
-    return result
-
-
-def get_audit_actions():
-    """ទាញយកបញ្ជី Action Types ទាំងអស់"""
-    actions = activities_col.distinct('action')
-    return sorted([a for a in actions if a])
-
 # ============================================================
 # ===== INITIALIZE DATABASE =====
 # ============================================================
@@ -1544,7 +1921,6 @@ def get_audit_actions():
 if __name__ == '__main__':
     init_database()
 else:
-    # ===== ហៅ init ពេល Import =====
     try:
         init_database()
     except Exception as e:
