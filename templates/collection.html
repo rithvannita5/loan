@@ -320,7 +320,7 @@
             .sidebar-brand .logo { font-size: 28px; }
             .menu-item { padding: 15px 0; justify-content: center; }
             .menu-item .icon { margin-right: 0; font-size: 24px; }
-            .submenu-container .submenu-item { padding-left: 0 !important; }
+            .submenu-container .submenu-item { padding-left: 0 !important; justify-content: center; }
             .main-content { margin-left: 70px; padding: 15px; }
             .top-header h1 { font-size: 18px; }
             .user-info .name, .user-info .role { display: none; }
@@ -378,13 +378,14 @@
             <span>ទូរទាត់</span>
         </a>
 
-        <!-- ===== COLLECTION WITH SUBMENU ===== -->
+        <!-- ===== COLLECTION WITH SUBMENU (ប្រើ switchTab) ===== -->
         <div class="menu-item" onclick="toggleCollectionSubmenu(event)">
             <span class="icon">💵</span>
             <span>ប្រមូលប្រាក់</span>
             <span class="arrow" id="collectionArrow">▼</span>
         </div>
         <div class="submenu-container" id="collectionSubmenu">
+            <!-- ✅ ប្រើ switchTab() ជំនួស href -->
             <a href="#" class="menu-item submenu-item" onclick="switchTab('good'); return false;">
                 <span class="icon">✅</span>
                 <span>កម្ចីល្អ</span>
@@ -588,7 +589,7 @@
         }
 
         // ============================================================
-        // ===== SWITCH TAB =====
+        // ===== SWITCH TAB (បង្ហាញក្នុងទំព័រដដែល) =====
         // ============================================================
         function switchTab(type) {
             currentType = type;
@@ -631,7 +632,7 @@
             const collectionPages = ['/collection', '/collection_good', '/collection_late', '/collection_bad'];
             let isCollectionPage = collectionPages.some(page => currentPath === page);
 
-            if (isCollectionPage || currentPath === '/collection') {
+            if (isCollectionPage) {
                 const collectionParent = document.querySelector('.menu-item[onclick*="toggleCollectionSubmenu"]');
                 if (collectionParent) {
                     collectionParent.classList.add('active');
@@ -670,16 +671,6 @@
                 const dashboardItem = document.querySelector('.sidebar .menu-item[href="/dashboard"]');
                 if (dashboardItem) {
                     dashboardItem.classList.add('active');
-                }
-            }
-
-            // ===== បើក Sub Menu ស្វ័យប្រវត្តិសម្រាប់ Collection =====
-            if (currentPath === '/collection') {
-                const container = document.getElementById('collectionSubmenu');
-                if (container) {
-                    container.classList.add('open');
-                    const arrow = document.getElementById('collectionArrow');
-                    if (arrow) arrow.textContent = '▲';
                 }
             }
         });
