@@ -110,13 +110,13 @@ def init_database():
     if users_col.count_documents({}) == 0:
         user_id = get_next_sequence('users')
         users_col.insert_one({
-            '_id': user_id,
-            'username': 'admin',
-            'password': '123456',
-            'full_name': 'អ្នកគ្រប់គ្រងប្រព័ន្ធ',
-            'role': 'admin',
-            'created_at': datetime.now()
-        })
+    '_id': user_id,
+    'username': 'admin',
+    'password': 'admin123',   # ← ត្រឹមត្រូវ!
+    'full_name': 'អ្នកគ្រប់គ្រងប្រព័ន្ធ',
+    'role': 'admin',
+    'created_at': datetime.now()
+})
         print("✅ Created default admin user: admin / 123456")
 
     print(f"✅ MongoDB Database initialized: {DB_NAME}")
