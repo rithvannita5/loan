@@ -1434,6 +1434,108 @@ def get_loans_by_officer(officer_name, page=1, per_page=50, status=None):
     loans = list(loans_col.aggregate(pipeline))
     return [_format_loan_doc(l) for l in loans]
 
+# ============================================================
+# ===== AUDIT FUNCTIONS (MongoDB) =====
+# ============================================================
+
+def get_audit_logs(action='', user='', from_date='', to_date='', limit=500):
+    """ទាញយក Audit Logs ជាមួយ Filter"""
+    # ===== Build Match Query =====
+    match_query = {}
+
+    if action:
+        match_query['action'] = action
+
+    if from_date or to_date:
+        date_query = {}
+        if from_date:
+            try:
+                date_query['$gte'] = datetime.strptime(from_date, '%Y-%m-%d')
+            except:
+                pass
+        if to_date:
+            try:
+                # ===== បន្ថែម ១ ថ្ងៃ ដើម្បីរាប់បញ្ចូលថ្ងៃចុងក្រោយ =====
+                to_dt = datetime.strptime(to_date, '%Y-%m-%d') + timedelta(days=1)
+                date_query['$lt'] = to_dt
+            except:
+                pass
+        if date_query:
+            match_query['created_at'] = date_query
+
+    # ===== Aggregation Pipeline =====
+    pipeline = [
+        {'$match': match_query},
+        {'$sort': {'created_at': DESCENDING}},
+        {'$limit': limit},
+        # ===== Lookup User =====
+        {'$lookup': {
+            'from': 'users',
+            'localField': 'user_id',
+            'foreignField': '_id',
+            'as': 'user_info'
+        }},
+        {'$unwind': {'path': '$user_info', 'preserveNullAndEmptyArrays': True}},
+        # ===== Lookup Customer =====
+        {'$lookup': {
+            'from': 'customers',
+            'localField': 'customer_id',
+            'foreignField': '_id',
+            'as': 'customer_info'
+        }},
+        {'$unwind': {'path': '$customer_info', 'preserveNullAndEmptyArrays': True}},
+        # ===== Lookup Loan =====
+        {'$lookup': {
+            'from': 'loans',
+            'localField': 'loan_id',
+            'foreignField': '_id',
+            'as': 'loan_info'
+        }},
+        {'$unwind': {'path': '$loan_info', 'preserveNullAndEmptyArrays': True}}
+    ]
+
+    activities = list(activities_col.aggregate(pipeline))
+
+    # ===== Format Result =====
+    result = []
+    for a in activities:
+        user_info = a.get('user_info', {}) or {}
+        customer_info = a.get('customer_info', {}) or {}
+        loan_info = a.get('loan_info', {}) or {}
+
+        # ===== Format Date =====
+        created = a.get('created_at', '')
+        if hasattr(created, 'strftime'):
+            created = created.strftime('%Y-%m-%d %H:%M:%S')
+
+        result.append({
+            'id': a['_id'],
+            'user_id': a.get('user_id'),
+            'user_name': user_info.get('username', ''),
+            'full_name': user_info.get('full_name', ''),
+            'action': a.get('action', ''),
+            'description': a.get('description', ''),
+            'customer_id': a.get('customer_id'),
+            'customer_name': customer_info.get('name', ''),
+            'loan_id': a.get('loan_id'),
+            'loan_code': loan_info.get('loan_code', ''),
+            'status': a.get('status', 'Pending') or 'Pending',
+            'created_at': created
+        })
+
+    # ===== Filter by User (បើមាន) =====
+    if user:
+        user_lower = user.lower()
+        result = [r for r in result if user_lower in (r['user_name'] or '').lower()
+                  or user_lower in (r['full_name'] or '').lower()]
+
+    return result
+
+
+def get_audit_actions():
+    """ទាញយកបញ្ជី Action Types ទាំងអស់"""
+    actions = activities_col.distinct('action')
+    return sorted([a for a in actions if a])
 
 # ============================================================
 # ===== INITIALIZE DATABASE =====
