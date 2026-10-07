@@ -37,7 +37,6 @@
 
         .menu-label { padding: 10px 25px 5px; font-size: 11px; text-transform: uppercase; color: rgba(255,255,255,0.3); letter-spacing: 2px; font-weight: 600; }
 
-        /* ===== MENU ITEM ===== */
         .menu-item {
             display: flex;
             align-items: center;
@@ -104,21 +103,80 @@
             color: white;
         }
         .search-section h2 { font-size: 20px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
-        .search-box { display: flex; gap: 10px; flex-wrap: wrap; }
-        .search-box input {
-            flex: 1; min-width: 250px; padding: 14px 20px;
+
+        /* ===== AUTOCOMPLETE ===== */
+        .autocomplete-wrapper {
+            position: relative;
+            flex: 1;
+            min-width: 250px;
+        }
+        .autocomplete-input {
+            width: 100%;
+            padding: 14px 20px;
             border: 2px solid rgba(255,255,255,0.3);
             background: rgba(255,255,255,0.95);
-            border-radius: 10px; font-size: 15px; font-family: inherit; outline: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: inherit;
+            outline: none;
         }
-        .search-box input:focus { border-color: white; box-shadow: 0 0 0 4px rgba(255,255,255,0.2); }
-        .search-box button {
-            padding: 14px 30px; background: #27ae60; color: white;
-            border: none; border-radius: 10px; cursor: pointer;
-            font-size: 15px; font-weight: 600; font-family: inherit;
-            transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px;
+        .autocomplete-input:focus {
+            border-color: white;
+            box-shadow: 0 0 0 4px rgba(255,255,255,0.2);
         }
-        .search-box button:hover { background: #219a52; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(39,174,96,0.4); }
+        .autocomplete-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+            margin-top: 5px;
+        }
+        .autocomplete-dropdown.show { display: block; }
+        .autocomplete-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .autocomplete-item:last-child { border-bottom: none; }
+        .autocomplete-item:hover { background: #f0f2ff; }
+        .autocomplete-item.selected { background: #e8f5e9; }
+        .autocomplete-item .code { font-weight: 700; color: #667eea; font-size: 14px; }
+        .autocomplete-item .name { color: #2d3748; font-size: 14px; }
+        .autocomplete-item .phone { color: #718096; font-size: 13px; }
+        .autocomplete-item .info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+        }
+        .autocomplete-item .info-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .autocomplete-empty {
+            padding: 20px;
+            text-align: center;
+            color: #888;
+            font-size: 14px;
+        }
+        .autocomplete-loading {
+            padding: 20px;
+            text-align: center;
+            color: #667eea;
+            font-size: 14px;
+        }
 
         /* ===== CUSTOMER INFO ===== */
         .customer-info {
@@ -213,6 +271,13 @@
         .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
         .btn-cancel { background: #e2e8f0; color: #2d3748; padding: 12px 25px; }
         .btn-cancel:hover { background: #cbd5e0; }
+        .btn-view {
+            background: #3498db; color: white; padding: 5px 12px;
+            font-size: 12px; border-radius: 6px; border: none;
+            cursor: pointer; font-family: inherit; display: inline-flex;
+            align-items: center; gap: 5px; transition: all 0.3s;
+        }
+        .btn-view:hover { background: #2980b9; transform: translateY(-1px); }
 
         /* ===== HISTORY TABLE ===== */
         .history-section { margin-top: 25px; }
@@ -228,6 +293,7 @@
         .badge-cash { background: #c6f6d5; color: #22543d; }
         .badge-aba { background: #bee3f8; color: #2a4365; }
         .badge-acleda { background: #feebc8; color: #9c6b2e; }
+        .badge-wing { background: #e9d8fd; color: #553c9a; }
 
         .spinner {
             display: inline-block; width: 30px; height: 30px;
@@ -240,6 +306,89 @@
         .alert-success { background: #d4edda; color: #155724; border-left: 4px solid #27ae60; }
         .alert-error { background: #f8d7da; color: #721c24; border-left: 4px solid #e74c3c; }
         .alert-info { background: #d1ecf1; color: #0c5460; border-left: 4px solid #3498db; }
+
+        /* ===== HISTORY MODAL ===== */
+        .history-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .history-modal-overlay.active { display: flex; }
+        .history-modal-box {
+            background: white;
+            border-radius: 16px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: modalSlide 0.3s ease;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .history-modal-header {
+            padding: 20px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .history-modal-header h3 { font-size: 18px; display: flex; align-items: center; gap: 10px; }
+        .history-modal-header .modal-close {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            font-size: 24px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        .history-modal-header .modal-close:hover {
+            background: rgba(255,255,255,0.3);
+            transform: rotate(90deg);
+        }
+        .history-modal-body {
+            padding: 25px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .history-summary {
+            background: #f7fafc;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        .history-summary .item {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        .history-summary .item .label {
+            font-size: 12px;
+            color: #718096;
+        }
+        .history-summary .item .value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2d3748;
+        }
+        .history-summary .item .value.green { color: #27ae60; }
+        .history-summary .item .value.red { color: #e74c3c; }
 
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
@@ -255,6 +404,7 @@
             .user-info .name, .user-info .role { display: none; }
             .form-grid { grid-template-columns: 1fr; }
             table { font-size: 12px; min-width: 700px; }
+            .history-modal-box { max-width: 100%; margin: 10px; }
         }
         .sidebar::-webkit-scrollbar { width: 4px; }
         .sidebar::-webkit-scrollbar-track { background: transparent; }
@@ -303,7 +453,6 @@
             <span>ទូរទាត់</span>
         </a>
 
-        <!-- ===== COLLECTION WITH SUBMENU ===== -->
         <div class="menu-item" onclick="toggleCollectionSubmenu(event)">
             <span class="icon">💵</span>
             <span>ប្រមូលប្រាក់</span>
@@ -370,14 +519,22 @@
             <!-- ===== ALERT ===== -->
             <div id="alertBox"></div>
 
-            <!-- ===== SEARCH SECTION ===== -->
+            <!-- ===== SEARCH SECTION WITH AUTOCOMPLETE ===== -->
             <div class="search-section">
                 <h2><i class="fas fa-search"></i> ស្វែងរកអតិថិជន</h2>
-                <div class="search-box">
-                    <input type="text" id="searchInput"
-                           placeholder="បញ្ចូលលេខកូដ / ឈ្មោះ / លេខទូរស័ព្ទ..."
-                           onkeypress="if(event.key==='Enter') searchCustomer()">
-                    <button onclick="searchCustomer()">
+                <div class="search-box" style="display:flex;gap:10px;flex-wrap:wrap;">
+                    <div class="autocomplete-wrapper">
+                        <input type="text"
+                               id="customerSearchInput"
+                               class="autocomplete-input"
+                               placeholder="វាយលេខកូដ / ឈ្មោះ / លេខទូរស័ព្ទ..."
+                               autocomplete="off"
+                               oninput="handleAutocomplete(this.value)"
+                               onfocus="handleAutocomplete(this.value)"
+                               onkeydown="handleAutocompleteKeydown(event)">
+                        <div class="autocomplete-dropdown" id="autocompleteDropdown"></div>
+                    </div>
+                    <button onclick="searchCustomer()" style="padding:14px 30px;background:#27ae60;color:white;border:none;border-radius:10px;cursor:pointer;font-size:15px;font-weight:600;font-family:inherit;display:inline-flex;align-items:center;gap:8px;">
                         <i class="fas fa-search"></i> ស្វែងរក
                     </button>
                 </div>
@@ -387,22 +544,10 @@
             <div class="customer-info" id="customerInfo">
                 <h3><i class="fas fa-user-circle"></i> ព័ត៌មានអតិថិជន</h3>
                 <div class="customer-info-grid">
-                    <div class="item">
-                        <span class="label">លេខកូដ</span>
-                        <span class="value" id="custCode">-</span>
-                    </div>
-                    <div class="item">
-                        <span class="label">ឈ្មោះ</span>
-                        <span class="value" id="custName">-</span>
-                    </div>
-                    <div class="item">
-                        <span class="label">ភេទ</span>
-                        <span class="value" id="custGender">-</span>
-                    </div>
-                    <div class="item">
-                        <span class="label">ទូរស័ព្ទ</span>
-                        <span class="value" id="custPhone">-</span>
-                    </div>
+                    <div class="item"><span class="label">លេខកូដ</span><span class="value" id="custCode">-</span></div>
+                    <div class="item"><span class="label">ឈ្មោះ</span><span class="value" id="custName">-</span></div>
+                    <div class="item"><span class="label">ភេទ</span><span class="value" id="custGender">-</span></div>
+                    <div class="item"><span class="label">ទូរស័ព្ទ</span><span class="value" id="custPhone">-</span></div>
                     <div class="item" style="grid-column: 1 / -1;">
                         <span class="label">អាសយដ្ឋាន</span>
                         <span class="value" id="custAddress">-</span>
@@ -413,9 +558,7 @@
             <!-- ===== LOAN SELECTOR ===== -->
             <div class="loan-selector" id="loanSelector">
                 <h3><i class="fas fa-list"></i> ជ្រើសរើសកម្ចីដែលត្រូវបង់</h3>
-                <div class="loan-cards" id="loanCards">
-                    <!-- Dynamic -->
-                </div>
+                <div class="loan-cards" id="loanCards"></div>
             </div>
 
             <!-- ===== PAYMENT FORM ===== -->
@@ -449,33 +592,46 @@
 
                     <!-- ===== FORM GRID ===== -->
                     <div class="form-grid">
+                        <!-- ===== Date Picker ===== -->
                         <div class="form-group">
-                            <label><i class="fas fa-calendar"></i> ថ្ងៃទីបង់ប្រាក់ <span class="required">*</span></label>
+                            <label><i class="fas fa-calendar-alt"></i> ថ្ងៃទីបង់ប្រាក់ <span class="required">*</span></label>
                             <input type="date" id="p_payment_date" required>
+                            <span class="help-text">ចុចដើម្បីជ្រើសរើសថ្ងៃ</span>
                         </div>
 
+                        <!-- ===== ទឹកប្រាក់ត្រូវបង់ (Locked) ===== -->
                         <div class="form-group">
-                            <label><i class="fas fa-money-bill"></i> ទឹកប្រាក់ពិន័យ</label>
+                            <label><i class="fas fa-money-bill-wave"></i> ទឹកប្រាក់ត្រូវបង់ <span class="required">*</span></label>
+                            <input type="number" id="p_amount_due" step="100" readonly>
+                            <span class="help-text">ទឹកប្រាក់ដែលត្រូវបង់ (Lock - មិនអាចកែបាន)</span>
+                        </div>
+
+                        <!-- ===== ទឹកប្រាក់ពិន័យ ===== -->
+                        <div class="form-group">
+                            <label><i class="fas fa-exclamation-triangle"></i> ទឹកប្រាក់ពិន័យ</label>
                             <input type="number" id="p_penalty" step="100" min="0" value="0"
                                    oninput="calculatePayment()" placeholder="0">
                             <span class="help-text">បញ្ចូលពិន័យបើមាន (ឧ. 3000 ៛/ថ្ងៃយឺត)</span>
                         </div>
 
+                        <!-- ===== សាច់ប្រាក់ទទួល ===== -->
                         <div class="form-group">
-                            <label><i class="fas fa-hand-holding-usd"></i> សាច់ប្រាក់បង់ជាក់ស្តែង <span class="required">*</span></label>
+                            <label><i class="fas fa-hand-holding-usd"></i> សាច់ប្រាក់ទទួល <span class="required">*</span></label>
                             <input type="number" id="p_amount" step="100" min="0" required
                                    oninput="calculatePayment()" placeholder="0">
                             <span class="help-text">ទឹកប្រាក់ដែលអតិថិជនបង់ជាក់ស្តែង</span>
                         </div>
+                    </div>
 
-                        <div class="form-group">
-                            <label><i class="fas fa-credit-card"></i> ប្រភេទការទូរទាត់ <span class="required">*</span></label>
-                            <select id="p_payment_method" required>
-                                <option value="cash">💵 សាច់ប្រាក់ផ្ទាល់</option>
-                                <option value="aba">🏦 ធនាគារ ABA</option>
-                                <option value="acleda">🏦 ធនាគារ ACLEDA</option>
-                            </select>
-                        </div>
+                    <!-- ===== PAYMENT METHOD ===== -->
+                    <div class="form-group">
+                        <label><i class="fas fa-credit-card"></i> ជម្រើសការទូរទាត់ <span class="required">*</span></label>
+                        <select id="p_payment_method" required>
+                            <option value="cash">💵 សាច់ប្រាក់ផ្ទាល់</option>
+                            <option value="aba">🏦 ធនាគារ ABA</option>
+                            <option value="acleda">🏦 ធនាគារ ACLEDA</option>
+                            <option value="wing">📱 ធនាគារ WING</option>
+                        </select>
                     </div>
 
                     <!-- ===== LOCK PAYMENT OPTIONS ===== -->
@@ -532,7 +688,7 @@
                                 <th>មន្ត្រី CO</th>
                                 <th>កាលបរិច្ឆេទ</th>
                                 <th>ពិន័យ</th>
-                                <th>កំណត់ចំណាំ</th>
+                                <th>សកម្មភាព</th>
                             </tr>
                         </thead>
                         <tbody id="historyBody">
@@ -550,9 +706,47 @@
 
     </div>
 
+    <!-- ===== HISTORY MODAL ===== -->
+    <div class="history-modal-overlay" id="historyModal">
+        <div class="history-modal-box">
+            <div class="history-modal-header">
+                <h3><i class="fas fa-history"></i> ប្រវត្តិនៃការបង់ប្រាក់ - <span id="historyLoanCode">-</span></h3>
+                <button class="modal-close" onclick="closeHistoryModal()">&times;</button>
+            </div>
+            <div class="history-modal-body">
+                <div class="history-summary" id="historySummary"></div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>កាលបរិច្ឆេទ</th>
+                                <th>ទឹកប្រាក់</th>
+                                <th>ពិន័យ</th>
+                                <th>វិធីសាស្ត្រ</th>
+                                <th>មន្ត្រី CO</th>
+                                <th>កំណត់ចំណាំ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="loanHistoryBody">
+                            <tr>
+                                <td colspan="7" style="text-align:center; padding:30px;">
+                                    <div class="spinner"></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         let currentCustomer = null;
         let currentLoan = null;
+        let autocompleteTimeout = null;
+        let selectedAutocompleteIndex = -1;
+        let autocompleteResults = [];
 
         // ============================================================
         // ===== TOGGLE COLLECTION SUBMENU =====
@@ -562,10 +756,8 @@
                 event.preventDefault();
                 event.stopPropagation();
             }
-
             const container = document.getElementById('collectionSubmenu');
             const arrow = document.getElementById('collectionArrow');
-
             if (container) {
                 container.classList.toggle('open');
                 if (arrow) {
@@ -579,22 +771,16 @@
         // ============================================================
         document.addEventListener('DOMContentLoaded', function() {
             const currentPath = window.location.pathname;
-            console.log('📍 Current path:', currentPath);
-
-            // ===== លុប active ទាំងអស់ចេញ =====
             document.querySelectorAll('.sidebar .menu-item').forEach(function(item) {
                 item.classList.remove('active');
             });
 
-            // ===== ករណីពិសេស: Collection =====
             const collectionPages = ['/collection', '/collection_good', '/collection_late', '/collection_bad'];
             let isCollectionPage = collectionPages.some(page => currentPath === page);
 
             if (isCollectionPage) {
                 const collectionParent = document.querySelector('.menu-item[onclick*="toggleCollectionSubmenu"]');
-                if (collectionParent) {
-                    collectionParent.classList.add('active');
-                }
+                if (collectionParent) collectionParent.classList.add('active');
 
                 const container = document.getElementById('collectionSubmenu');
                 const arrow = document.getElementById('collectionArrow');
@@ -602,30 +788,20 @@
                     container.classList.add('open');
                     if (arrow) arrow.textContent = '▲';
                 }
-
                 document.querySelectorAll('#collectionSubmenu .submenu-item').forEach(function(subItem) {
                     const href = subItem.getAttribute('href');
-                    if (href === currentPath) {
-                        subItem.classList.add('active');
-                    }
+                    if (href === currentPath) subItem.classList.add('active');
                 });
-
                 return;
             }
 
-            // ===== សម្រាប់មេនុយធម្មតា =====
             let hasActiveMenu = false;
             document.querySelectorAll('.sidebar .menu-item').forEach(function(item) {
                 const href = item.getAttribute('href');
                 if (!href || href === '#') return;
-
                 let isActive = false;
-                if (currentPath === href) {
-                    isActive = true;
-                } else if (href !== '/' && currentPath.startsWith(href + '/')) {
-                    isActive = true;
-                }
-
+                if (currentPath === href) isActive = true;
+                else if (href !== '/' && currentPath.startsWith(href + '/')) isActive = true;
                 if (isActive) {
                     item.classList.add('active');
                     hasActiveMenu = true;
@@ -634,9 +810,7 @@
 
             if (!hasActiveMenu && currentPath !== '/login') {
                 const dashboardItem = document.querySelector('.sidebar .menu-item[href="/dashboard"]');
-                if (dashboardItem) {
-                    dashboardItem.classList.add('active');
-                }
+                if (dashboardItem) dashboardItem.classList.add('active');
             }
         });
 
@@ -650,9 +824,8 @@
             if (currency === 'KHR') {
                 const rounded = Math.round(amount / 100) * 100;
                 return '៛ ' + rounded.toLocaleString('en-US');
-            } else {
-                return '$ ' + amount.toFixed(2);
             }
+            return '$ ' + amount.toFixed(2);
         }
 
         // ============================================================
@@ -667,10 +840,111 @@
         }
 
         // ============================================================
+        // ===== AUTOCOMPLETE =====
+        // ============================================================
+        function handleAutocomplete(value) {
+            clearTimeout(autocompleteTimeout);
+            const dropdown = document.getElementById('autocompleteDropdown');
+
+            if (!value || value.trim().length < 1) {
+                dropdown.classList.remove('show');
+                return;
+            }
+
+            dropdown.innerHTML = '<div class="autocomplete-loading"><i class="fas fa-spinner fa-spin"></i> កំពុងស្វែងរក...</div>';
+            dropdown.classList.add('show');
+
+            autocompleteTimeout = setTimeout(async () => {
+                try {
+                    const response = await fetch(`/api/search_customers?q=${encodeURIComponent(value)}&limit=10`);
+                    const results = await response.json();
+
+                    autocompleteResults = results || [];
+                    selectedAutocompleteIndex = -1;
+
+                    if (!results || results.length === 0) {
+                        dropdown.innerHTML = '<div class="autocomplete-empty">📭 មិនឃើញអតិថិជន</div>';
+                        return;
+                    }
+
+                    dropdown.innerHTML = results.map((c, i) => `
+                        <div class="autocomplete-item" data-index="${i}" onclick="selectAutocompleteItem(${i})">
+                            <div class="info">
+                                <div class="info-row">
+                                    <span class="code">${c.code}</span>
+                                    <span class="name">${c.name || '-'}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="phone"><i class="fas fa-phone"></i> ${c.phone || '-'}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                } catch (error) {
+                    console.error('Autocomplete error:', error);
+                    dropdown.innerHTML = '<div class="autocomplete-empty">❌ មានបញ្ហាក្នុងការស្វែងរក</div>';
+                }
+            }, 300);
+        }
+
+        function handleAutocompleteKeydown(event) {
+            const dropdown = document.getElementById('autocompleteDropdown');
+            if (!dropdown.classList.contains('show')) return;
+
+            const items = dropdown.querySelectorAll('.autocomplete-item');
+            if (items.length === 0) return;
+
+            if (event.key === 'ArrowDown') {
+                event.preventDefault();
+                selectedAutocompleteIndex = Math.min(selectedAutocompleteIndex + 1, items.length - 1);
+                updateAutocompleteSelection(items);
+            } else if (event.key === 'ArrowUp') {
+                event.preventDefault();
+                selectedAutocompleteIndex = Math.max(selectedAutocompleteIndex - 1, 0);
+                updateAutocompleteSelection(items);
+            } else if (event.key === 'Enter') {
+                event.preventDefault();
+                if (selectedAutocompleteIndex >= 0 && autocompleteResults[selectedAutocompleteIndex]) {
+                    selectCustomer(autocompleteResults[selectedAutocompleteIndex]);
+                    dropdown.classList.remove('show');
+                } else {
+                    searchCustomer();
+                }
+            } else if (event.key === 'Escape') {
+                dropdown.classList.remove('show');
+            }
+        }
+
+        function updateAutocompleteSelection(items) {
+            items.forEach((item, i) => {
+                item.classList.toggle('selected', i === selectedAutocompleteIndex);
+                if (i === selectedAutocompleteIndex) {
+                    item.scrollIntoView({ block: 'nearest' });
+                }
+            });
+        }
+
+        function selectAutocompleteItem(index) {
+            const customer = autocompleteResults[index];
+            if (customer) {
+                selectCustomer(customer);
+                document.getElementById('autocompleteDropdown').classList.remove('show');
+            }
+        }
+
+        // ===== Close dropdown on outside click =====
+        document.addEventListener('click', function(e) {
+            const wrapper = document.querySelector('.autocomplete-wrapper');
+            if (wrapper && !wrapper.contains(e.target)) {
+                document.getElementById('autocompleteDropdown').classList.remove('show');
+            }
+        });
+
+        // ============================================================
         // ===== SEARCH CUSTOMER =====
         // ============================================================
         async function searchCustomer() {
-            const query = document.getElementById('searchInput').value.trim();
+            const query = document.getElementById('customerSearchInput').value.trim();
             if (!query) {
                 showAlert('សូមបញ្ចូលលេខកូដ / ឈ្មោះ / ទូរស័ព្ទ!', 'error');
                 return;
@@ -688,14 +962,11 @@
                     return;
                 }
 
-                // ===== បើមាន ១ នាក់ → ជ្រើសស្វ័យប្រវត្តិ =====
                 if (results.length === 1) {
                     await selectCustomer(results[0]);
                 } else {
-                    // ===== បើមានច្រើន → បង្ហាញអោយជ្រើស =====
                     showCustomerSelection(results);
                 }
-
             } catch (error) {
                 console.error('Error:', error);
                 showAlert('មានបញ្ហាក្នុងការស្វែងរក!', 'error');
@@ -751,6 +1022,9 @@
         async function selectCustomer(customer) {
             currentCustomer = customer;
 
+            // ===== Fill search input =====
+            document.getElementById('customerSearchInput').value = customer.code || '';
+
             // ===== បង្ហាញព័ត៌មានអតិថិជន =====
             const info = document.getElementById('customerInfo');
             info.innerHTML = `
@@ -790,7 +1064,6 @@
                     return;
                 }
 
-                // ===== បង្ហាញបញ្ជីកម្ចី =====
                 cards.innerHTML = loans.map(loan => {
                     const statusClass = loan.status === 'Approved' ? 'approved'
                                       : loan.status === 'Pending' ? 'pending' : 'bad';
@@ -830,15 +1103,12 @@
         function selectLoan(loan) {
             currentLoan = loan;
 
-            // ===== Highlight card =====
             document.querySelectorAll('.loan-card').forEach(c => c.classList.remove('selected'));
             event.currentTarget.classList.add('selected');
 
-            // ===== បង្ហាញ Form =====
             const form = document.getElementById('paymentFormSection');
             form.classList.add('active');
 
-            // ===== Set Loan Info =====
             document.getElementById('selectedLoanCode').textContent = loan.loan_code || '-';
             document.getElementById('p_loan_id').value = loan.id;
             document.getElementById('p_currency').value = loan.currency || 'USD';
@@ -850,21 +1120,24 @@
 
             // ===== Set Summary =====
             const currency = loan.currency || 'USD';
+            const totalDue = loan.total_due || 0;
+
             document.getElementById('summaryPrincipal').textContent = formatCurrency(loan.principal || 0, currency);
             document.getElementById('summaryInterest').textContent = formatCurrency(loan.interest || 0, currency);
             document.getElementById('summaryPenalty').textContent = formatCurrency(0, currency);
-            document.getElementById('summaryTotal').textContent = formatCurrency(loan.total_due || 0, currency);
+            document.getElementById('summaryTotal').textContent = formatCurrency(totalDue, currency);
+
+            // ===== Set ទឹកប្រាក់ត្រូវបង់ (Locked) =====
+            document.getElementById('p_amount_due').value = totalDue;
 
             // ===== Reset Form =====
             document.getElementById('p_penalty').value = 0;
-            document.getElementById('p_amount').value = loan.total_due || 0;
+            document.getElementById('p_amount').value = totalDue;
             document.getElementById('p_pay_full').checked = false;
             document.getElementById('p_notes').value = '';
             document.getElementById('p_payment_method').value = 'cash';
 
             calculatePayment();
-
-            // ===== Scroll to form =====
             form.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
@@ -879,12 +1152,10 @@
             const penalty = parseFloat(document.getElementById('p_penalty').value) || 0;
             const amount = parseFloat(document.getElementById('p_amount').value) || 0;
 
-            // ===== Update Summary =====
             document.getElementById('summaryPenalty').textContent = formatCurrency(penalty, currency);
             const grandTotal = totalDue + penalty;
             document.getElementById('summaryTotal').textContent = formatCurrency(grandTotal, currency);
 
-            // ===== បង្ហាញបំណុលនៅខ្វះក្រោយបង់ =====
             const remaining = (currentLoan.remaining_balance || 0) - amount;
             const remainingInfo = document.getElementById('remainingInfo');
             const remainingAfterPay = document.getElementById('remainingAfterPay');
@@ -914,7 +1185,6 @@
             const penaltyInput = document.getElementById('p_penalty');
 
             if (isFull) {
-                // ===== Lock ទឹកប្រាក់ =====
                 const totalDue = currentLoan.total_due || 0;
                 amountInput.value = totalDue;
                 amountInput.readOnly = true;
@@ -923,7 +1193,6 @@
                 penaltyInput.style.background = '#f0fff4';
                 calculatePayment();
             } else {
-                // ===== Unlock =====
                 amountInput.readOnly = false;
                 amountInput.classList.remove('locked');
                 penaltyInput.readOnly = false;
@@ -998,15 +1267,15 @@
         // ============================================================
         function resetForm() {
             document.getElementById('paymentForm').reset();
-            document.getElementById('searchInput').value = '';
+            document.getElementById('customerSearchInput').value = '';
             document.getElementById('customerInfo').classList.remove('active');
             document.getElementById('loanSelector').classList.remove('active');
             document.getElementById('paymentFormSection').classList.remove('active');
             document.getElementById('remainingInfo').style.display = 'none';
+            document.getElementById('autocompleteDropdown').classList.remove('show');
             currentCustomer = null;
             currentLoan = null;
 
-            // ===== Reset Lock =====
             const amountInput = document.getElementById('p_amount');
             amountInput.readOnly = false;
             amountInput.classList.remove('locked');
@@ -1028,9 +1297,11 @@
 
                 tbody.innerHTML = data.slice(0, 20).map((p, i) => {
                     const methodClass = p.payment_method === 'aba' ? 'badge-aba'
-                                      : p.payment_method === 'acleda' ? 'badge-acleda' : 'badge-cash';
+                                      : p.payment_method === 'acleda' ? 'badge-acleda'
+                                      : p.payment_method === 'wing' ? 'badge-wing' : 'badge-cash';
                     const methodText = p.payment_method === 'aba' ? '🏦 ABA'
-                                     : p.payment_method === 'acleda' ? '🏦 ACLEDA' : '💵 សាច់ប្រាក់';
+                                     : p.payment_method === 'acleda' ? '🏦 ACLEDA'
+                                     : p.payment_method === 'wing' ? '📱 WING' : '💵 សាច់ប្រាក់';
 
                     return `
                         <tr>
@@ -1042,7 +1313,11 @@
                             <td>${p.co_officer || '-'}</td>
                             <td>${p.created_at || '-'}</td>
                             <td>${p.penalty > 0 ? formatCurrency(p.penalty, p.currency) : '-'}</td>
-                            <td>${p.notes || '-'}</td>
+                            <td>
+                                <button class="btn-view" onclick="viewLoanHistory(${p.loan_id}, '${(p.loan_code || '').replace(/'/g, "\\'")}')">
+                                    <i class="fas fa-eye"></i> មើលប្រវត្តិ
+                                </button>
+                            </td>
                         </tr>
                     `;
                 }).join('');
@@ -1053,11 +1328,102 @@
         }
 
         // ============================================================
+        // ===== VIEW LOAN HISTORY (Modal) =====
+        // ============================================================
+        async function viewLoanHistory(loanId, loanCode) {
+            document.getElementById('historyModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            document.getElementById('historyLoanCode').textContent = loanCode || '-';
+
+            const tbody = document.getElementById('loanHistoryBody');
+            const summary = document.getElementById('historySummary');
+
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px;"><div class="spinner"></div></td></tr>`;
+            summary.innerHTML = '';
+
+            try {
+                const response = await fetch(`/api/payments/loan/${loanId}`);
+                const data = await response.json();
+
+                // ===== Summary =====
+                let totalAmount = 0;
+                let totalPenalty = 0;
+
+                data.forEach(p => {
+                    totalAmount += p.amount || 0;
+                    totalPenalty += p.penalty || 0;
+                });
+
+                const currency = data.length > 0 ? (data[0].currency || 'USD') : 'USD';
+
+                summary.innerHTML = `
+                    <div class="item">
+                        <span class="label">ចំនួនការបង់</span>
+                        <span class="value">${data.length}</span>
+                    </div>
+                    <div class="item">
+                        <span class="label">សរុបទឹកប្រាក់</span>
+                        <span class="value green">${formatCurrency(totalAmount, currency)}</span>
+                    </div>
+                    <div class="item">
+                        <span class="label">សរុបពិន័យ</span>
+                        <span class="value red">${formatCurrency(totalPenalty, currency)}</span>
+                    </div>
+                `;
+
+                if (data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color:#888;">📭 មិនមានប្រវត្តិបង់ប្រាក់</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = data.map((p, i) => {
+                    const methodClass = p.payment_method === 'aba' ? 'badge-aba'
+                                      : p.payment_method === 'acleda' ? 'badge-acleda'
+                                      : p.payment_method === 'wing' ? 'badge-wing' : 'badge-cash';
+                    const methodText = p.payment_method === 'aba' ? '🏦 ABA'
+                                     : p.payment_method === 'acleda' ? '🏦 ACLEDA'
+                                     : p.payment_method === 'wing' ? '📱 WING' : '💵 សាច់ប្រាក់';
+
+                    return `
+                        <tr>
+                            <td>${i + 1}</td>
+                            <td>${p.created_at || '-'}</td>
+                            <td><strong style="color:#27ae60;">${formatCurrency(p.amount || 0, p.currency || 'USD')}</strong></td>
+                            <td>${p.penalty > 0 ? formatCurrency(p.penalty, p.currency) : '-'}</td>
+                            <td><span class="badge ${methodClass}">${methodText}</span></td>
+                            <td>${p.co_officer || '-'}</td>
+                            <td>${p.notes || '-'}</td>
+                        </tr>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                console.error('Error:', error);
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color:#e74c3c;">❌ មានបញ្ហាក្នុងការផ្ទុកទិន្នន័យ</td></tr>`;
+            }
+        }
+
+        // ============================================================
+        // ===== CLOSE HISTORY MODAL =====
+        // ============================================================
+        function closeHistoryModal() {
+            document.getElementById('historyModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        document.getElementById('historyModal').addEventListener('click', function(e) {
+            if (e.target === this) closeHistoryModal();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeHistoryModal();
+        });
+
+        // ============================================================
         // ===== INIT =====
         // ============================================================
         document.addEventListener('DOMContentLoaded', function() {
             loadHistory();
-            // ===== Set today's date =====
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('p_payment_date').value = today;
         });
