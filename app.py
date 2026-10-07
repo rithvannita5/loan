@@ -1441,6 +1441,15 @@ def api_payments():
         print(traceback.format_exc())
         return jsonify([])
 
+@app.route('/api/payments/loan/<loan_id>')
+def get_payments_by_loan(loan_id):
+    payments = list(db.payments.find({'loan_id': ObjectId(loan_id)}).sort('created_at', -1))
+    result = []
+    for p in payments:
+        p['_id'] = str(p['_id'])
+        p['id'] = p['_id']
+        result.append(p)
+    return jsonify(result)
 
 @app.route('/api/payment_history/<int:loan_id>')
 def api_payment_history(loan_id):
