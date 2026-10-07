@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
-from bson import ObjectId          # ✅ បន្ថែមបន្ទាត់នេះ
+from bson import ObjectId
 import database as db
 import re
 import pytz
@@ -22,9 +22,9 @@ def get_cambodia_date():
 
 
 # ===== CREATE FLASK APP =====
-import os
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-here-change-it-12345')
+
 
 # ============================================================
 # ===== NUMBER TO WORDS =====
@@ -195,17 +195,23 @@ def collection():
 
 @app.route('/collection_good')
 def collection_good():
-    return redirect(url_for('collection', tab='good'))
+    if 'username' not in session:
+        return redirect(url_for('index'))
+    return render_template('collection_good.html', username=session.get('full_name', session['username']))
 
 
 @app.route('/collection_late')
 def collection_late():
-    return redirect(url_for('collection', tab='late'))
+    if 'username' not in session:
+        return redirect(url_for('index'))
+    return render_template('collection_late.html', username=session.get('full_name', session['username']))
 
 
 @app.route('/collection_bad')
 def collection_bad():
-    return redirect(url_for('collection', tab='bad'))
+    if 'username' not in session:
+        return redirect(url_for('index'))
+    return render_template('collection_bad.html', username=session.get('full_name', session['username']))
 
 
 @app.route('/settings')
@@ -487,16 +493,13 @@ def api_customers():
     user_role = session.get('role', 'user')
     username = session.get('username', '')
 
-    # ===== CO ឃើញតែអតិថិជនដែលខ្លួនទទួលខុសត្រូវ =====
     if user_role == 'officer':
-        # ===== ទាញយកបញ្ជី customer_id ពី loans ដែល co_officer = username =====
         loans = list(db.loans_col.find({'co_officer': username}, {'customer_id': 1}))
         customer_ids = list(set([l.get('customer_id') for l in loans if l.get('customer_id')]))
 
         if not customer_ids:
             return jsonify([])
 
-        # ===== ច្រោះអតិថិជនតាម customer_ids =====
         query = {'_id': {'$in': customer_ids}}
         if search:
             regex = {'$regex': search, '$options': 'i'}
@@ -525,7 +528,6 @@ def api_customers():
         return jsonify(customers_data)
 
     else:
-        # ===== Admin ឃើញទាំងអស់ =====
         if search:
             customer_list = db.search_customers_paginated(search, page, per_page)
         else:
@@ -1015,6 +1017,18 @@ def api_customer_for_loan(customer_id):
     return jsonify(dict(customer))
 
 
+@app.route('/api/loans/<int:loan_id>')
+def api_get_loan(loan_id):
+    if 'username' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    loan = db.get_loan_by_id(loan_id)
+    if not loan:
+        return jsonify({'error': 'មិនឃើញកម្ចីនេះទេ!'}), 404
+
+    return jsonify(loan)
+
+
 # ===== API: COLLECTION =====
 @app.route('/api/collection/<string:type>')
 def api_collection(type):
@@ -1063,6 +1077,7 @@ def api_collection(type):
         print(traceback.format_exc())
         return jsonify({'error': str(e)}), 500
 
+
 @app.route('/api/collection/customer/<int:customer_id>')
 def api_collection_customer(customer_id):
     """ទាញយកកម្ចីទាំងអស់របស់អតិថិជន សម្រាប់ការទូរទាត់"""
@@ -1070,7 +1085,6 @@ def api_collection_customer(customer_id):
         return jsonify([])
 
     try:
-        # ===== ទាញយកកម្ចីទាំងអស់របស់អតិថិជន =====
         loans = list(db.loans_col.find({
             'customer_id': int(customer_id),
             'status': {'$in': ['Approved', 'Pending', 'Bad Debt']},
@@ -1083,7 +1097,6 @@ def api_collection_customer(customer_id):
         for loan in loans:
             customer = db.customers_col.find_one({'_id': loan.get('customer_id')}) or {}
 
-            # ===== គណនា days_overdue =====
             days_overdue = 0
             days_to_pay = 0
 
@@ -1101,7 +1114,6 @@ def api_collection_customer(customer_id):
                 except:
                     pass
 
-            # ===== គណនាប្រាក់ =====
             duration_num = loan.get('duration_num', 1) or 1
             loan_amount = loan.get('loan_amount', 0)
             total_interest = loan.get('total_interest', 0)
@@ -1128,7 +1140,6 @@ def api_collection_customer(customer_id):
                     total_principal = 0
                     total_interest_due = 0
 
-            # ===== បង្គត់តម្លៃ =====
             currency = loan.get('currency', 'USD')
             if currency == 'KHR':
                 total_due = round(total_due / 100) * 100
@@ -1163,6 +1174,7 @@ def api_collection_customer(customer_id):
         print(f"❌ Error in api_collection_customer: {e}")
         print(traceback.format_exc())
         return jsonify([])
+
 
 @app.route('/api/collection/count/<string:type>')
 def api_collection_count(type):
@@ -1216,7 +1228,6 @@ def api_collection_payment():
 
     db.update_loan_payment(loan_id, total_paid, remaining, status)
 
-    # ===== បង្កើត description ត្រឹមត្រូវ =====
     currency = loan.get('currency', 'USD')
     if currency == 'KHR':
         amount_str = f'៛ {round(amount/100)*100:,.0f}'
@@ -1231,7 +1242,6 @@ def api_collection_payment():
         user_id=session.get('user_id')
     )
 
-    # ===== រក្សាទុកក្នុង payment_history =====
     try:
         db.record_payment(
             loan_id, period, amount, payment_method, notes,
@@ -1277,7 +1287,6 @@ def api_activities():
 # ===== API: SETTINGS (USERS, OFFICERS, HOLIDAYS, PERMISSIONS) =====
 # ============================================================
 
-# ===== API: USERS =====
 @app.route('/api/users', methods=['GET'])
 def api_get_users():
     if 'username' not in session:
@@ -1442,8 +1451,10 @@ def api_get_permissions(role):
     return jsonify(permissions)
 
 
-# ===== API: PAYMENTS =====
-# ===== API: PAYMENTS =====
+# ============================================================
+# ===== API: PAYMENTS (កែហើយ) =====
+# ============================================================
+
 @app.route('/api/payments')
 def api_payments():
     """ទាញយកប្រវត្តិទូរទាត់ថ្មីៗ"""
@@ -1455,13 +1466,11 @@ def api_payments():
         result = []
         for p in payments:
             doc = dict(p) if not isinstance(p, dict) else p
-            
-            # ===== បំប្លែង ObjectId ទៅ string =====
+
             if '_id' in doc:
                 doc['_id'] = str(doc['_id'])
                 doc['id'] = doc['_id']
-            
-            # ===== Format កាលបរិច្ឆេទ =====
+
             created = doc.get('created_at')
             if hasattr(created, 'strftime'):
                 doc['created_at'] = created.strftime('%Y-%m-%d %H:%M:%S')
@@ -1469,9 +1478,9 @@ def api_payments():
                 doc['created_at'] = str(created)
             else:
                 doc['created_at'] = ''
-            
+
             result.append(doc)
-        
+
         return jsonify(result)
     except Exception as e:
         import traceback
@@ -1480,7 +1489,6 @@ def api_payments():
         return jsonify([])
 
 
-# ===== API: LOAN PAYMENTS (សម្រាប់ Modal មើលប្រវត្តិ) =====
 @app.route('/api/loan_payments/<loan_id>')
 def api_loan_payments(loan_id):
     """ទាញយកប្រវត្តិទូរទាត់ទាំងអស់នៃកម្ចីជាក់លាក់"""
@@ -1488,42 +1496,34 @@ def api_loan_payments(loan_id):
         return jsonify([])
 
     try:
-        # ===== ស្វែងរកតាម loan_id (គាំទ្រទាំង int និង string) =====
-        queries = [
-            {'loan_id': loan_id},
-            {'loan_id': int(loan_id) if str(loan_id).isdigit() else loan_id},
-        ]
-        
-        # បើ loan_id ជា ObjectId
-        try:
-            queries.append({'loan_id': ObjectId(loan_id)})
-        except:
-            pass
-
         payments = []
-        for q in queries:
-            try:
-                found = list(db.payment_history_col.find(q).sort('created_at', -1))
-                if found:
-                    payments = found
-                    break
-            except Exception:
-                continue
 
-        # ===== បើរកមិនឃើញក្នុង payment_history → ព្យាយាមក្នុង activities =====
+        # ===== ព្យាយាមស្វែងរកក្នុង payment_history =====
+        try:
+            loan_id_int = int(loan_id)
+        except:
+            loan_id_int = loan_id
+
+        try:
+            payments = list(db.payment_history_col.find({
+                'loan_id': loan_id_int
+            }).sort('created_at', -1))
+        except Exception as e:
+            print(f"⚠️ Error querying payment_history: {e}")
+
+        # ===== បើរកមិនឃើញ → ព្យាយាមពី activities =====
         if not payments:
             try:
                 activities = list(db.activities_col.find({
-                    'loan_id': int(loan_id) if str(loan_id).isdigit() else loan_id,
+                    'loan_id': loan_id_int,
                     'action': 'collection_payment'
                 }).sort('_id', -1))
-                
+
                 for a in activities:
                     description = a.get('description', '')
                     amount = 0
                     currency = 'USD'
-                    
-                    # ទាញចំនួនពី description
+
                     match = re.search(r'\$([0-9.]+)', description)
                     if match:
                         amount = float(match.group(1))
@@ -1532,8 +1532,7 @@ def api_loan_payments(loan_id):
                         if match_khr:
                             amount = float(match_khr.group(1).replace(',', ''))
                             currency = 'KHR'
-                    
-                    # ទាញ method
+
                     method = 'cash'
                     if 'ABA' in description:
                         method = 'aba'
@@ -1541,7 +1540,12 @@ def api_loan_payments(loan_id):
                         method = 'acleda'
                     elif 'WING' in description:
                         method = 'wing'
-                    
+
+                    created = a.get('created_at')
+                    created_str = ''
+                    if hasattr(created, 'strftime'):
+                        created_str = created.strftime('%Y-%m-%d %H:%M:%S')
+
                     payments.append({
                         '_id': str(a.get('_id')),
                         'id': str(a.get('_id')),
@@ -1551,8 +1555,8 @@ def api_loan_payments(loan_id):
                         'payment_method': method,
                         'penalty': 0,
                         'notes': '',
-                        'payment_date': a.get('created_at').strftime('%Y-%m-%d') if hasattr(a.get('created_at'), 'strftime') else '',
-                        'created_at': a.get('created_at').strftime('%Y-%m-%d %H:%M:%S') if hasattr(a.get('created_at'), 'strftime') else str(a.get('created_at', ''))
+                        'payment_date': created_str.split(' ')[0] if created_str else '',
+                        'created_at': created_str
                     })
             except Exception as e:
                 print(f"⚠️ Could not fallback to activities: {e}")
@@ -1561,23 +1565,22 @@ def api_loan_payments(loan_id):
         result = []
         for p in payments:
             doc = dict(p) if not isinstance(p, dict) else p
-            
+
             if '_id' in doc:
                 doc['_id'] = str(doc['_id'])
                 doc['id'] = doc['_id']
-            
+
             created = doc.get('created_at')
             if hasattr(created, 'strftime'):
                 doc['created_at'] = created.strftime('%Y-%m-%d %H:%M:%S')
             elif created:
                 doc['created_at'] = str(created)
-            
-            # បើគ្មាន payment_date ប្រើ created_at
+
             if not doc.get('payment_date') and doc.get('created_at'):
                 doc['payment_date'] = doc['created_at'].split(' ')[0]
-            
+
             result.append(doc)
-        
+
         return jsonify(result)
 
     except Exception as e:
@@ -1587,14 +1590,12 @@ def api_loan_payments(loan_id):
         return jsonify([])
 
 
-# ===== API: PAYMENT HISTORY (ជំនួស version ចាស់) =====
 @app.route('/api/payment_history/<int:loan_id>')
 def api_payment_history(loan_id):
-    """API ជំនួស — ហៅ api_loan_payments ដូចគ្នា"""
+    """API ជំនួស — ដូច api_loan_payments"""
     return api_loan_payments(loan_id)
 
 
-# ===== API: PAYMENTS BY LOAN (ជំនួស version ចាស់ដែលមាន ObjectId ខូច) =====
 @app.route('/api/payments/loan/<loan_id>')
 def get_payments_by_loan(loan_id):
     """API ជំនួស — ដូច api_loan_payments"""
@@ -1619,7 +1620,10 @@ def api_disbursement():
             loan = None
             customer = None
             if loan_id:
-                loan = db.loans_col.find_one({'_id': int(loan_id)})
+                try:
+                    loan = db.loans_col.find_one({'_id': int(loan_id)})
+                except:
+                    loan = None
                 if loan:
                     customer = db.customers_col.find_one({'_id': loan.get('customer_id')})
 
@@ -1725,17 +1729,14 @@ def api_edit_payment():
         return jsonify({'error': 'Missing data'}), 400
 
     try:
-        # ===== ទាញយក Activity ចាស់ =====
         old_activity = db.activities_col.find_one({'_id': int(activity_id)})
         if not old_activity:
             return jsonify({'error': 'មិនឃើញការទូរទាត់នេះទេ!'}), 404
 
-        # ===== ទាញយកកម្ចី =====
         loan = db.loans_col.find_one({'_id': int(loan_id)})
         if not loan:
             return jsonify({'error': 'មិនឃើញកម្ចីនេះទេ!'}), 404
 
-        # ===== ទាញយកចំនួនចាស់ =====
         old_desc = old_activity.get('description', '')
         match = re.search(r'\$([0-9.]+)', old_desc)
         old_amount = float(match.group(1)) if match else 0
@@ -1745,7 +1746,6 @@ def api_edit_payment():
             if match_khr:
                 old_amount = float(match_khr.group(1).replace(',', ''))
 
-        # ===== គណនា Difference =====
         diff = amount - old_amount
         new_amount_paid = (loan.get('amount_paid', 0) or 0) + diff
         new_remaining = (loan.get('remaining_balance', 0) or 0) - diff
@@ -1755,7 +1755,6 @@ def api_edit_payment():
         if new_remaining < 0:
             new_remaining = 0
 
-        # ===== Update Loan =====
         db.loans_col.update_one(
             {'_id': int(loan_id)},
             {'$set': {
@@ -1765,7 +1764,6 @@ def api_edit_payment():
             }}
         )
 
-        # ===== Update Activity =====
         new_description = f'បានប្រមូលប្រាក់ ${amount:.2f} តាមរយៈ {payment_method}'
         if notes:
             new_description += f', កំណត់ចំណាំ: {notes}'
@@ -1802,14 +1800,12 @@ def api_delete_payment():
         return jsonify({'error': 'Missing activity_id'}), 400
 
     try:
-        # ===== ទាញយក Activity =====
         activity = db.activities_col.find_one({'_id': int(activity_id)})
         if not activity:
             return jsonify({'error': 'មិនឃើញការទូរទាត់នេះទេ!'}), 404
 
         loan_id = activity.get('loan_id')
 
-        # ===== ទាញយកចំនួន =====
         description = activity.get('description', '')
         match = re.search(r'\$([0-9.]+)', description)
         amount = float(match.group(1)) if match else 0
@@ -1819,7 +1815,6 @@ def api_delete_payment():
             if match_khr:
                 amount = float(match_khr.group(1).replace(',', ''))
 
-        # ===== Update Loan =====
         if loan_id:
             loan = db.loans_col.find_one({'_id': int(loan_id)})
             if loan:
@@ -1837,7 +1832,6 @@ def api_delete_payment():
                     }}
                 )
 
-        # ===== Delete Activity =====
         db.activities_col.delete_one({'_id': int(activity_id)})
 
         return jsonify({'success': True, 'message': 'បានលុបការទូរទាត់រួចរាល់!'})
@@ -1875,18 +1869,15 @@ def api_clean_orphan_data():
     }
 
     try:
-        # ===== លុប Payment History ដែលមិនមាន Loan =====
         all_loan_ids = [l['_id'] for l in db.loans_col.find({}, {'_id': 1})]
         deleted = db.payment_history_col.delete_many({
             'loan_id': {'$nin': all_loan_ids}
         })
         result['payment_history_no_loan'] = deleted.deleted_count
 
-        # ===== លុប Payment History ដែល amount = 0 =====
         deleted2 = db.payment_history_col.delete_many({'amount': 0})
         result['payment_history_zero'] = deleted2.deleted_count
 
-        # ===== លុប Activities ដែលមិនមាន Loan =====
         deleted3 = db.activities_col.delete_many({
             'loan_id': {'$ne': None, '$nin': all_loan_ids}
         })
@@ -1913,7 +1904,6 @@ def reports():
     return render_template('reports.html', username=session.get('full_name', session['username']))
 
 
-# ===== API: REPORT SUMMARY =====
 @app.route('/api/reports/summary')
 def api_report_summary():
     if 'username' not in session:
@@ -1925,7 +1915,6 @@ def api_report_summary():
         active_loans = db.loans_col.count_documents({'status': {'$in': ['Approved', 'Pending']}})
         bad_loans = db.loans_col.count_documents({'status': 'Bad Debt'})
 
-        # ===== ទឹកប្រាក់កម្ចីសរុប =====
         usd_result = list(db.loans_col.aggregate([
             {'$match': {'currency': 'USD'}},
             {'$group': {'_id': None, 'total': {'$sum': '$loan_amount'}}}
@@ -1938,7 +1927,6 @@ def api_report_summary():
         ]))
         total_amount_khr = khr_result[0]['total'] if khr_result else 0
 
-        # ===== បំណុលសរុប =====
         debt_usd = list(db.loans_col.aggregate([
             {'$match': {'currency': 'USD'}},
             {'$group': {'_id': None, 'total': {'$sum': '$remaining_balance'}}}
@@ -1970,7 +1958,6 @@ def api_report_summary():
         })
 
 
-# ===== API: REPORT LOANS =====
 @app.route('/api/reports/loans')
 def api_report_loans():
     if 'username' not in session:
@@ -2021,7 +2008,6 @@ def api_report_loans():
     return jsonify(result)
 
 
-# ===== API: REPORT PAYMENTS =====
 @app.route('/api/reports/payments')
 def api_report_payments():
     if 'username' not in session:
@@ -2131,7 +2117,6 @@ def api_report_payments():
     })
 
 
-# ===== API: REPORT COLLECTION =====
 @app.route('/api/reports/collection')
 def api_report_collection():
     if 'username' not in session:
@@ -2140,7 +2125,6 @@ def api_report_collection():
     return jsonify(summary)
 
 
-# ===== API: REPORT CUSTOMERS =====
 @app.route('/api/reports/customers')
 def api_report_customers():
     if 'username' not in session:
@@ -2194,7 +2178,6 @@ def api_report_customers():
     })
 
 
-# ===== API: REPORT INCOME =====
 @app.route('/api/reports/income')
 def api_report_income():
     if 'username' not in session:
@@ -2203,7 +2186,6 @@ def api_report_income():
     from_date = request.args.get('from', '')
     to_date = request.args.get('to', '')
 
-    # ===== ការប្រាក់សរុប =====
     match_query = {}
     if from_date or to_date:
         date_query = {}
@@ -2227,7 +2209,6 @@ def api_report_income():
     ]))
     total_interest = interest_result[0]['total'] if interest_result else 0
 
-    # ===== ពិន័យសរុប =====
     penalty_result = list(db.payment_history_col.aggregate([
         {'$match': match_query},
         {'$group': {'_id': None, 'total': {'$sum': '$penalty'}}}
@@ -2257,7 +2238,6 @@ def api_report_income():
     })
 
 
-# ===== API: SUMMARY REPORT =====
 @app.route('/api/reports/summary_report')
 def api_summary_report():
     if 'username' not in session:
@@ -2273,12 +2253,10 @@ def api_summary_report():
         from_dt = datetime.strptime(from_date, '%Y-%m-%d')
         to_dt = datetime.strptime(to_date, '%Y-%m-%d') + timedelta(days=1)
 
-        # ===== អតិថិជនថ្មី =====
         new_customers = db.customers_col.count_documents({
             'created_at': {'$gte': from_dt, '$lt': to_dt}
         })
 
-        # ===== ទុនទំលាក់ =====
         loans = list(db.loans_col.find({'created_at': {'$gte': from_dt, '$lt': to_dt}}))
         total_loan_disbursed_usd = 0
         total_loan_disbursed_khr = 0
@@ -2290,7 +2268,6 @@ def api_summary_report():
             else:
                 total_loan_disbursed_khr += amount
 
-        # ===== ការប្រមូល =====
         payments = list(db.payment_history_col.find({
             'created_at': {'$gte': from_dt, '$lt': to_dt}
         }))
@@ -2317,7 +2294,6 @@ def api_summary_report():
             else:
                 interest_collected_usd += amount
 
-        # ===== ចំណាយ =====
         expenses = list(db.expenses_col.find({
             'expense_date': {'$gte': from_date, '$lte': to_date}
         }))
@@ -2676,7 +2652,6 @@ def api_change_co():
 
         old_officer = loan.get('co_officer') or 'គ្មាន'
 
-        # ===== Update CO =====
         db.loans_col.update_one(
             {'_id': int(loan_id)},
             {'$set': {
@@ -2685,7 +2660,6 @@ def api_change_co():
             }}
         )
 
-        # ===== Log Activity =====
         db.log_activity(
             loan.get('customer_id'),
             loan_id,
@@ -2701,18 +2675,6 @@ def api_change_co():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
-
-@app.route('/api/loans/<int:loan_id>')
-def api_get_loan(loan_id):
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
-    loan = db.get_loan_by_id(loan_id)
-    if not loan:
-        return jsonify({'error': 'មិនឃើញកម្ចីនេះទេ!'}), 404
-
-    return jsonify(loan)
 
 
 @app.route('/api/dashboard_charts')
@@ -2734,10 +2696,6 @@ def api_dashboard_charts():
             'monthly_collections': []
         })
 
-
-# ============================================================
-# ===== DASHBOARD ROUTES =====
-# ============================================================
 
 @app.route('/api/dashboard_full_stats')
 def api_dashboard_full_stats():
