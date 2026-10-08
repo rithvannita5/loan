@@ -1188,6 +1188,7 @@ def api_collection_count(type):
 
 
 # ===== API: COLLECTION PAYMENT =====
+# ===== API: COLLECTION PAYMENT =====
 @app.route('/api/collection_payment', methods=['POST'])
 def api_collection_payment():
     if 'username' not in session:
@@ -1195,9 +1196,9 @@ def api_collection_payment():
 
     data = request.get_json()
     loan_id = data.get('loan_id')
-    amount = data.get('amount')
+    amount = data.get('amount')           # ទឹកប្រាក់សរុបដែលទទួល (រួមពិន័យ)
     payment_method = data.get('payment_method', 'cash')
-    penalty = data.get('penalty', 0)
+    penalty = data.get('penalty', 0)      # ទឹកប្រាក់ពិន័យ
     notes = data.get('notes', '')
     payment_date = data.get('payment_date', '')
 
@@ -1215,11 +1216,27 @@ def api_collection_payment():
     except:
         period = 1
 
-    total_paid = (loan.get('amount_paid', 0) or 0) + amount
-    remaining = (loan.get('remaining_balance', 0) or 0) - amount
+    # ===== គណនាចំនួនដែលត្រូវដកពីកម្ចី (ដើម + ការប្រាក់) =====
+    # amount = ទឹកប្រាក់សរុបដែលទទួល
+    # penalty = ពិន័យ (មិនរាប់បញ្ចូលក្នុងកម្ចី)
+    # amount_for_loan = amount - penalty  ← ចំនួនដែលត្រូវដកពី remaining_balance
 
-    if penalty > 0:
-        remaining = remaining + penalty
+    penalty = float(penalty) if penalty else 0
+    amount = float(amount)
+
+    # ===== បើ penalty > amount នោះ penalty = amount ហើយ amount_for_loan = 0 =====
+    if penalty > amount:
+        penalty = amount
+
+    amount_for_loan = amount - penalty    # ← ចំនួនដែលចូលកម្ចី (ដើម + ការប្រាក់)
+
+    # ===== Update Loan (ដកតែ amount_for_loan ចេញ) =====
+    total_paid = (loan.get('amount_paid', 0) or 0) + amount_for_loan
+    remaining = (loan.get('remaining_balance', 0) or 0) - amount_for_loan
+
+    # ===== បើ remaining < 0 → កំណត់ត្រឹម 0 =====
+    if remaining < 0:
+        remaining = 0
 
     status = loan['status']
     if remaining <= 0:
@@ -1228,11 +1245,16 @@ def api_collection_payment():
 
     db.update_loan_payment(loan_id, total_paid, remaining, status)
 
+    # ===== Log Activity =====
     currency = loan.get('currency', 'USD')
     if currency == 'KHR':
         amount_str = f'៛ {round(amount/100)*100:,.0f}'
+        if penalty > 0:
+            amount_str += f' (ពិន័យ ៛ {round(penalty/100)*100:,.0f})'
     else:
         amount_str = f'${amount:.2f}'
+        if penalty > 0:
+            amount_str += f' (ពិន័យ ${penalty:.2f})'
 
     db.log_activity(
         loan['customer_id'],
@@ -1242,6 +1264,7 @@ def api_collection_payment():
         user_id=session.get('user_id')
     )
 
+    # ===== Record payment history =====
     try:
         db.record_payment(
             loan_id, period, amount, payment_method, notes,
@@ -1252,8 +1275,12 @@ def api_collection_payment():
     except Exception as e:
         print("⚠️ Could not record payment history:", str(e))
 
-    return jsonify({'success': True})
-
+    return jsonify({
+        'success': True,
+        'amount_for_loan': amount_for_loan,
+        'penalty': penalty,
+        'remaining_balance': remaining
+    })
 
 # ===== API: ACTIVITIES =====
 @app.route('/api/activities')
