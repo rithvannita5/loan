@@ -8,39 +8,124 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Khmer OS', 'Khmer OS Muol', 'Moul', 'Arial', sans-serif;
-            background: #f0f2f5;
+            font-family: 'Khmer OS', 'Noto Sans Khmer', 'Moul', Arial, sans-serif;
+            background: #f4f6f9;
             display: flex;
             min-height: 100vh;
         }
-        .sidebar { width: 260px; background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%); color: white; padding: 20px 0; position: fixed; height: 100vh; overflow-y: auto; transition: all 0.3s; z-index: 1000; }
-        .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
-        .sidebar-brand h2 { font-size: 20px; display: flex; align-items: center; gap: 10px; }
-        .sidebar-brand h2 i { color: #667eea; }
-        .sidebar-brand .subtitle { font-size: 12px; color: #a0aec0; margin-top: 5px; }
 
-        .sidebar-menu { list-style: none; padding: 0; }
-        .sidebar-menu li a { display: flex; align-items: center; gap: 12px; padding: 10px 20px; color: #cbd5e0; text-decoration: none; transition: all 0.3s; border-left: 3px solid transparent; font-size: 14px; }
-        .sidebar-menu li a:hover { background: rgba(255,255,255,0.05); color: white; border-left-color: #667eea; }
-        .sidebar-menu li a.active { background: rgba(102,126,234,0.15); color: white; border-left-color: #667eea; }
-        .sidebar-menu li a i { width: 20px; text-align: center; font-size: 14px; color: #a0aec0; }
-        .sidebar-menu li a.active i { color: #667eea; }
-        .sidebar-menu .menu-label { padding: 15px 20px 5px 20px; font-size: 11px; color: #718096; text-transform: uppercase; letter-spacing: 1px; }
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+        }
+        .sidebar-brand { text-align: center; padding: 20px 15px 30px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 20px; }
+        .sidebar-brand .logo { font-size: 32px; display: block; margin-bottom: 5px; }
+        .sidebar-brand h2 { font-size: 20px; font-weight: 700; color: #fff; letter-spacing: 1px; }
+        .sidebar-brand h2 span { color: #667eea; }
+        .sidebar-brand p { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 3px; }
 
-        .main-content { margin-left: 260px; flex: 1; padding: 20px; min-height: 100vh; }
-        .top-header { background: white; padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 10px; }
-        .top-header .page-title h1 { font-size: 22px; color: #2d3748; }
-        .top-header .page-title p { color: #718096; font-size: 14px; }
-        .top-header .user-info { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
-        .top-header .user-info .avatar { width: 40px; height: 40px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px; }
-        .top-header .user-info .user-name { font-weight: 600; color: #2d3748; font-size: 14px; }
-        .top-header .user-info .user-role { font-size: 12px; color: #718096; }
-        .top-header .user-info .logout-btn { padding: 8px 18px; background: #fc8181; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-family: 'Khmer OS', 'Arial', sans-serif; transition: all 0.3s; text-decoration: none; }
-        .top-header .user-info .logout-btn:hover { background: #f56565; }
-        .menu-toggle { display: none; background: none; border: none; color: #2d3748; font-size: 24px; cursor: pointer; padding: 5px; }
+        .menu-label { padding: 10px 25px 5px; font-size: 11px; text-transform: uppercase; color: rgba(255,255,255,0.3); letter-spacing: 2px; font-weight: 600; }
 
-        .page-content { background: white; border-radius: 16px; padding: 25px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
+        /* ===== MENU ITEM ===== */
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 13px 25px;
+            color: rgba(255,255,255,0.6);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+            font-size: 15px;
+            font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif;
+            position: relative;
+            z-index: 2;
+            background: transparent;
+            width: 100%;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .menu-item:hover { background: rgba(255,255,255,0.05); color: #fff; border-left-color: #667eea; }
+        .menu-item.active { background: rgba(102,126,234,0.15); color: #fff; border-left-color: #667eea; }
+        .menu-item .icon { font-size: 20px; margin-right: 14px; width: 28px; text-align: center; flex-shrink: 0; }
+        .menu-item .badge { margin-left: auto; background: #e74c3c; color: #fff; font-size: 11px; padding: 2px 10px; border-radius: 20px; }
+        .menu-item .arrow { margin-left: auto; font-size: 10px; transition: transform 0.3s ease; color: rgba(255,255,255,0.5); }
 
+        /* ===== SUBMENU ===== */
+        .submenu-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease-in-out;
+            background: rgba(0,0,0,0.15);
+        }
+        .submenu-container.open { max-height: 500px; }
+        .submenu-item { padding-left: 50px !important; font-size: 14px !important; }
+        .submenu-item .icon { font-size: 16px !important; margin-right: 10px !important; width: 22px !important; }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content { margin-left: 260px; flex: 1; padding: 30px; min-height: 100vh; }
+
+        .top-header {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #fff; padding: 18px 30px; border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 25px; flex-wrap: wrap; gap: 15px;
+        }
+        .top-header h1 { font-size: 24px; color: #1a1a2e; }
+        .top-header h1 span { color: #ed8936; }
+        .user-info { display: flex; align-items: center; gap: 15px; }
+        .user-info .avatar { width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 22px; font-weight: 700; }
+        .user-info .name { font-weight: 600; color: #333; }
+        .user-info .role { font-size: 12px; color: #888; }
+        .logout-btn { background: #e74c3c; color: #fff; border: none; padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 14px; transition: all 0.3s ease; font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif; text-decoration: none; }
+        .logout-btn:hover { background: #c0392b; transform: scale(1.02); }
+
+        /* ===== PAGE CONTENT ===== */
+        .page-content { background: #fff; border-radius: 16px; padding: 25px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
+
+        /* ===== FILTER TABS ===== */
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .filter-tab {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif;
+            transition: all 0.3s ease;
+            background: #e2e8f0;
+            color: #4a5568;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .filter-tab:hover { transform: translateY(-2px); }
+        .filter-tab.good { background: #d4edda; color: #155724; }
+        .filter-tab.good:hover { background: #c3e6cb; }
+        .filter-tab.late.active { background: #ed8936; color: #fff; box-shadow: 0 4px 15px rgba(237,137,54,0.4); }
+        .filter-tab.bad { background: #f8d7da; color: #721c24; }
+        .filter-tab.bad:hover { background: #f5c6cb; }
+
+        /* ===== STATS ===== */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -56,8 +141,11 @@
         .stat-card.red .number { color: #fc8181; }
         .stat-card.green { border-left-color: #48bb78; }
         .stat-card.green .number { color: #48bb78; }
+        .stat-card.blue { border-left-color: #667eea; }
+        .stat-card.blue .number { color: #667eea; }
 
-        .btn { padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-family: 'Khmer OS', 'Arial', sans-serif; transition: all 0.3s; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+        /* ===== BUTTONS ===== */
+        .btn { padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-family: 'Khmer OS', 'Noto Sans Khmer', Arial, sans-serif; transition: all 0.3s; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
         .btn-warning { background: #ed8936; color: white; }
         .btn-warning:hover { background: #dd6b20; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(237,137,54,0.4); }
         .btn-sm { padding: 5px 12px; font-size: 12px; }
@@ -67,29 +155,26 @@
         .btn-success { background: #48bb78; color: white; }
         .btn-success:hover { background: #38a169; }
 
+        /* ===== TABLE ===== */
         .table-responsive { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1100px; }
         table th { background: #f7fafc; padding: 10px 12px; text-align: left; color: #2d3748; font-weight: 600; border-bottom: 2px solid #e2e8f0; font-size: 12px; white-space: nowrap; }
         table td { padding: 8px 12px; border-bottom: 1px solid #f0f2f5; color: #4a5568; font-size: 13px; }
         table tr:hover td { background: #f7fafc; }
 
-        .badge {
-            display: inline-block; padding: 2px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
-        }
+        /* ===== BADGES ===== */
+        .badge { display: inline-block; padding: 2px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
         .badge-danger { background: #fed7d7; color: #9b2c2c; }
         .badge-warning { background: #feebc8; color: #9c6b2e; }
         .badge-success { background: #c6f6d5; color: #22543d; }
-
-        .empty-state { text-align: center; padding: 40px 20px; color: #a0aec0; }
-        .empty-state .icon { font-size: 60px; margin-bottom: 15px; color: #e2e8f0; }
-        .empty-state h4 { font-size: 18px; color: #2d3748; margin-bottom: 5px; }
+        .badge-info { background: #bee3f8; color: #2a4365; }
 
         .text-center { text-align: center; }
         .text-muted { color: #a0aec0; }
         .mt-20 { margin-top: 20px; }
 
-        .overdue-highlight { background: #fff5f5 !important; }
-        .overdue-highlight:hover td { background: #fed7d7 !important; }
+        .overdue-highlight { background: #fff8f0 !important; }
+        .overdue-highlight:hover td { background: #feebc8 !important; }
 
         /* ===== MODAL ===== */
         .modal-overlay {
@@ -141,7 +226,7 @@
         .modal-body .form-group label .required { color: #fc8181; }
         .modal-body .form-group input, .modal-body .form-group select {
             width: 100%; padding: 10px 14px; border: 2px solid #e2e8f0;
-            border-radius: 8px; font-size: 14px; font-family: 'Khmer OS','Arial',sans-serif;
+            border-radius: 8px; font-size: 14px; font-family: 'Khmer OS','Noto Sans Khmer',Arial,sans-serif;
             transition: all 0.3s; height: 44px;
         }
         .modal-body .form-group input:focus, .modal-body .form-group select:focus {
@@ -174,24 +259,7 @@
         .modal-body .info-display .info-item .value { font-weight: 600; color: #2d3748; font-size: 14px; }
         .modal-body .info-display .info-item .value.danger { color: #e74c3c; }
 
-        @media (max-width: 768px) {
-            .sidebar { left: -260px; }
-            .sidebar.open { left: 0; }
-            .main-content { margin-left: 0; padding: 15px; }
-            .menu-toggle { display: block; }
-            .stats-grid { grid-template-columns: 1fr 1fr; }
-            .modal-box { padding: 20px; margin: 10px; }
-            .modal-body .info-display { grid-template-columns: 1fr; }
-            table { font-size: 12px; min-width: 800px; }
-        }
-        @media (max-width: 480px) {
-            .stats-grid { grid-template-columns: 1fr; }
-        }
-        .sidebar::-webkit-scrollbar { width: 4px; }
-        .sidebar::-webkit-scrollbar-track { background: transparent; }
-        .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
-
-        /* Loading Spinner */
+        /* ===== SPINNER ===== */
         .spinner {
             display: inline-block;
             width: 40px;
@@ -205,27 +273,114 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .sidebar { width: 70px; padding: 15px 0; }
+            .sidebar-brand h2, .sidebar-brand p, .menu-label,
+            .menu-item span:not(.icon), .menu-item .badge, .menu-item .arrow { display: none; }
+            .sidebar-brand .logo { font-size: 28px; }
+            .menu-item { padding: 15px 0; justify-content: center; }
+            .menu-item .icon { margin-right: 0; font-size: 24px; }
+            .submenu-container .submenu-item { padding-left: 0 !important; }
+            .main-content { margin-left: 70px; padding: 15px; }
+            .top-header h1 { font-size: 18px; }
+            .user-info .name, .user-info .role { display: none; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .modal-box { padding: 20px; margin: 10px; }
+            .modal-body .info-display { grid-template-columns: 1fr; }
+            table { font-size: 12px; min-width: 800px; }
+        }
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-track { background: transparent; }
+        .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
     </style>
 </head>
 <body>
 
     <!-- ===== SIDEBAR ===== -->
-    <nav class="sidebar" id="sidebar">
+    <nav class="sidebar">
         <div class="sidebar-brand">
-            <h2><i class="fas fa-hand-holding-usd"></i> កម្ចី<span style="color:#667eea;">Plus</span></h2>
-            <div class="subtitle">ប្រព័ន្ធគ្រប់គ្រងកម្ចី</div>
+            <span class="logo">🏦</span>
+            <h2>កម្ចី<span>Plus</span></h2>
+            <p>ប្រព័ន្ធគ្រប់គ្រងកម្ចី</p>
         </div>
 
-        <ul class="sidebar-menu">
-            <li class="menu-label">មុខម្ហូប</li>
-            <li><a href="{{ url_for('dashboard') }}"><i class="fas fa-th-large"></i> Dashboard</a></li>
-            <li><a href="{{ url_for('customers') }}"><i class="fas fa-users"></i> អតិថិជន</a></li>
-            <li><a href="{{ url_for('loans') }}"><i class="fas fa-file-invoice-dollar"></i> កម្ចី</a></li>
-            <li><a href="{{ url_for('loans_bad') }}"><i class="fas fa-exclamation-triangle"></i> កម្ចីខូច</a></li>
-            <li><a href="{{ url_for('collection') }}" class="active"><i class="fas fa-hand-holding-dollar"></i> ប្រមូលប្រាក់</a></li>
-            <li><a href="#"><i class="fas fa-chart-bar"></i> របាយការណ៍</a></li>
-            <li><a href="{{ url_for('settings') }}"><i class="fas fa-cog"></i> ការកំណត់</a></li>
-        </ul>
+        <div class="menu-label">មុខម្ហូប</div>
+
+        <a href="/dashboard" class="menu-item">
+            <span class="icon">📊</span>
+            <span>Dashboard</span>
+        </a>
+
+        <a href="/customers" class="menu-item">
+            <span class="icon">👤</span>
+            <span>អតិថិជន</span>
+        </a>
+
+        <a href="/loans" class="menu-item">
+            <span class="icon">💰</span>
+            <span>កម្ចី</span>
+        </a>
+
+        <a href="/loans/bad" class="menu-item">
+            <span class="icon">⚠️</span>
+            <span>កម្ចីខូច</span>
+        </a>
+
+        <a href="/pawn" class="menu-item">
+            <span class="icon">🏠</span>
+            <span>បញ្ចាំ</span>
+        </a>
+
+        <a href="/payments" class="menu-item">
+            <span class="icon">📱</span>
+            <span>ទូរទាត់</span>
+        </a>
+
+        <!-- ===== COLLECTION WITH SUBMENU ===== -->
+        <div class="menu-item active" onclick="toggleCollectionSubmenu(event)">
+            <span class="icon">💵</span>
+            <span>ប្រមូលប្រាក់</span>
+            <span class="arrow" id="collectionArrow">▲</span>
+        </div>
+        <div class="submenu-container open" id="collectionSubmenu">
+            <a href="/collection_good" class="menu-item submenu-item">
+                <span class="icon">✅</span>
+                <span>កម្ចីល្អ</span>
+            </a>
+            <a href="/collection_late" class="menu-item submenu-item active">
+                <span class="icon">⏰</span>
+                <span>កម្ចីយឺត</span>
+            </a>
+            <a href="/collection_bad" class="menu-item submenu-item">
+                <span class="icon">❌</span>
+                <span>កម្ចីខូច</span>
+            </a>
+        </div>
+
+        <a href="/disbursement" class="menu-item">
+            <span class="icon">📢</span>
+            <span>បេឡា</span>
+        </a>
+
+        <a href="/reports" class="menu-item">
+            <span class="icon">📈</span>
+            <span>របាយការណ៍</span>
+        </a>
+
+        <a href="/settings" class="menu-item">
+            <span class="icon">⚙️</span>
+            <span>ការកំណត់</span>
+        </a>
+
+        <a href="/audit" class="menu-item">
+            <span class="icon">📋</span>
+            <span>សវនៈកម្ម</span>
+        </a>
     </nav>
 
     <!-- ===== MAIN CONTENT ===== -->
@@ -233,27 +388,38 @@
 
         <header class="top-header">
             <div style="display:flex;align-items:center;gap:15px;">
-                <button class="menu-toggle" id="menuToggle">
-                    <i class="fas fa-bars"></i>
-                </button>
                 <div class="page-title">
-                    <h1><i class="fas fa-clock" style="color:#ed8936;"></i> កម្ចីយឺត</h1>
-                    <p>បញ្ជីកម្ចីដែលហួសកំណត់ 1-30 ថ្ងៃ</p>
+                    <h1><i class="fas fa-clock"></i> <span>កម្ចីយឺត</span></h1>
+                    <p style="color:#718096; font-size:14px; margin-top:2px;">បញ្ជីកម្ចីដែលហួសកំណត់ 1-30 ថ្ងៃ</p>
                 </div>
             </div>
             <div class="user-info">
                 <div>
-                    <div class="user-name">{{ username }}</div>
-                    <div class="user-role">អ្នកគ្រប់គ្រង</div>
+                    <div class="name">ស្វាគមន៍, <span id="usernameDisplay">{{ username }}</span></div>
+                    <div class="role">អ្នកគ្រប់គ្រងប្រព័ន្ធ</div>
                 </div>
                 <div class="avatar">{{ username[0] if username else 'អ' }}</div>
-                <a href="{{ url_for('logout') }}" class="logout-btn"><i class="fas fa-sign-out-alt"></i> ចាកចេញ</a>
+                <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> ចាកចេញ</a>
             </div>
         </header>
 
         <!-- ===== PAGE CONTENT ===== -->
         <div class="page-content">
 
+            <!-- ===== FILTER TABS ===== -->
+            <div class="filter-tabs">
+                <a href="/collection_good" class="filter-tab good">
+                    <i class="fas fa-check-circle"></i> កម្ចីល្អ
+                </a>
+                <a href="/collection_late" class="filter-tab late active">
+                    <i class="fas fa-clock"></i> កម្ចីយឺត
+                </a>
+                <a href="/collection_bad" class="filter-tab bad">
+                    <i class="fas fa-times-circle"></i> កម្ចីខូច
+                </a>
+            </div>
+
+            <!-- ===== STATS ===== -->
             <div class="stats-grid">
                 <div class="stat-card orange">
                     <div class="number" id="totalAmount">$0.00</div>
@@ -269,6 +435,7 @@
                 </div>
             </div>
 
+            <!-- ===== TABLE ===== -->
             <div class="table-responsive">
                 <table>
                     <thead>
@@ -361,9 +528,10 @@
                     <div class="form-group">
                         <label>វិធីសាស្ត្រទូរទាត់ <span class="required">*</span></label>
                         <select name="payment_method" id="modal_payment_method" required>
-                            <option value="cash">សាច់ប្រាក់ផ្ទាល់</option>
-                            <option value="aba">ធនាគារ ABA</option>
-                            <option value="acleda">ធនាគារ ACLEDA</option>
+                            <option value="cash">💵 សាច់ប្រាក់ផ្ទាល់</option>
+                            <option value="aba">🏦 ធនាគារ ABA</option>
+                            <option value="acleda">🏦 ធនាគារ ACLEDA</option>
+                            <option value="wing">🦅 ធនាគារ WING</option>
                         </select>
                     </div>
 
@@ -388,22 +556,92 @@
     <script>
         let currentLoanData = {};
 
-        // ===== MENU TOGGLE =====
-        document.getElementById('menuToggle').addEventListener('click', function() {
-            document.getElementById('sidebar').classList.toggle('open');
-        });
+        // ============================================================
+        // ===== TOGGLE COLLECTION SUBMENU =====
+        // ============================================================
+        function toggleCollectionSubmenu(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
 
-        document.addEventListener('click', function(event) {
-            const sidebar = document.getElementById('sidebar');
-            const toggle = document.getElementById('menuToggle');
-            if (window.innerWidth <= 768) {
-                if (!sidebar.contains(event.target) && !toggle.contains(event.target)) {
-                    sidebar.classList.remove('open');
+            const container = document.getElementById('collectionSubmenu');
+            const arrow = document.getElementById('collectionArrow');
+
+            if (container) {
+                container.classList.toggle('open');
+                if (arrow) {
+                    arrow.textContent = container.classList.contains('open') ? '▲' : '▼';
+                }
+            }
+        }
+
+        // ============================================================
+        // ===== AUTO HIGHLIGHT ACTIVE MENU =====
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            console.log('📍 Current path:', currentPath);
+
+            document.querySelectorAll('.sidebar .menu-item').forEach(function(item) {
+                item.classList.remove('active');
+            });
+
+            const collectionPages = ['/collection', '/collection_good', '/collection_late', '/collection_bad'];
+            let isCollectionPage = collectionPages.some(page => currentPath === page);
+
+            if (isCollectionPage) {
+                const collectionParent = document.querySelector('.menu-item[onclick*="toggleCollectionSubmenu"]');
+                if (collectionParent) {
+                    collectionParent.classList.add('active');
+                }
+
+                const container = document.getElementById('collectionSubmenu');
+                const arrow = document.getElementById('collectionArrow');
+                if (container) {
+                    container.classList.add('open');
+                    if (arrow) arrow.textContent = '▲';
+                }
+
+                document.querySelectorAll('#collectionSubmenu .submenu-item').forEach(function(subItem) {
+                    const href = subItem.getAttribute('href');
+                    if (href === currentPath) {
+                        subItem.classList.add('active');
+                    }
+                });
+
+                return;
+            }
+
+            let hasActiveMenu = false;
+            document.querySelectorAll('.sidebar .menu-item').forEach(function(item) {
+                const href = item.getAttribute('href');
+                if (!href || href === '#') return;
+
+                let isActive = false;
+                if (currentPath === href) {
+                    isActive = true;
+                } else if (href !== '/' && currentPath.startsWith(href + '/')) {
+                    isActive = true;
+                }
+
+                if (isActive) {
+                    item.classList.add('active');
+                    hasActiveMenu = true;
+                }
+            });
+
+            if (!hasActiveMenu && currentPath !== '/login') {
+                const dashboardItem = document.querySelector('.sidebar .menu-item[href="/dashboard"]');
+                if (dashboardItem) {
+                    dashboardItem.classList.add('active');
                 }
             }
         });
 
+        // ============================================================
         // ===== FORMAT CURRENCY =====
+        // ============================================================
         function formatCurrency(amount, currency) {
             if (amount === null || amount === undefined || isNaN(amount)) {
                 return currency === 'KHR' ? '៛ 0' : '$ 0.00';
@@ -416,7 +654,9 @@
             }
         }
 
+        // ============================================================
         // ===== CALCULATE TOTAL =====
+        // ============================================================
         function calculateTotal() {
             const penaltyInput = document.getElementById('modal_penalty');
             const totalElement = document.getElementById('modal_total');
@@ -426,7 +666,9 @@
             totalElement.textContent = formatCurrency(total, currentLoanData.currency || 'USD');
         }
 
+        // ============================================================
         // ===== LOAD COLLECTION =====
+        // ============================================================
         async function loadCollection() {
             const tbody = document.getElementById('collectionBody');
             tbody.innerHTML = `
@@ -459,7 +701,9 @@
             }
         }
 
+        // ============================================================
         // ===== RENDER TABLE =====
+        // ============================================================
         function renderTable(data) {
             const tbody = document.getElementById('collectionBody');
             tbody.innerHTML = '';
@@ -491,7 +735,7 @@
                     <td><strong>${loanCode}</strong></td>
                     <td>${customerName}</td>
                     <td>
-                        <button class="btn btn-warning btn-sm btn-fixed-width" 
+                        <button class="btn btn-warning btn-sm btn-fixed-width"
                                 onclick="openPaymentModal(${loan.id}, '${customerName.replace(/'/g, "\\'")}', '${loanCode}', ${totalDue}, ${loan.principal || 0}, ${loan.interest || 0}, ${daysOverdue}, ${penalty}, '${currency}')">
                             ${formatCurrency(totalDue + penalty, currency)}
                         </button>
@@ -503,8 +747,8 @@
                     </td>
                     <td>${formatCurrency(penalty, currency)}</td>
                     <td>
-                        <button class="btn btn-success btn-sm btn-fixed-width" 
-                                style="background:#48bb78; opacity:0.85; cursor:default;" 
+                        <button class="btn btn-success btn-sm btn-fixed-width"
+                                style="background:#48bb78; opacity:0.85; cursor:default;"
                                 onclick="alert('បំណុលនៅខ្វះសរុប: ${formatCurrency(remainingBalance, currency)}')">
                             ${formatCurrency(remainingBalance, currency)}
                         </button>
@@ -516,7 +760,9 @@
             });
         }
 
+        // ============================================================
         // ===== UPDATE STATS =====
+        // ============================================================
         function updateStats(data) {
             let total = 0;
             let totalPenalty = 0;
@@ -531,7 +777,9 @@
             document.getElementById('totalPenalty').textContent = formatCurrency(totalPenalty, 'USD');
         }
 
+        // ============================================================
         // ===== OPEN PAYMENT MODAL =====
+        // ============================================================
         function openPaymentModal(loanId, customerName, loanCode, totalDue, principal, interest, daysOverdue, penalty, currency) {
             document.getElementById('paymentModal').classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -543,7 +791,6 @@
             document.getElementById('modal_interest').textContent = formatCurrency(interest, currency);
             document.getElementById('modal_days_overdue').textContent = daysOverdue + ' ថ្ងៃ';
 
-            // Store current loan data for calculation
             currentLoanData = {
                 totalDue: totalDue,
                 currency: currency
@@ -551,39 +798,37 @@
 
             const totalElement = document.getElementById('modal_total');
             totalElement.textContent = formatCurrency(totalDue + penalty, currency);
-            
+
             document.getElementById('modal_penalty').value = penalty || 0;
             document.getElementById('modal_amount').value = totalDue + (penalty || 0);
             document.getElementById('modal_amount').focus();
-
-            // Add event listener for penalty input
-            document.getElementById('modal_penalty').addEventListener('input', calculateTotal);
         }
 
+        // ============================================================
         // ===== CLOSE PAYMENT MODAL =====
+        // ============================================================
         function closePaymentModal() {
             document.getElementById('paymentModal').classList.remove('active');
             document.body.style.overflow = 'auto';
             document.getElementById('paymentForm').reset();
-            // Reset total display
             document.getElementById('modal_total').textContent = '-';
         }
 
-        // ===== CLOSE MODAL ON OVERLAY CLICK =====
         document.getElementById('paymentModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closePaymentModal();
             }
         });
 
-        // ===== CLOSE MODAL ON ESCAPE KEY =====
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closePaymentModal();
             }
         });
 
+        // ============================================================
         // ===== SUBMIT PAYMENT =====
+        // ============================================================
         async function submitPayment(event) {
             event.preventDefault();
 
@@ -598,13 +843,13 @@
                 return;
             }
 
-            // Disable submit button
             const submitBtn = document.querySelector('#paymentForm .btn-warning');
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> កំពុងដំណើរការ...';
             submitBtn.disabled = true;
 
             try {
+                const today = new Date().toISOString().split('T')[0];
                 const response = await fetch('/api/collection_payment', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -613,7 +858,8 @@
                         amount: parseFloat(amount),
                         payment_method: paymentMethod,
                         penalty: parseFloat(penalty),
-                        notes: notes
+                        notes: notes,
+                        payment_date: today
                     })
                 });
 
@@ -635,7 +881,9 @@
             }
         }
 
+        // ============================================================
         // ===== AUTO-LOAD =====
+        // ============================================================
         document.addEventListener('DOMContentLoaded', function() {
             loadCollection();
         });
