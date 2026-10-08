@@ -176,25 +176,10 @@
             background: #f0f4ff;
             color: #667eea;
         }
-        .autocomplete-item .code {
-            font-weight: 700;
-            color: #667eea;
-            margin-right: 8px;
-        }
-        .autocomplete-item .name {
-            color: #2d3748;
-        }
-        .autocomplete-item .phone {
-            color: #718096;
-            font-size: 12px;
-            margin-left: 8px;
-        }
-        .autocomplete-empty {
-            padding: 15px;
-            text-align: center;
-            color: #a0aec0;
-            font-size: 13px;
-        }
+        .autocomplete-item .code { font-weight: 700; color: #667eea; margin-right: 8px; }
+        .autocomplete-item .name { color: #2d3748; }
+        .autocomplete-item .phone { color: #718096; font-size: 12px; margin-left: 8px; }
+        .autocomplete-empty { padding: 15px; text-align: center; color: #a0aec0; font-size: 13px; }
 
         /* ===== BUTTONS ===== */
         .btn {
@@ -222,13 +207,45 @@
         .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
         .btn-cancel { background: #e2e8f0; color: #2d3748; padding: 12px 25px; }
         .btn-cancel:hover { background: #cbd5e0; }
+
+        /* ===== ACTION BUTTONS IN TABLE ===== */
         .btn-view {
             background: #3498db;
             color: white;
-            padding: 5px 12px;
+            padding: 5px 10px;
             font-size: 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
         }
         .btn-view:hover { background: #2980b9; transform: translateY(-2px); }
+
+        .btn-edit {
+            background: #f39c12;
+            color: white;
+            padding: 5px 10px;
+            font-size: 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-edit:hover { background: #d68910; transform: translateY(-2px); }
+
+        .btn-delete {
+            background: #e74c3c;
+            color: white;
+            padding: 5px 10px;
+            font-size: 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-delete:hover { background: #c0392b; transform: translateY(-2px); }
+
+        .action-group { display: flex; gap: 5px; }
 
         /* ===== HISTORY TABLE ===== */
         .history-section { margin-top: 25px; }
@@ -289,6 +306,7 @@
             animation: modalSlide 0.3s ease;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
+        .modal-box.small { max-width: 500px; }
         @keyframes modalSlide {
             from { opacity: 0; transform: translateY(-30px) scale(0.95); }
             to { opacity: 1; transform: translateY(0) scale(1); }
@@ -308,6 +326,52 @@
         }
         .modal-close:hover { color: #fc8181; transform: rotate(90deg); }
 
+        /* ===== EDIT MODAL FORM ===== */
+        .edit-form .form-group {
+            margin-bottom: 15px;
+        }
+        .edit-form .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 6px;
+        }
+        .edit-form .form-group input,
+        .edit-form .form-group select,
+        .edit-form .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.3s;
+            background: #fff;
+        }
+        .edit-form .form-group input:focus,
+        .edit-form .form-group select:focus,
+        .edit-form .form-group textarea:focus {
+            border-color: #f39c12;
+            box-shadow: 0 0 0 3px rgba(243,156,18,0.1);
+        }
+        .edit-form .form-group input:read-only {
+            background: #f8f9fa;
+            color: #718096;
+            cursor: not-allowed;
+        }
+
+        /* ===== WARNING BOX ===== */
+        .warning-box {
+            background: #fff5f5;
+            border-left: 4px solid #e74c3c;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        .warning-box strong { color: #e74c3c; }
+
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .sidebar { width: 70px; padding: 15px 0; }
@@ -322,6 +386,7 @@
             .user-info .name, .user-info .role { display: none; }
             .form-grid { grid-template-columns: 1fr; }
             table { font-size: 12px; min-width: 700px; }
+            .action-group { flex-direction: column; }
         }
         .sidebar::-webkit-scrollbar { width: 4px; }
         .sidebar::-webkit-scrollbar-track { background: transparent; }
@@ -445,7 +510,6 @@
                     <input type="hidden" id="p_currency">
 
                     <div class="form-grid">
-                        <!-- ===== លេខកូដអតិថិជន (Autocomplete) ===== -->
                         <div class="form-group">
                             <label><i class="fas fa-id-card"></i> លេខកូដអតិថិជន <span class="required">*</span></label>
                             <div class="autocomplete-wrapper">
@@ -459,39 +523,33 @@
                             </div>
                         </div>
 
-                        <!-- ===== ឈ្មោះអតិថិជន (Read-only) ===== -->
                         <div class="form-group">
                             <label><i class="fas fa-user"></i> ឈ្មោះអតិថិជន</label>
                             <input type="text" id="p_customer_name" readonly placeholder="-">
                         </div>
 
-                        <!-- ===== ថ្ងៃបង់ប្រាក់ ===== -->
                         <div class="form-group">
                             <label><i class="fas fa-calendar"></i> ថ្ងៃទីបង់ប្រាក់ <span class="required">*</span></label>
                             <input type="date" id="p_payment_date" required>
                         </div>
 
-                        <!-- ===== ទឹកប្រាក់ត្រូវបង់ (Lock) ===== -->
                         <div class="form-group">
                             <label><i class="fas fa-money-bill-wave"></i> ទឹកប្រាក់ត្រូវបង់</label>
                             <input type="text" id="p_amount_due" readonly placeholder="0">
                         </div>
 
-                        <!-- ===== ទឹកប្រាក់ពិន័យ ===== -->
                         <div class="form-group">
                             <label><i class="fas fa-exclamation-triangle"></i> ទឹកប្រាក់ពិន័យ</label>
                             <input type="number" id="p_penalty" step="100" min="0" value="0"
                                    placeholder="0" oninput="calculateTotal()">
                         </div>
 
-                        <!-- ===== សាច់ប្រាក់ទទួល ===== -->
                         <div class="form-group">
                             <label><i class="fas fa-hand-holding-usd"></i> សាច់ប្រាក់ទទួល <span class="required">*</span></label>
                             <input type="number" id="p_amount" step="100" min="0" required
                                    placeholder="0" oninput="calculateTotal()">
                         </div>
 
-                        <!-- ===== ជម្រើសការទូរទាត់ ===== -->
                         <div class="form-group" style="grid-column: 1 / -1;">
                             <label><i class="fas fa-credit-card"></i> ជម្រើសការទូរទាត់ <span class="required">*</span></label>
                             <select id="p_payment_method" required>
@@ -502,14 +560,12 @@
                             </select>
                         </div>
 
-                        <!-- ===== កំណត់ចំណាំ ===== -->
                         <div class="form-group" style="grid-column: 1 / -1;">
                             <label><i class="fas fa-pencil-alt"></i> កំណត់ចំណាំ</label>
                             <input type="text" id="p_notes" placeholder="កំណត់ចំណាំបន្ថែម...">
                         </div>
                     </div>
 
-                    <!-- ===== SUMMARY ===== -->
                     <div class="alert alert-info" id="remainingInfo" style="display:none;">
                         <i class="fas fa-info-circle"></i>
                         <div>
@@ -518,7 +574,6 @@
                         </div>
                     </div>
 
-                    <!-- ===== ACTIONS ===== -->
                     <div style="display:flex; gap:10px; margin-top:20px;">
                         <button type="submit" class="btn btn-submit" id="submitBtn">
                             <i class="fas fa-check-circle"></i> បញ្ជាក់ការទូរទាត់
@@ -574,6 +629,91 @@
                 <div style="text-align:center; padding:30px;">
                     <div class="spinner"></div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== EDIT PAYMENT MODAL ===== -->
+    <div class="modal-overlay" id="editPaymentModal">
+        <div class="modal-box small">
+            <div class="modal-header" style="border-bottom-color:#f39c12;">
+                <h3 style="color:#f39c12;"><i class="fas fa-edit"></i> កែប្រែការទូរទាត់</h3>
+                <button class="modal-close" onclick="closeEditModal()">&times;</button>
+            </div>
+            <form id="editForm" class="edit-form" onsubmit="submitEdit(event)">
+                <input type="hidden" id="edit_activity_id">
+                <input type="hidden" id="edit_loan_id">
+                <input type="hidden" id="edit_currency">
+
+                <div class="alert alert-info" style="margin-bottom:15px;">
+                    <i class="fas fa-info-circle"></i>
+                    <div>
+                        <strong>ព័ត៌មានបច្ចុប្បន្ន៖</strong>
+                        <div id="edit_current_info" style="font-size:13px; margin-top:5px;">-</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-money-bill-wave"></i> ទឹកប្រាក់ថ្មី <span style="color:#e74c3c;">*</span></label>
+                    <input type="number" id="edit_amount" step="100" min="0" required>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-credit-card"></i> វិធីសាស្ត្រ <span style="color:#e74c3c;">*</span></label>
+                    <select id="edit_payment_method" required>
+                        <option value="cash">💵 សាច់ប្រាក់ផ្ទាល់</option>
+                        <option value="aba">🏦 ធនាគារ ABA</option>
+                        <option value="acleda">🏦 ធនាគារ ACLEDA</option>
+                        <option value="wing">🦅 ធនាគារ WING</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-pencil-alt"></i> កំណត់ចំណាំ</label>
+                    <input type="text" id="edit_notes" placeholder="កំណត់ចំណាំបន្ថែម...">
+                </div>
+
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <button type="submit" class="btn" style="flex:1; background:#f39c12; color:white; padding:12px;">
+                        <i class="fas fa-check"></i> រក្សាទុកការកែប្រែ
+                    </button>
+                    <button type="button" class="btn btn-cancel" onclick="closeEditModal()" style="flex:1;">
+                        <i class="fas fa-times"></i> បោះបង់
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== DELETE CONFIRM MODAL ===== -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal-box small">
+            <div class="modal-header" style="border-bottom-color:#e74c3c;">
+                <h3 style="color:#e74c3c;"><i class="fas fa-trash"></i> លុបការទូរទាត់</h3>
+                <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
+            </div>
+            <div class="warning-box">
+                <strong>⚠️ ការព្រមាន៖</strong>
+                <p style="margin-top:8px; color:#721c24;">
+                    ការលុបនេះនឹងធ្វើឱ្យ៖
+                </p>
+                <ul style="margin-left:20px; margin-top:5px; color:#721c24;">
+                    <li>បំណុលកម្ចីកើនឡើងវិញ <strong id="delete_amount_display">0</strong></li>
+                    <li>លុបប្រវត្តិទូរទាត់នេះចេញពីប្រព័ន្ធ</li>
+                    <li>ការលុបនេះ<strong>មិនអាចត្រឡប់វិញបានទេ</strong></li>
+                </ul>
+            </div>
+            <div id="delete_payment_info" style="background:#f8f9fa; padding:12px; border-radius:8px; margin-bottom:15px; font-size:13px;">
+                -
+            </div>
+            <input type="hidden" id="delete_activity_id">
+            <div style="display:flex; gap:10px;">
+                <button type="button" class="btn" style="flex:1; background:#e74c3c; color:white; padding:12px;" onclick="confirmDelete()">
+                    <i class="fas fa-trash"></i> បញ្ជាក់ការលុប
+                </button>
+                <button type="button" class="btn btn-cancel" onclick="closeDeleteModal()" style="flex:1;">
+                    <i class="fas fa-times"></i> បោះបង់
+                </button>
             </div>
         </div>
     </div>
@@ -683,7 +823,6 @@
                 return;
             }
 
-            // Debounce 300ms
             autocompleteTimeout = setTimeout(async () => {
                 try {
                     const response = await fetch(`/api/search_customers?q=${encodeURIComponent(value.trim())}&limit=10`);
@@ -725,7 +864,6 @@
             document.getElementById('p_customer_name').value = name;
             selectedCustomerId = customerId;
 
-            // ===== ទាញយកកម្ចីរបស់អតិថិជន =====
             await loadCustomerLoans(customerId);
         }
 
@@ -743,11 +881,9 @@
                     return;
                 }
 
-                // ===== បើមាន ១ កម្ចី → ជ្រើសស្វ័យប្រវត្តិ =====
                 if (loans.length === 1) {
                     selectLoanForPayment(loans[0]);
                 } else {
-                    // ===== បើមានច្រើន → បង្ហាញជម្រើស =====
                     showLoanSelection(loans);
                 }
             } catch (error) {
@@ -798,7 +934,6 @@
             const currency = loan.currency || 'USD';
             const totalDue = loan.total_due || loan.remaining_balance || 0;
 
-            // ===== Set fields =====
             document.getElementById('p_loan_id').value = loan.id;
             document.getElementById('p_currency').value = currency;
             document.getElementById('p_amount_due').value = formatCurrency(totalDue, currency);
@@ -807,11 +942,9 @@
             document.getElementById('p_notes').value = '';
             document.getElementById('p_payment_method').value = 'cash';
 
-            // ===== Set today's date =====
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('p_payment_date').value = today;
 
-            // ===== Store data =====
             currentLoan.total_due = totalDue;
             currentLoan.remaining_balance = loan.remaining_balance || 0;
 
@@ -842,7 +975,6 @@
             const penalty = parseFloat(document.getElementById('p_penalty').value) || 0;
             const amount = parseFloat(document.getElementById('p_amount').value) || 0;
 
-            // ===== បង្ហាញបំណុលនៅខ្វះក្រោយបង់ =====
             const remaining = (currentLoan.remaining_balance || 0) - amount + penalty;
             const remainingInfo = document.getElementById('remainingInfo');
             const remainingAfterPay = document.getElementById('remainingAfterPay');
@@ -939,7 +1071,6 @@
             selectedCustomerId = null;
             hideAutocomplete();
 
-            // ===== Set today's date =====
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('p_payment_date').value = today;
         }
@@ -966,6 +1097,11 @@
                                      : p.payment_method === 'acleda' ? '🏦 ACLEDA'
                                      : p.payment_method === 'wing' ? '🦅 WING' : '💵 សាច់ប្រាក់';
 
+                    // ប្រើ activity_id បើមាន ឬ id ធម្មតា
+                    const paymentId = p.activity_id || p._id || p.id || '';
+                    const loanCodeEscaped = (p.loan_code || '').replace(/'/g, "\\'");
+                    const customerNameEscaped = (p.customer_name || '').replace(/'/g, "\\'");
+
                     return `
                         <tr>
                             <td>${i + 1}</td>
@@ -977,9 +1113,17 @@
                             <td>${p.created_at || '-'}</td>
                             <td>${p.penalty > 0 ? formatCurrency(p.penalty, p.currency) : '-'}</td>
                             <td>
-                                <button class="btn btn-view" onclick="viewLoanHistory(${p.loan_id}, '${(p.loan_code || '').replace(/'/g, "\\'")}')">
-                                    <i class="fas fa-eye"></i> មើល
-                                </button>
+                                <div class="action-group">
+                                    <button class="btn-view" onclick="viewLoanHistory(${p.loan_id}, '${loanCodeEscaped}')" title="មើលប្រវត្តិ">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn-edit" onclick='openEditModal(${JSON.stringify({id: paymentId, loan_id: p.loan_id, amount: p.amount, payment_method: p.payment_method, notes: p.notes || "", loan_code: p.loan_code, customer_name: p.customer_name, currency: p.currency}).replace(/'/g, "\\'")})' title="កែប្រែ">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn-delete" onclick='openDeleteModal(${JSON.stringify({id: paymentId, amount: p.amount, currency: p.currency, loan_code: p.loan_code, customer_name: p.customer_name}).replace(/'/g, "\\'")})' title="លុប">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     `;
@@ -1014,7 +1158,6 @@
                     return;
                 }
 
-                // ===== Summary =====
                 const totalPaid = data.reduce((sum, p) => sum + (p.amount || 0), 0);
                 const totalPenalty = data.reduce((sum, p) => sum + (p.penalty || 0), 0);
                 const currency = data[0].currency || 'USD';
@@ -1091,8 +1234,182 @@
             if (e.target === this) closeHistoryModal();
         });
 
+        // ============================================================
+        // ===== OPEN EDIT MODAL =====
+        // ============================================================
+        function openEditModal(paymentData) {
+            document.getElementById('edit_activity_id').value = paymentData.id || '';
+            document.getElementById('edit_loan_id').value = paymentData.loan_id || '';
+            document.getElementById('edit_currency').value = paymentData.currency || 'USD';
+
+            document.getElementById('edit_amount').value = paymentData.amount || 0;
+            document.getElementById('edit_payment_method').value = paymentData.payment_method || 'cash';
+            document.getElementById('edit_notes').value = paymentData.notes || '';
+
+            // បង្ហាញព័ត៌មានបច្ចុប្បន្ន
+            const currency = paymentData.currency || 'USD';
+            document.getElementById('edit_current_info').innerHTML = `
+                <strong>${paymentData.loan_code || '-'}</strong> - ${paymentData.customer_name || '-'}<br>
+                ទឹកប្រាក់បច្ចុប្បន្ន: <strong style="color:#f39c12;">${formatCurrency(paymentData.amount || 0, currency)}</strong>
+            `;
+
+            document.getElementById('editPaymentModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // ============================================================
+        // ===== SUBMIT EDIT =====
+        // ============================================================
+        async function submitEdit(event) {
+            event.preventDefault();
+
+            const activityId = document.getElementById('edit_activity_id').value;
+            const loanId = document.getElementById('edit_loan_id').value;
+            const amount = parseFloat(document.getElementById('edit_amount').value) || 0;
+            const paymentMethod = document.getElementById('edit_payment_method').value;
+            const notes = document.getElementById('edit_notes').value || '';
+
+            if (!activityId || !loanId) {
+                alert('ខ្វះព័ត៌មានចាំបាច់!');
+                return;
+            }
+
+            if (amount <= 0) {
+                alert('សូមបញ្ចូលទឹកប្រាក់ឱ្យបានត្រឹមត្រូវ!');
+                return;
+            }
+
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> កំពុងរក្សាទុក...';
+
+            try {
+                const response = await fetch('/api/edit_payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        activity_id: activityId,
+                        loan_id: loanId,
+                        amount: amount,
+                        payment_method: paymentMethod,
+                        notes: notes
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('✅ ' + (result.message || 'កែប្រែជោគជ័យ!'), 'success');
+                    closeEditModal();
+                    loadHistory();
+                } else {
+                    showAlert('❌ ' + (result.error || 'មានបញ្ហា!'), 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('❌ មានបញ្ហាក្នុងការភ្ជាប់ទៅម៉ាស៊ីនមេ!', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        }
+
+        // ============================================================
+        // ===== CLOSE EDIT MODAL =====
+        // ============================================================
+        function closeEditModal() {
+            document.getElementById('editPaymentModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        document.getElementById('editPaymentModal').addEventListener('click', function(e) {
+            if (e.target === this) closeEditModal();
+        });
+
+        // ============================================================
+        // ===== OPEN DELETE MODAL =====
+        // ============================================================
+        function openDeleteModal(paymentData) {
+            document.getElementById('delete_activity_id').value = paymentData.id || '';
+
+            const currency = paymentData.currency || 'USD';
+            document.getElementById('delete_amount_display').textContent = formatCurrency(paymentData.amount || 0, currency);
+
+            document.getElementById('delete_payment_info').innerHTML = `
+                <strong>លេខកម្ចី:</strong> ${paymentData.loan_code || '-'}<br>
+                <strong>អតិថិជន:</strong> ${paymentData.customer_name || '-'}<br>
+                <strong>ទឹកប្រាក់:</strong> ${formatCurrency(paymentData.amount || 0, currency)}
+            `;
+
+            document.getElementById('deleteModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // ============================================================
+        // ===== CONFIRM DELETE =====
+        // ============================================================
+        async function confirmDelete() {
+            const activityId = document.getElementById('delete_activity_id').value;
+
+            if (!activityId) {
+                alert('ខ្វះព័ត៌មានចាំបាច់!');
+                return;
+            }
+
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> កំពុងលុប...';
+
+            try {
+                const response = await fetch('/api/delete_payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        activity_id: activityId
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('✅ ' + (result.message || 'លុបជោគជ័យ!'), 'success');
+                    closeDeleteModal();
+                    loadHistory();
+                } else {
+                    showAlert('❌ ' + (result.error || 'មានបញ្ហា!'), 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('❌ មានបញ្ហាក្នុងការភ្ជាប់ទៅម៉ាស៊ីនមេ!', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
+        // ============================================================
+        // ===== CLOSE DELETE MODAL =====
+        // ============================================================
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        document.getElementById('deleteModal').addEventListener('click', function(e) {
+            if (e.target === this) closeDeleteModal();
+        });
+
+        // ============================================================
+        // ===== ESCAPE KEY =====
+        // ============================================================
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') closeHistoryModal();
+            if (e.key === 'Escape') {
+                closeHistoryModal();
+                closeEditModal();
+                closeDeleteModal();
+            }
         });
 
         // ============================================================
