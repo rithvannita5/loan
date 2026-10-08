@@ -1827,26 +1827,58 @@ def api_delete_payment():
         return jsonify({'error': 'Missing activity_id'}), 400
 
     try:
+        # ===== ទាញយក Activity =====
         activity = db.activities_col.find_one({'_id': int(activity_id)})
         if not activity:
             return jsonify({'error': 'មិនឃើញការទូរទាត់នេះទេ!'}), 404
 
         loan_id = activity.get('loan_id')
 
+        # ===== ទាញចំនួនសរុបពី description =====
         description = activity.get('description', '')
+        
+        # ទាញចំនួនសរុប (amount + penalty)
         match = re.search(r'\$([0-9.]+)', description)
-        amount = float(match.group(1)) if match else 0
-
-        if amount == 0:
+        total_amount = float(match.group(1)) if match else 0
+        
+        if total_amount == 0:
             match_khr = re.search(r'៛\s*([0-9,]+)', description)
             if match_khr:
-                amount = float(match_khr.group(1).replace(',', ''))
+                total_amount = float(match_khr.group(1).replace(',', ''))
 
+        # ===== ទាញពិន័យពី description (បើមាន) =====
+        # Format: "បានប្រមូលប្រាក់ $1,100.00 (ពិន័យ $100.00) តាមរយៈ cash"
+        penalty = 0
+        penalty_match = re.search(r'ពិន័យ\s*\$([0-9.]+)', description)
+        if penalty_match:
+            penalty = float(penalty_match.group(1))
+        else:
+            # ស្វែងរក ៛ ពិន័យ
+            penalty_match_khr = re.search(r'ពិន័យ\s*៛\s*([0-9,]+)', description)
+            if penalty_match_khr:
+                penalty = float(penalty_match_khr.group(1).replace(',', ''))
+
+        # ===== ព្យាយាមទាញពិន័យពី payment_history (ជាងសុវត្ថិភាព) =====
+        try:
+            payment_record = db.payment_history_col.find_one({
+                'loan_id': int(loan_id) if loan_id else None,
+                'amount': total_amount
+            })
+            if payment_record:
+                penalty = payment_record.get('penalty', 0) or penalty
+        except:
+            pass
+
+        # ===== គណនាចំនួនដែលចូលកម្ចីពិត (ដើម + ការប្រាក់) =====
+        amount_for_loan = total_amount - penalty
+
+        # ===== បញ្ច្រាសការគណនាកម្ចី =====
         if loan_id:
             loan = db.loans_col.find_one({'_id': int(loan_id)})
             if loan:
-                new_amount_paid = (loan.get('amount_paid', 0) or 0) - amount
-                new_remaining = (loan.get('remaining_balance', 0) or 0) + amount
+                new_amount_paid = (loan.get('amount_paid', 0) or 0) - amount_for_loan
+                new_remaining = (loan.get('remaining_balance', 0) or 0) + amount_for_loan
+
                 if new_amount_paid < 0:
                     new_amount_paid = 0
 
@@ -1859,9 +1891,22 @@ def api_delete_payment():
                     }}
                 )
 
+        # ===== លុប Payment History =====
+        try:
+            db.payment_history_col.delete_one({
+                'loan_id': int(loan_id) if loan_id else None,
+                'amount': total_amount
+            })
+        except:
+            pass
+
+        # ===== លុប Activity =====
         db.activities_col.delete_one({'_id': int(activity_id)})
 
-        return jsonify({'success': True, 'message': 'បានលុបការទូរទាត់រួចរាល់!'})
+        return jsonify({
+            'success': True,
+            'message': f'បានលុបការទូរទាត់រួចរាល់! (ដក {amount_for_loan:,.2f} ចេញពីកម្ចី, ពិន័យ {penalty:,.2f})'
+        })
 
     except Exception as e:
         import traceback
