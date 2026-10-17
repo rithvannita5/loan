@@ -26,6 +26,33 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-here-change-it-12345')
 
 
+from functools import wraps
+
+def check_permission(permission_name):
+    """Decorator សម្រាប់ពិនិត្យសិទ្ធិអ្នកប្រើ មុននឹងអនុញ្ញាតឱ្យចូលប្រើ Route"""
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if 'username' not in session:
+                return jsonify({'error': 'Unauthorized'}), 401
+            
+            user_role = session.get('role', 'user')
+            
+            # បើជា Admin ធានាថាមានសិទ្ធិគ្រប់យ៉ាង
+            if user_role == 'admin':
+                return f(*args, **kwargs)
+                
+            # ទាញយកសិទ្ធិរបស់តួនាទីនេះពី Database
+            permissions = db.get_permissions(user_role)
+            
+            # បើគ្មានសិទ្ធិនេះទេ បិទមិនឱ្យចូល
+            if not permissions.get(permission_name):
+                return jsonify({'error': f'អ្នកគ្មានសិទ្ធិ "{permission_name}" ទេ!'}), 403
+                
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
+    
 # ============================================================
 # ===== NUMBER TO WORDS =====
 # ============================================================
@@ -601,6 +628,7 @@ def api_create_customer():
 
 
 @app.route('/api/update_customer', methods=['POST'])
+@check_permission('loans_edit')
 def api_update_customer():
     if 'username' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
@@ -618,6 +646,7 @@ def api_update_customer():
 
 
 @app.route('/api/delete_customer', methods=['POST'])
+@check_permission('delete')    
 def api_delete_customer():
     if 'username' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
@@ -956,6 +985,7 @@ def api_create_loan():
 
 
 @app.route('/api/update_loan', methods=['POST'])
+@check_permission('loans_edit')
 def api_update_loan():
     if 'username' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
@@ -970,6 +1000,7 @@ def api_update_loan():
 
 
 @app.route('/api/update_loan_status', methods=['POST'])
+@check_permission('loans_edit')
 def api_update_loan_status():
     if 'username' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
@@ -984,6 +1015,7 @@ def api_update_loan_status():
 
 
 @app.route('/api/delete_loan', methods=['POST'])
+@check_permission('delete')    
 def api_delete_loan():
     if 'username' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
@@ -1791,6 +1823,8 @@ def api_edit_payment():
 # ===== API: DELETE PAYMENT (កែហើយ - ពិន័យមិនរត់ចូលកម្ចី) =====
 # ============================================================
 @app.route('/api/delete_payment', methods=['POST'])
+
+@check_permission('delete')    
 def api_delete_payment():
     if 'username' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
@@ -1889,6 +1923,7 @@ def api_delete_payment():
 
 # ===== API: DISBURSEMENT =====
 @app.route('/api/disbursement')
+@check_permission('disbursement_view')
 def api_disbursement():
     if 'username' not in session:
         return jsonify([])
@@ -2053,6 +2088,7 @@ def api_clean_orphan_data():
 # ============================================================
 
 @app.route('/reports')
+@check_permission('reports_view')
 def reports():
     if 'username' not in session:
         return redirect(url_for('index'))
@@ -2060,6 +2096,7 @@ def reports():
 
 
 @app.route('/api/reports/summary')
+@check_permission('summary_view')
 def api_report_summary():
     if 'username' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
@@ -2114,6 +2151,7 @@ def api_report_summary():
 
 
 @app.route('/api/reports/loans')
+@check_permission('loans_view')
 def api_report_loans():
     if 'username' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
@@ -2164,6 +2202,7 @@ def api_report_loans():
 
 
 @app.route('/api/reports/payments')
+@check_permission('payments_view')
 def api_report_payments():
     if 'username' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
@@ -2273,6 +2312,7 @@ def api_report_payments():
 
 
 @app.route('/api/reports/collection')
+@check_permission('collection_view')
 def api_report_collection():
     if 'username' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
@@ -2281,6 +2321,7 @@ def api_report_collection():
 
 
 @app.route('/api/reports/customers')
+@check_permission('customers_view')
 def api_report_customers():
     if 'username' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
@@ -2334,6 +2375,7 @@ def api_report_customers():
 
 
 @app.route('/api/reports/income')
+@check_permission('income_view')
 def api_report_income():
     if 'username' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
@@ -2394,6 +2436,7 @@ def api_report_income():
 
 
 @app.route('/api/reports/summary_report')
+@check_permission('summary_report_view')
 def api_summary_report():
     if 'username' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
@@ -2492,6 +2535,7 @@ def api_summary_report():
 # ============================================================
 
 @app.route('/api/expenses', methods=['GET'])
+@check_permission('expenses_view')
 def api_get_expenses():
     if 'username' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
@@ -2512,6 +2556,7 @@ def api_get_expenses():
 
 
 @app.route('/api/expenses/<int:expense_id>', methods=['GET'])
+
 def api_get_expense(expense_id):
     if 'username' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
@@ -2591,6 +2636,7 @@ def api_get_expense_categories():
 # ============================================================
 
 @app.route('/pawn')
+@check_permission('pawn_view')        
 def pawn():
     if 'username' not in session:
         return redirect(url_for('index'))
@@ -2598,6 +2644,7 @@ def pawn():
 
 
 @app.route('/api/pawns', methods=['GET'])
+@check_permission('pawns_view')  
 def api_get_pawns():
     if 'username' not in session:
         return jsonify([])
@@ -2716,6 +2763,7 @@ def api_update_pawn(pawn_id):
 # ============================================================
 
 @app.route('/audit')
+@check_permission('audit_view')  
 def audit():
     if 'username' not in session:
         return redirect(url_for('index'))
@@ -2723,6 +2771,7 @@ def audit():
 
 
 @app.route('/api/audit')
+@check_permission('audit_view')  
 def api_audit():
     if 'username' not in session:
         return jsonify([])
@@ -2764,6 +2813,7 @@ def api_audit_actions():
 
 
 @app.route('/api/dashboard_stats')
+@check_permission('dashboard_view')  
 def api_dashboard_stats():
     if 'username' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
@@ -2787,6 +2837,7 @@ def api_dashboard_stats():
 # ============================================================
 
 @app.route('/api/change_co', methods=['POST'])
+@check_permission('change_co_view')  
 def api_change_co():
     if 'username' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
