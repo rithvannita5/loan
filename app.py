@@ -2823,6 +2823,56 @@ def api_calendar_data():
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
+# ============================================================
+# ===== API: RESET ALL DATA (សម្រាប់តែ ADMIN ប៉ុណ្ណោះ) =====
+# ============================================================
+@app.route('/api/reset_all_data', methods=['POST'])
+def api_reset_all_data():
+    # ១. ពិនិត្យសិទ្ធិ (ត្រូវតែជា Admin)
+    if 'username' not in session or session.get('role') != 'admin':
+        return jsonify({'error': 'អ្នកគ្មានសិទ្ធិធ្វើសកម្មភាពនេះទេ! (ត្រូវតែជា Admin)'}), 403
+
+    data = request.get_json()
+    confirm_text = data.get('confirm_text', '')
+
+    # ២. ពិនិត្យការបញ្ជាក់ (ត្រូវវាយពាក្យ "RESET" ទើបអាចលុបបាន)
+    if confirm_text != 'RESET':
+        return jsonify({'error': 'សូមវាយពាក្យ "RESET" ដើម្បីបញ្ជាក់!'}), 400
+
+    try:
+        # ៣. លុបទិន្នន័យទាំងអស់ចេញពី Collections ទាំងអស់
+        # លុបលំដាប់ពីចុងក្រោយ មកដើម ដើម្បីកុំឱ្យជាប់ Foreign Key (បើមាន)
+        
+        db.payment_history_col.delete_many({})   # លុបប្រវត្តិទូរទាត់
+        db.activities_col.delete_many({})        # លុប Activity ទាំងអស់
+        db.loans_col.delete_many({})             # លុបកម្ចីទាំងអស់
+        db.pawns_col.delete_many({})             # លុបបញ្ចាំទាំងអស់
+        db.expenses_col.delete_many({})          # លុបចំណាយទាំងអស់
+        db.customers_col.delete_many({})         # លុបអតិថិជនទាំងអស់
+        
+        # លុប Counter ដើម្បីឱ្យលេខកូដចាប់ផ្តើមពី 1 វិញ
+        db.counters_col.delete_many({})
+        
+        # ចំណាំ: មិនលុប users_col, officers_col, settings_col, permissions_col ទេ
+        # ព្រោះយើងចង់រក្សាគណនី Admin និងការកំណត់ប្រព័ន្ធទុក
+
+        # ៤. កត់ត្រាសកម្មភាព (Audit Log)
+        db.log_activity(
+            None, None, 'reset_data', 
+            'បានលុបទិន្នន័យទាំងអស់ (Reset Database)', 
+            user_id=session.get('user_id')
+        )
+
+        return jsonify({
+            'success': True, 
+            'message': 'បានលុបទិន្នន័យទាំងអស់ដោយជោគជ័យ! ប្រព័ន្ធនឹងចាប់ផ្តើមឡើងវិញ។'
+        })
+
+    except Exception as e:
+        import traceback
+        print(f"❌ Error in reset_all_data: {e}")
+        print(traceback.format_exc())
+        return jsonify({'error': str(e)}), 500
 
 # ============================================================
 # ===== RUN APP =====
