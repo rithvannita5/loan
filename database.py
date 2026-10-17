@@ -30,6 +30,7 @@ officers_col = db['officers']
 settings_col = db['settings']
 special_holidays_col = db['special_holidays']
 permissions_col = db['permissions']
+roles_col = db['roles']
 expenses_col = db['expenses']
 pawns_col = db['pawns']
 counters_col = db['counters']
@@ -103,6 +104,7 @@ def init_database():
         pawns_col.create_index('customer_id')
         pawns_col.create_index('status')
         pawns_col.create_index('due_date')
+        roles_col.create_index('name', unique=True)
     except Exception as e:
         print(f"⚠️ Index warning: {e}")
 
@@ -1929,6 +1931,67 @@ def update_pawn(pawn_id, data):
     }
     pawns_col.update_one({'_id': int(pawn_id)}, {'$set': update_fields})
 
+# ============================================================
+# ===== ROLE MANAGEMENT (បន្ថែមថ្មី) =====
+# ============================================================
+
+def get_all_roles():
+    """ទាញយកតួនាទីទាំងអស់ ជាមួយចំនួនអ្នកប្រើដែលកំពុងប្រើ"""
+    roles = list(roles_col.find().sort('_id', ASCENDING))
+    result = []
+    for r in roles:
+        doc = dict(r)
+        doc['id'] = str(doc.pop('_id'))  # ប្រើ string ព្រោះ role ជាឈ្មោះ (ឧ. admin, officer)
+        # រាប់ចំនួនអ្នកប្រើដែលមាន role នេះ
+        doc['user_count'] = users_col.count_documents({'role': doc['name']})
+        result.append(doc)
+    return result
+
+def get_role_by_id(role_id):
+    """ទាញយកតួនាទីតាម ID (ឈ្មោះ)"""
+    role = roles_col.find_one({'_id': role_id})
+    if not role:
+        return None
+    doc = dict(role)
+    doc['id'] = str(doc.pop('_id'))
+    return doc
+
+def create_role(data):
+    """បង្កើតតួនាទីថ្មី"""
+    role_name = data['name'].lower().strip() # បំប្លែងជា lowercase ដើម្បីងាយស្រួលគ្រប់គ្រង
+    role_id = role_name
+    
+    # ពិនិត្យថាតើមានរួចហើយឬនៅ
+    existing = roles_col.find_one({'_id': role_id})
+    if existing:
+        raise Exception(f'តួនាទី "{role_name}" មានរួចហើយ!')
+
+    doc = {
+        '_id': role_id,
+        'name': role_name,
+        'description': data.get('description', ''),
+        'created_at': datetime.now()
+    }
+    roles_col.insert_one(doc)
+    return role_id
+
+def update_role(role_id, data):
+    """កែប្រែតួនាទី (ឈ្មោះមិនអាចប្តូរបានទេ ដើម្បីកុំឱ្យខូច Permission)"""
+    update_fields = {
+        'description': data.get('description', ''),
+        'updated_at': datetime.now()
+    }
+    roles_col.update_one({'_id': role_id}, {'$set': update_fields})
+
+def delete_role(role_id):
+    """លុបតួនាទី (ហាមលុបបើមានអ្នកប្រើកំពុងប្រើ)"""
+    user_count = users_col.count_documents({'role': role_id})
+    if user_count > 0:
+        raise Exception(f'មិនអាចលុបបានទេ! មានអ្នកប្រើ {user_count} នាក់កំពុងប្រើតួនាទីនេះ។')
+    
+    roles_col.delete_one({'_id': role_id})
+    # លុប Permission ចោលផងដែរ
+    permissions_col.delete_one({'_id': role_id})
 
 # ============================================================
 # ===== INITIALIZE DATABASE =====
