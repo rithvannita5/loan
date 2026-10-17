@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from bson import ObjectId
+from functools import wraps
 import database as db
 import re
 import pytz
@@ -26,15 +27,16 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-here-change-it-12345')
 
 
-from functools import wraps
-
+# ============================================================
+# ===== PERMISSION DECORATOR (ការពារសិទ្ធិ) =====
+# ============================================================
 def check_permission(permission_name):
     """Decorator សម្រាប់ពិនិត្យសិទ្ធិអ្នកប្រើ មុននឹងអនុញ្ញាតឱ្យចូលប្រើ Route"""
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             if 'username' not in session:
-                return jsonify({'error': 'Unauthorized'}), 401
+                return jsonify({'error': 'សូម Login ជាមុនសិន!'}), 401
             
             user_role = session.get('role', 'user')
             
@@ -52,11 +54,11 @@ def check_permission(permission_name):
             return f(*args, **kwargs)
         return decorated_function
     return decorator
-    
+
+
 # ============================================================
 # ===== NUMBER TO WORDS =====
 # ============================================================
-
 def number_to_words(number, currency='KHR'):
     """បម្លែងលេខទៅជាអក្សរខ្មែរ"""
     if not number or number == 0:
@@ -109,10 +111,6 @@ def number_to_words(number, currency='KHR'):
         return result + 'ដុល្លា'
 
 
-# ============================================================
-# ===== FORMAT NUMBER =====
-# ============================================================
-
 def format_number(amount, currency='USD'):
     if amount is None:
         amount = 0
@@ -141,70 +139,70 @@ def login():
     username = request.form.get('username')
     password = request.form.get('password')
     user = db.get_user_by_username(username)
+    
     if user and user['password'] == password:
         session['username'] = username
         session['user_id'] = user['id']
         session['full_name'] = user['full_name']
         session['role'] = user['role']
+        
+        # ✅ ទាញយកសិទ្ធិដាក់ក្នុង Session (សំខាន់ណាស់!)
+        if user['role'] == 'admin':
+            session['permissions'] = {'all': True}
+        else:
+            session['permissions'] = db.get_permissions(user['role'])
+            
         return redirect(url_for('dashboard'))
     else:
         return render_template('login.html', error="ឈ្មោះអ្នកប្រើ ឬ ពាក្យសម្ងាត់មិនត្រឹមត្រូវ"), 401
 
 
 @app.route('/dashboard')
+@check_permission('dashboard')
 def dashboard():
-    if 'username' not in session:
-        return redirect(url_for('index'))
     return render_template('dashboard.html', username=session.get('full_name', session['username']))
 
 
 @app.route('/customers')
+@check_permission('customers')
 def customers():
-    if 'username' not in session:
-        return redirect(url_for('index'))
     return render_template('customers.html', username=session.get('full_name', session['username']))
 
 
 @app.route('/create_customer')
+@check_permission('customers')
 def create_customer():
-    if 'username' not in session:
-        return redirect(url_for('index'))
     return render_template('create_customer.html', username=session.get('full_name', session['username']))
 
 
 @app.route('/edit_customer')
+@check_permission('customers')
 def edit_customer():
-    if 'username' not in session:
-        return redirect(url_for('index'))
     return render_template('edit_customer.html', username=session.get('full_name', session['username']))
 
 
 @app.route('/loans')
+@check_permission('loans')
 def loans():
-    if 'username' not in session:
-        return redirect(url_for('index'))
     return render_template('loans.html', username=session.get('full_name', session['username']))
 
 
 @app.route('/loans/bad')
+@check_permission('loans_bad')
 def loans_bad():
-    if 'username' not in session:
-        return redirect(url_for('index'))
     return render_template('loans_bad.html', username=session.get('full_name', session['username']))
 
 
 @app.route('/create_loan')
+@check_permission('loans')
 def create_loan():
-    if 'username' not in session:
-        return redirect(url_for('index'))
     customers = db.get_all_customers_simple()
     return render_template('create_loan.html', username=session.get('full_name', session['username']), customers=customers)
 
 
 @app.route('/edit_loan/<int:loan_id>')
+@check_permission('loans')
 def edit_loan(loan_id):
-    if 'username' not in session:
-        return redirect(url_for('index'))
     loan = db.get_loan_by_id(loan_id)
     if not loan:
         return "មិនឃើញកម្ចីនេះទេ!", 404
@@ -214,60 +212,68 @@ def edit_loan(loan_id):
 
 
 @app.route('/collection')
+@check_permission('collection')
 def collection():
-    if 'username' not in session:
-        return redirect(url_for('index'))
     return render_template('collection.html', username=session.get('full_name', session['username']))
 
 
 @app.route('/collection_good')
+@check_permission('collection')
 def collection_good():
-    if 'username' not in session:
-        return redirect(url_for('index'))
     return render_template('collection_good.html', username=session.get('full_name', session['username']))
 
 
 @app.route('/collection_late')
+@check_permission('collection')
 def collection_late():
-    if 'username' not in session:
-        return redirect(url_for('index'))
     return render_template('collection_late.html', username=session.get('full_name', session['username']))
 
 
 @app.route('/collection_bad')
+@check_permission('collection')
 def collection_bad():
-    if 'username' not in session:
-        return redirect(url_for('index'))
     return render_template('collection_bad.html', username=session.get('full_name', session['username']))
 
 
 @app.route('/settings')
+@check_permission('settings')
 def settings():
-    if 'username' not in session:
-        return redirect(url_for('login'))
     return render_template('settings.html', username=session.get('full_name', session['username']))
 
 
 @app.route('/payments')
+@check_permission('payments')
 def payments():
-    if 'username' not in session:
-        return redirect(url_for('index'))
     return render_template('payment.html', username=session.get('full_name', session['username']))
 
 
 @app.route('/disbursement')
+@check_permission('disbursement')
 def disbursement():
-    if 'username' not in session:
-        return redirect(url_for('index'))
     return render_template('disbursement.html', username=session.get('full_name', session['username']))
+
+
+@app.route('/pawn')
+@check_permission('pawn')
+def pawn():
+    return render_template('pawn.html', username=session.get('full_name', session['username']))
+
+
+@app.route('/audit')
+@check_permission('audit')
+def audit():
+    return render_template('audit.html', username=session.get('full_name', session['username']))
+
+
+@app.route('/reports')
+@check_permission('reports')
+def reports():
+    return render_template('reports.html', username=session.get('full_name', session['username']))
 
 
 @app.route('/logout')
 def logout():
-    session.pop('username', None)
-    session.pop('user_id', None)
-    session.pop('full_name', None)
-    session.pop('role', None)
+    session.clear()
     return redirect(url_for('index'))
 
 
@@ -276,10 +282,8 @@ def logout():
 # ============================================================
 
 @app.route('/print_contract/<int:loan_id>')
+@check_permission('loans_print')
 def print_contract(loan_id):
-    if 'username' not in session:
-        return redirect(url_for('index'))
-
     loan = db.get_loan_by_id(loan_id)
     if not loan:
         return "មិនឃើញកម្ចីនេះទេ!", 404
@@ -319,10 +323,8 @@ def print_contract(loan_id):
 
 
 @app.route('/print_schedule/<int:loan_id>')
+@check_permission('loans_print')
 def print_schedule(loan_id):
-    if 'username' not in session:
-        return redirect(url_for('index'))
-
     loan = db.get_loan_by_id(loan_id)
     if not loan:
         return "មិនឃើញកម្ចីនេះទេ!", 404
@@ -502,10 +504,8 @@ def api_current_user():
 
 # ===== API: CUSTOMERS =====
 @app.route('/api/customers')
+@check_permission('customers')
 def api_customers():
-    if 'username' not in session:
-        return jsonify([])
-
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 50, type=int)
     search = request.args.get('search', '')
@@ -546,7 +546,6 @@ def api_customers():
                 'dob': c.get('dob', ''), 'guarantor_dob': c.get('guarantor_dob', '')
             })
         return jsonify(customers_data)
-
     else:
         if search:
             customer_list = db.search_customers_paginated(search, page, per_page)
@@ -569,9 +568,8 @@ def api_customers():
 
 
 @app.route('/api/customers/count')
+@check_permission('customers')
 def api_customers_count():
-    if 'username' not in session:
-        return jsonify({'count': 0})
     search = request.args.get('search', '')
     if search:
         count = db.count_search_customers(search)
@@ -581,9 +579,8 @@ def api_customers_count():
 
 
 @app.route('/api/customer/<int:customer_id>')
+@check_permission('customers')
 def api_get_customer(customer_id):
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
     customer = db.get_customer_by_id(customer_id)
     if not customer:
         return jsonify({'error': 'រកមិនឃើញអតិថិជន!'}), 404
@@ -591,9 +588,8 @@ def api_get_customer(customer_id):
 
 
 @app.route('/api/search_customers')
+@check_permission('customers')
 def api_search_customers():
-    if 'username' not in session:
-        return jsonify([])
     keyword = request.args.get('q', '')
     limit = request.args.get('limit', 20, type=int)
     results = db.search_customers(keyword, limit)
@@ -613,9 +609,8 @@ def api_search_customers():
 
 
 @app.route('/api/create_customer', methods=['POST'])
+@check_permission('customers')
 def api_create_customer():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
     data = request.get_json()
     if not data.get('code') or not data.get('name'):
         return jsonify({'error': 'លេខកូដ និង ឈ្មោះអតិថិជន ត្រូវបានទាមទារ'}), 400
@@ -628,10 +623,8 @@ def api_create_customer():
 
 
 @app.route('/api/update_customer', methods=['POST'])
-@check_permission('loans_edit')
+@check_permission('customers')
 def api_update_customer():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
     data = request.get_json()
     if not data.get('id'):
         return jsonify({'error': 'Missing customer ID'}), 400
@@ -646,10 +639,8 @@ def api_update_customer():
 
 
 @app.route('/api/delete_customer', methods=['POST'])
-@check_permission('delete')    
+@check_permission('delete')
 def api_delete_customer():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
     data = request.get_json()
     customer_id = data.get('customer_id')
     if not customer_id:
@@ -660,19 +651,16 @@ def api_delete_customer():
 
 
 @app.route('/api/generate_customer_code')
+@check_permission('customers')
 def api_generate_customer_code():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
     new_code = db.generate_customer_code()
     return jsonify({'code': new_code})
 
 
 # ===== API: LOANS =====
 @app.route('/api/loans')
+@check_permission('loans')
 def api_loans():
-    if 'username' not in session:
-        return jsonify([])
-
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 50, type=int)
     status = request.args.get('status', '')
@@ -710,19 +698,16 @@ def api_loans():
 
 
 @app.route('/api/loans/count')
+@check_permission('loans')
 def api_loans_count():
-    if 'username' not in session:
-        return jsonify({'count': 0})
     status = request.args.get('status', '')
     count = db.count_loans(status)
     return jsonify({'count': count})
 
 
 @app.route('/api/loans/bad')
+@check_permission('loans_bad')
 def api_loans_bad():
-    if 'username' not in session:
-        return jsonify([])
-
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 50, type=int)
 
@@ -753,19 +738,16 @@ def api_loans_bad():
 
 
 @app.route('/api/generate_loan_code')
+@check_permission('loans')
 def api_generate_loan_code():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
     loan_code = db.generate_loan_code()
     return jsonify({'loan_code': loan_code})
 
 
 # ===== API: CALCULATE LOAN =====
 @app.route('/api/calculate_loan', methods=['POST'])
+@check_permission('loans')
 def api_calculate_loan():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
     data = request.get_json()
     loan_amount = float(data.get('loan_amount', 0))
     interest_rate = float(data.get('interest_rate', 0))
@@ -951,10 +933,8 @@ def api_calculate_loan():
 
 
 @app.route('/api/create_loan', methods=['POST'])
+@check_permission('loans_create')
 def api_create_loan():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
     data = request.get_json()
     if not data.get('customer_id') or not data.get('loan_amount'):
         return jsonify({'error': 'សូមជ្រើសរើសអតិថិជន និងបញ្ចូលទឹកប្រាក់កម្ចី'}), 400
@@ -987,8 +967,6 @@ def api_create_loan():
 @app.route('/api/update_loan', methods=['POST'])
 @check_permission('loans_edit')
 def api_update_loan():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
     data = request.get_json()
     if not data.get('id'):
         return jsonify({'error': 'Missing loan ID'}), 400
@@ -1000,10 +978,8 @@ def api_update_loan():
 
 
 @app.route('/api/update_loan_status', methods=['POST'])
-@check_permission('loans_edit')
+@check_permission('loans_approve')
 def api_update_loan_status():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
     data = request.get_json()
     loan_id = data.get('loan_id')
     status = data.get('status')
@@ -1015,10 +991,8 @@ def api_update_loan_status():
 
 
 @app.route('/api/delete_loan', methods=['POST'])
-@check_permission('delete')    
+@check_permission('delete')
 def api_delete_loan():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
     data = request.get_json()
     loan_id = data.get('loan_id')
     if not loan_id:
@@ -1029,9 +1003,8 @@ def api_delete_loan():
 
 
 @app.route('/api/customer_for_loan/<int:customer_id>')
+@check_permission('loans')
 def api_customer_for_loan(customer_id):
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
     customer = db.get_customer_for_loan(customer_id)
     if not customer:
         return jsonify({'error': 'មិនឃើញអតិថិជន'}), 404
@@ -1039,23 +1012,18 @@ def api_customer_for_loan(customer_id):
 
 
 @app.route('/api/loans/<int:loan_id>')
+@check_permission('loans')
 def api_get_loan(loan_id):
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
     loan = db.get_loan_by_id(loan_id)
     if not loan:
         return jsonify({'error': 'មិនឃើញកម្ចីនេះទេ!'}), 404
-
     return jsonify(loan)
 
 
 # ===== API: COLLECTION =====
 @app.route('/api/collection/<string:type>')
+@check_permission('collection')
 def api_collection(type):
-    if 'username' not in session:
-        return jsonify([])
-
     try:
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 100, type=int)
@@ -1100,10 +1068,8 @@ def api_collection(type):
 
 
 @app.route('/api/collection/customer/<int:customer_id>')
+@check_permission('collection')
 def api_collection_customer(customer_id):
-    if 'username' not in session:
-        return jsonify([])
-
     try:
         loans = list(db.loans_col.find({
             'customer_id': int(customer_id),
@@ -1197,9 +1163,8 @@ def api_collection_customer(customer_id):
 
 
 @app.route('/api/collection/count/<string:type>')
+@check_permission('collection')
 def api_collection_count(type):
-    if 'username' not in session:
-        return jsonify({'count': 0})
     try:
         loans = db.get_collection_loans(type, 1, 10000)
         return jsonify({'count': len(loans)})
@@ -1208,18 +1173,16 @@ def api_collection_count(type):
 
 
 # ============================================================
-# ===== API: COLLECTION PAYMENT (កែហើយ - ពិន័យមិនរត់ចូលកម្ចី) =====
+# ===== API: COLLECTION PAYMENT =====
 # ============================================================
 @app.route('/api/collection_payment', methods=['POST'])
+@check_permission('collection_collect')
 def api_collection_payment():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
     data = request.get_json()
     loan_id = data.get('loan_id')
-    amount = data.get('amount')           # ទឹកប្រាក់សរុប (រួមពិន័យ)
+    amount = data.get('amount')
     payment_method = data.get('payment_method', 'cash')
-    penalty = data.get('penalty', 0)      # ពិន័យ
+    penalty = data.get('penalty', 0)
     notes = data.get('notes', '')
     payment_date = data.get('payment_date', '')
 
@@ -1237,20 +1200,14 @@ def api_collection_payment():
     except:
         period = 1
 
-    # ============================================================
-    # ===== គណនាចំនួនដែលចូលកម្ចី (ដើម + ការប្រាក់) =====
-    # ============================================================
     penalty = float(penalty) if penalty else 0
     amount = float(amount)
 
-    # បើពិន័យធំជាងទឹកប្រាក់ កំណត់ពិន័យ = ទឹកប្រាក់
     if penalty > amount:
         penalty = amount
 
-    # amount_for_loan = ចំនួនដែលចូលកម្ចី (ដើម + ការប្រាក់)
     amount_for_loan = amount - penalty
 
-    # ===== Update Loan: ដកតែ amount_for_loan ចេញ =====
     total_paid = (loan.get('amount_paid', 0) or 0) + amount_for_loan
     remaining = (loan.get('remaining_balance', 0) or 0) - amount_for_loan
 
@@ -1264,7 +1221,6 @@ def api_collection_payment():
 
     db.update_loan_payment(loan_id, total_paid, remaining, status)
 
-    # ===== Log Activity =====
     currency = loan.get('currency', 'USD')
     if currency == 'KHR':
         amount_str = f'៛ {round(amount/100)*100:,.0f}'
@@ -1283,7 +1239,6 @@ def api_collection_payment():
         user_id=session.get('user_id')
     )
 
-    # ===== Record Payment History =====
     try:
         db.record_payment(
             loan_id, period, amount, payment_method, notes,
@@ -1335,17 +1290,15 @@ def api_activities():
 # ============================================================
 
 @app.route('/api/users', methods=['GET'])
+@check_permission('settings_users')
 def api_get_users():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
     users = db.get_all_users()
     return jsonify([dict(user) for user in users])
 
 
 @app.route('/api/users/<int:user_id>', methods=['GET'])
+@check_permission('settings_users')
 def api_get_user(user_id):
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
     user = db.get_user_by_id(user_id)
     if user:
         return jsonify(dict(user))
@@ -1353,9 +1306,8 @@ def api_get_user(user_id):
 
 
 @app.route('/api/users', methods=['POST'])
+@check_permission('settings_users')
 def api_create_user():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
     data = request.json
     try:
         user_id = db.create_user(data)
@@ -1365,9 +1317,8 @@ def api_create_user():
 
 
 @app.route('/api/users/<int:user_id>', methods=['PUT'])
+@check_permission('settings_users')
 def api_update_user(user_id):
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
     data = request.json
     try:
         db.update_user(user_id, data)
@@ -1377,9 +1328,8 @@ def api_update_user(user_id):
 
 
 @app.route('/api/users/<int:user_id>', methods=['DELETE'])
+@check_permission('settings_users')
 def api_delete_user(user_id):
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
     try:
         db.delete_user(user_id)
         return jsonify({'success': True})
@@ -1388,17 +1338,15 @@ def api_delete_user(user_id):
 
 
 @app.route('/api/officers', methods=['GET'])
+@check_permission('settings_officers')
 def api_get_officers():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
     officers = db.get_all_officers()
     return jsonify([dict(o) for o in officers])
 
 
 @app.route('/api/officers/<int:officer_id>', methods=['GET'])
+@check_permission('settings_officers')
 def api_get_officer(officer_id):
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
     officer = db.get_officer_by_id(officer_id)
     if officer:
         return jsonify(dict(officer))
@@ -1406,9 +1354,8 @@ def api_get_officer(officer_id):
 
 
 @app.route('/api/officers', methods=['POST'])
+@check_permission('settings_officers')
 def api_create_officer():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
     data = request.json
     try:
         officer_id = db.create_officer(data)
@@ -1418,9 +1365,8 @@ def api_create_officer():
 
 
 @app.route('/api/officers/<int:officer_id>', methods=['PUT'])
+@check_permission('settings_officers')
 def api_update_officer(officer_id):
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
     data = request.json
     try:
         db.update_officer(officer_id, data)
@@ -1430,9 +1376,8 @@ def api_update_officer(officer_id):
 
 
 @app.route('/api/officers/<int:officer_id>', methods=['DELETE'])
+@check_permission('settings_officers')
 def api_delete_officer(officer_id):
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
     try:
         db.delete_officer(officer_id)
         return jsonify({'success': True})
@@ -1441,9 +1386,8 @@ def api_delete_officer(officer_id):
 
 
 @app.route('/api/holidays', methods=['GET', 'POST'])
+@check_permission('settings_holidays')
 def api_holidays():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
     if request.method == 'GET':
         holidays = db.get_holidays()
         return jsonify(holidays)
@@ -1454,10 +1398,8 @@ def api_holidays():
 
 
 @app.route('/api/special_holidays', methods=['GET', 'POST'])
+@check_permission('settings_holidays')
 def api_special_holidays():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
     if request.method == 'GET':
         holidays = db.get_special_holidays()
         return jsonify(holidays)
@@ -1471,38 +1413,34 @@ def api_special_holidays():
 
 
 @app.route('/api/special_holidays/<int:holiday_id>', methods=['DELETE'])
+@check_permission('settings_holidays')
 def api_delete_special_holiday(holiday_id):
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
     db.delete_special_holiday(holiday_id)
     return jsonify({'success': True})
 
 
 @app.route('/api/permissions', methods=['POST'])
+@check_permission('settings_roles')
 def api_save_permissions():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
     data = request.json
     db.save_permissions(data.get('role'), data.get('permissions'))
     return jsonify({'success': True})
 
 
 @app.route('/api/permissions/<string:role>', methods=['GET'])
+@check_permission('settings_roles')
 def api_get_permissions(role):
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
     permissions = db.get_permissions(role)
     return jsonify(permissions)
 
 
 # ============================================================
-# ===== API: ROLES (បន្ថែមថ្មី) =====
+# ===== API: ROLES =====
 # ============================================================
 
 @app.route('/api/roles', methods=['GET'])
+@check_permission('settings_roles')
 def api_get_roles():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
     try:
         roles = db.get_all_roles()
         return jsonify(roles)
@@ -1511,18 +1449,16 @@ def api_get_roles():
         return jsonify([])
 
 @app.route('/api/roles/<string:role_id>', methods=['GET'])
+@check_permission('settings_roles')
 def api_get_role(role_id):
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
     role = db.get_role_by_id(role_id)
     if not role:
         return jsonify({'error': 'មិនឃើញតួនាទីនេះទេ!'}), 404
     return jsonify(role)
 
 @app.route('/api/roles', methods=['POST'])
+@check_permission('settings_roles')
 def api_create_role():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
     try:
         data = request.json
         if not data.get('name'):
@@ -1534,9 +1470,8 @@ def api_create_role():
         return jsonify({'error': str(e)}), 400
 
 @app.route('/api/roles/<string:role_id>', methods=['PUT'])
+@check_permission('settings_roles')
 def api_update_role(role_id):
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
     try:
         data = request.json
         db.update_role(role_id, data)
@@ -1545,24 +1480,22 @@ def api_update_role(role_id):
         return jsonify({'error': str(e)}), 400
 
 @app.route('/api/roles/<string:role_id>', methods=['DELETE'])
+@check_permission('settings_roles')
 def api_delete_role(role_id):
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
     try:
         db.delete_role(role_id)
         return jsonify({'success': True})
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
+
 # ============================================================
 # ===== API: PAYMENTS =====
 # ============================================================
 
 @app.route('/api/payments')
+@check_permission('payments')
 def api_payments():
-    if 'username' not in session:
-        return jsonify([])
-
     try:
         payments = db.get_payment_history()
         result = []
@@ -1594,13 +1527,10 @@ def api_payments():
 
 
 @app.route('/api/loan_payments/<loan_id>')
+@check_permission('payments')
 def api_loan_payments(loan_id):
-    if 'username' not in session:
-        return jsonify([])
-
     try:
         payments = []
-
         try:
             loan_id_int = int(loan_id)
         except:
@@ -1635,7 +1565,6 @@ def api_loan_payments(loan_id):
                             amount = float(match_khr.group(1).replace(',', ''))
                             currency = 'KHR'
 
-                    # ទាញពិន័យ
                     pen_match = re.search(r'ពិន័យ\s*\$([0-9.]+)', description)
                     if pen_match:
                         penalty = float(pen_match.group(1))
@@ -1697,23 +1626,23 @@ def api_loan_payments(loan_id):
 
 
 @app.route('/api/payment_history/<int:loan_id>')
+@check_permission('payments')
 def api_payment_history(loan_id):
     return api_loan_payments(loan_id)
 
 
 @app.route('/api/payments/loan/<loan_id>')
+@check_permission('payments')
 def get_payments_by_loan(loan_id):
     return api_loan_payments(loan_id)
 
 
 # ============================================================
-# ===== API: EDIT PAYMENT (កែហើយ - ពិន័យមិនរត់ចូលកម្ចី) =====
+# ===== API: EDIT PAYMENT =====
 # ============================================================
 @app.route('/api/edit_payment', methods=['POST'])
+@check_permission('payments_edit')
 def api_edit_payment():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
     data = request.get_json()
     activity_id = data.get('activity_id')
     loan_id = data.get('loan_id')
@@ -1733,7 +1662,6 @@ def api_edit_payment():
         if not loan:
             return jsonify({'error': 'មិនឃើញកម្ចីនេះទេ!'}), 404
 
-        # ===== ទាញចំនួនចាស់ + ពិន័យចាស់ =====
         old_desc = old_activity.get('description', '')
         match = re.search(r'\$([0-9.]+)', old_desc)
         old_amount = float(match.group(1)) if match else 0
@@ -1743,7 +1671,6 @@ def api_edit_payment():
             if match_khr:
                 old_amount = float(match_khr.group(1).replace(',', ''))
 
-        # ពិន័យចាស់
         old_penalty = 0
         old_pen_match = re.search(r'ពិន័យ\s*\$([0-9.]+)', old_desc)
         if old_pen_match:
@@ -1753,18 +1680,15 @@ def api_edit_payment():
             if old_pen_match_khr:
                 old_penalty = float(old_pen_match_khr.group(1).replace(',', ''))
 
-        # ===== ពិន័យថ្មី =====
         new_penalty = data.get('penalty', 0) or 0
         new_amount = float(amount)
 
         if new_penalty > new_amount:
             new_penalty = new_amount
 
-        # ===== គណនាចំនួនចូលកម្ចី (ដើម + ការប្រាក់) =====
         old_amount_for_loan = old_amount - old_penalty
         new_amount_for_loan = new_amount - new_penalty
 
-        # ===== Difference =====
         diff = new_amount_for_loan - old_amount_for_loan
         new_amount_paid = (loan.get('amount_paid', 0) or 0) + diff
         new_remaining = (loan.get('remaining_balance', 0) or 0) - diff
@@ -1774,7 +1698,6 @@ def api_edit_payment():
         if new_remaining < 0:
             new_remaining = 0
 
-        # ===== Update Loan =====
         db.loans_col.update_one(
             {'_id': int(loan_id)},
             {'$set': {
@@ -1784,7 +1707,6 @@ def api_edit_payment():
             }}
         )
 
-        # ===== Update Activity Description =====
         currency = loan.get('currency', 'USD')
         if currency == 'KHR':
             amount_str = f'៛ {round(new_amount/100)*100:,.0f}'
@@ -1820,15 +1742,11 @@ def api_edit_payment():
 
 
 # ============================================================
-# ===== API: DELETE PAYMENT (កែហើយ - ពិន័យមិនរត់ចូលកម្ចី) =====
+# ===== API: DELETE PAYMENT =====
 # ============================================================
 @app.route('/api/delete_payment', methods=['POST'])
-
-@check_permission('delete')    
+@check_permission('payments_delete')
 def api_delete_payment():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
     data = request.get_json()
     activity_id = data.get('activity_id')
 
@@ -1842,7 +1760,6 @@ def api_delete_payment():
 
         loan_id = activity.get('loan_id')
 
-        # ===== ទាញចំនួនសរុប + ពិន័យពី description =====
         description = activity.get('description', '')
         match = re.search(r'\$([0-9.]+)', description)
         total_amount = float(match.group(1)) if match else 0
@@ -1852,7 +1769,6 @@ def api_delete_payment():
             if match_khr:
                 total_amount = float(match_khr.group(1).replace(',', ''))
 
-        # ===== ទាញពិន័យ =====
         penalty = 0
         pen_match = re.search(r'ពិន័យ\s*\$([0-9.]+)', description)
         if pen_match:
@@ -1862,7 +1778,6 @@ def api_delete_payment():
             if pen_match_khr:
                 penalty = float(pen_match_khr.group(1).replace(',', ''))
 
-        # ===== ព្យាយាមទាញពិន័យពី payment_history (ជាងសុវត្ថិភាព) =====
         if loan_id:
             try:
                 payment_record = db.payment_history_col.find_one({
@@ -1874,10 +1789,8 @@ def api_delete_payment():
             except:
                 pass
 
-        # ===== គណនាចំនួនដែលចូលកម្ចី =====
         amount_for_loan = total_amount - penalty
 
-        # ===== បញ្ច្រាសការគណនាកម្ចី (ដកតែ amount_for_loan) =====
         if loan_id:
             loan = db.loans_col.find_one({'_id': int(loan_id)})
             if loan:
@@ -1896,7 +1809,6 @@ def api_delete_payment():
                     }}
                 )
 
-        # ===== លុប Payment History =====
         if loan_id:
             try:
                 db.payment_history_col.delete_one({
@@ -1906,7 +1818,6 @@ def api_delete_payment():
             except:
                 pass
 
-        # ===== លុប Activity =====
         db.activities_col.delete_one({'_id': int(activity_id)})
 
         return jsonify({
@@ -1923,11 +1834,8 @@ def api_delete_payment():
 
 # ===== API: DISBURSEMENT =====
 @app.route('/api/disbursement')
-@check_permission('disbursement_view')
+@check_permission('disbursement')
 def api_disbursement():
-    if 'username' not in session:
-        return jsonify([])
-
     try:
         activities = list(db.activities_col.find(
             {'action': 'collection_payment'}
@@ -1990,10 +1898,8 @@ def api_disbursement():
 
 
 @app.route('/api/approve_disbursement', methods=['POST'])
+@check_permission('disbursement_approve')
 def api_approve_disbursement():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
     data = request.get_json()
     activity_ids = data.get('activity_ids', [])
 
@@ -2047,10 +1953,8 @@ def format_currency_filter(amount, currency='USD'):
 
 
 @app.route('/api/clean_orphan_data', methods=['POST'])
+@check_permission('delete')
 def api_clean_orphan_data():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
     result = {
         'payment_history_orphan': 0,
         'payment_history_zero': 0,
@@ -2087,20 +1991,9 @@ def api_clean_orphan_data():
 # ===== REPORT ROUTES =====
 # ============================================================
 
-@app.route('/reports')
-@check_permission('reports_view')
-def reports():
-    if 'username' not in session:
-        return redirect(url_for('index'))
-    return render_template('reports.html', username=session.get('full_name', session['username']))
-
-
 @app.route('/api/reports/summary')
-@check_permission('summary_view')
+@check_permission('reports_summary')
 def api_report_summary():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
     try:
         customer_count = db.customers_col.count_documents({})
         loan_count = db.loans_col.count_documents({})
@@ -2151,11 +2044,8 @@ def api_report_summary():
 
 
 @app.route('/api/reports/loans')
-@check_permission('loans_view')
+@check_permission('reports_loans')
 def api_report_loans():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
     status = request.args.get('status', 'all')
     from_date = request.args.get('from', '')
     to_date = request.args.get('to', '')
@@ -2202,11 +2092,8 @@ def api_report_loans():
 
 
 @app.route('/api/reports/payments')
-@check_permission('payments_view')
+@check_permission('reports_payments')
 def api_report_payments():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
     method = request.args.get('method', 'all')
     from_date = request.args.get('from', '')
     to_date = request.args.get('to', '')
@@ -2312,20 +2199,15 @@ def api_report_payments():
 
 
 @app.route('/api/reports/collection')
-@check_permission('collection_view')
+@check_permission('reports_collection')
 def api_report_collection():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
     summary = db.get_collection_summary()
     return jsonify(summary)
 
 
 @app.route('/api/reports/customers')
-@check_permission('customers_view')
+@check_permission('reports_customers')
 def api_report_customers():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
     pipeline = [
         {'$sort': {'_id': -1}},
         {'$limit': 500},
@@ -2375,11 +2257,8 @@ def api_report_customers():
 
 
 @app.route('/api/reports/income')
-@check_permission('income_view')
+@check_permission('reports_income')
 def api_report_income():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
     from_date = request.args.get('from', '')
     to_date = request.args.get('to', '')
 
@@ -2436,11 +2315,8 @@ def api_report_income():
 
 
 @app.route('/api/reports/summary_report')
-@check_permission('summary_report_view')
+@check_permission('reports_summary_detail')
 def api_summary_report():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
     from_date = request.args.get('from', '')
     to_date = request.args.get('to', '')
 
@@ -2535,11 +2411,8 @@ def api_summary_report():
 # ============================================================
 
 @app.route('/api/expenses', methods=['GET'])
-@check_permission('expenses_view')
+@check_permission('disbursement_expense')
 def api_get_expenses():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
     try:
         from_date = request.args.get('from', '')
         to_date = request.args.get('to', '')
@@ -2556,11 +2429,8 @@ def api_get_expenses():
 
 
 @app.route('/api/expenses/<int:expense_id>', methods=['GET'])
-
+@check_permission('disbursement_expense')
 def api_get_expense(expense_id):
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
     try:
         expense = db.get_expense_by_id(expense_id)
         if not expense:
@@ -2571,10 +2441,8 @@ def api_get_expense(expense_id):
 
 
 @app.route('/api/expenses', methods=['POST'])
+@check_permission('disbursement_expense')
 def api_create_expense():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
     try:
         data = request.json
         if not data.get('name') or not data.get('amount'):
@@ -2588,10 +2456,8 @@ def api_create_expense():
 
 
 @app.route('/api/expenses/<int:expense_id>', methods=['PUT'])
+@check_permission('disbursement_expense')
 def api_update_expense(expense_id):
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
     try:
         data = request.json
         if not data.get('name') or not data.get('amount'):
@@ -2605,10 +2471,8 @@ def api_update_expense(expense_id):
 
 
 @app.route('/api/expenses/<int:expense_id>', methods=['DELETE'])
+@check_permission('disbursement_expense')
 def api_delete_expense(expense_id):
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
     try:
         expense = db.get_expense_by_id(expense_id)
         if expense:
@@ -2620,10 +2484,8 @@ def api_delete_expense(expense_id):
 
 
 @app.route('/api/expenses/categories', methods=['GET'])
+@check_permission('disbursement_expense')
 def api_get_expense_categories():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
     try:
         categories = db.get_expense_categories()
         return jsonify(categories)
@@ -2635,20 +2497,9 @@ def api_get_expense_categories():
 # ===== PAWN ROUTES =====
 # ============================================================
 
-@app.route('/pawn')
-@check_permission('pawn_view')        
-def pawn():
-    if 'username' not in session:
-        return redirect(url_for('index'))
-    return render_template('pawn.html', username=session.get('full_name', session['username']))
-
-
 @app.route('/api/pawns', methods=['GET'])
-@check_permission('pawns_view')  
+@check_permission('pawn')
 def api_get_pawns():
-    if 'username' not in session:
-        return jsonify([])
-
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 50, type=int)
     status = request.args.get('status', '')
@@ -2658,19 +2509,16 @@ def api_get_pawns():
 
 
 @app.route('/api/pawns/count')
+@check_permission('pawn')
 def api_pawns_count():
-    if 'username' not in session:
-        return jsonify({'count': 0})
     status = request.args.get('status', '')
     count = db.count_pawns(status if status else None)
     return jsonify({'count': count})
 
 
 @app.route('/api/pawns/<int:pawn_id>', methods=['GET'])
+@check_permission('pawn')
 def api_get_pawn(pawn_id):
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
     pawn = db.get_pawn_by_id(pawn_id)
     if not pawn:
         return jsonify({'error': 'មិនឃើញបញ្ចាំនេះទេ!'}), 404
@@ -2678,10 +2526,8 @@ def api_get_pawn(pawn_id):
 
 
 @app.route('/api/pawns', methods=['POST'])
+@check_permission('pawn_create')
 def api_create_pawn():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
     data = request.json
     if not data.get('customer_id') or not data.get('item_name') or not data.get('loan_amount'):
         return jsonify({'error': 'សូមបំពេញព័ត៌មានឲ្យបានពេញលេញ!'}), 400
@@ -2695,10 +2541,8 @@ def api_create_pawn():
 
 
 @app.route('/api/pawns/<int:pawn_id>/redeem', methods=['POST'])
+@check_permission('pawn_redeem')
 def api_redeem_pawn(pawn_id):
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
     data = request.json
     amount = data.get('amount')
 
@@ -2715,10 +2559,8 @@ def api_redeem_pawn(pawn_id):
 
 
 @app.route('/api/pawns/<int:pawn_id>', methods=['DELETE'])
+@check_permission('delete')
 def api_delete_pawn(pawn_id):
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
     try:
         pawn = db.get_pawn_by_id(pawn_id)
         if pawn:
@@ -2730,10 +2572,8 @@ def api_delete_pawn(pawn_id):
 
 
 @app.route('/api/pawns/<int:pawn_id>/forfeit', methods=['POST'])
+@check_permission('pawn_forfeit')
 def api_forfeit_pawn(pawn_id):
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
     try:
         pawn = db.get_pawn_by_id(pawn_id)
         if pawn:
@@ -2745,10 +2585,8 @@ def api_forfeit_pawn(pawn_id):
 
 
 @app.route('/api/pawns/<int:pawn_id>', methods=['PUT'])
+@check_permission('pawn_edit')
 def api_update_pawn(pawn_id):
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
     data = request.json
     try:
         db.update_pawn(pawn_id, data)
@@ -2762,20 +2600,9 @@ def api_update_pawn(pawn_id):
 # ===== AUDIT ROUTES =====
 # ============================================================
 
-@app.route('/audit')
-@check_permission('audit_view')  
-def audit():
-    if 'username' not in session:
-        return redirect(url_for('index'))
-    return render_template('audit.html', username=session.get('full_name', session['username']))
-
-
 @app.route('/api/audit')
-@check_permission('audit_view')  
+@check_permission('audit')
 def api_audit():
-    if 'username' not in session:
-        return jsonify([])
-
     try:
         limit = request.args.get('limit', 500, type=int)
         action = request.args.get('action', '')
@@ -2800,10 +2627,8 @@ def api_audit():
 
 
 @app.route('/api/audit/actions')
+@check_permission('audit')
 def api_audit_actions():
-    if 'username' not in session:
-        return jsonify([])
-
     try:
         actions = db.get_audit_actions()
         return jsonify(actions)
@@ -2813,11 +2638,8 @@ def api_audit_actions():
 
 
 @app.route('/api/dashboard_stats')
-@check_permission('dashboard_view')  
+@check_permission('dashboard')
 def api_dashboard_stats():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
     try:
         stats = db.get_dashboard_stats()
         return jsonify(stats)
@@ -2837,11 +2659,8 @@ def api_dashboard_stats():
 # ============================================================
 
 @app.route('/api/change_co', methods=['POST'])
-@check_permission('change_co_view')  
+@check_permission('loans_edit')
 def api_change_co():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
     data = request.json
     loan_id = data.get('loan_id')
     new_officer = data.get('new_officer')
@@ -2883,10 +2702,8 @@ def api_change_co():
 
 
 @app.route('/api/dashboard_charts')
+@check_permission('dashboard')
 def api_dashboard_charts():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
     try:
         conn_data = db.get_dashboard_charts_data()
         return jsonify(conn_data)
@@ -2903,9 +2720,8 @@ def api_dashboard_charts():
 
 
 @app.route('/api/dashboard_full_stats')
+@check_permission('dashboard')
 def api_dashboard_full_stats():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
     try:
         stats = db.get_dashboard_full_stats()
         return jsonify(stats)
@@ -2917,10 +2733,8 @@ def api_dashboard_full_stats():
 
 
 @app.route('/api/calendar_data')
+@check_permission('dashboard')
 def api_calendar_data():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
     year = request.args.get('year', datetime.now().year, type=int)
     month = request.args.get('month', datetime.now().month, type=int)
 
@@ -2933,40 +2747,30 @@ def api_calendar_data():
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
+
 # ============================================================
 # ===== API: RESET ALL DATA (សម្រាប់តែ ADMIN ប៉ុណ្ណោះ) =====
 # ============================================================
 @app.route('/api/reset_all_data', methods=['POST'])
 def api_reset_all_data():
-    # ១. ពិនិត្យសិទ្ធិ (ត្រូវតែជា Admin)
     if 'username' not in session or session.get('role') != 'admin':
         return jsonify({'error': 'អ្នកគ្មានសិទ្ធិធ្វើសកម្មភាពនេះទេ! (ត្រូវតែជា Admin)'}), 403
 
     data = request.get_json()
     confirm_text = data.get('confirm_text', '')
 
-    # ២. ពិនិត្យការបញ្ជាក់ (ត្រូវវាយពាក្យ "RESET" ទើបអាចលុបបាន)
     if confirm_text != 'RESET':
         return jsonify({'error': 'សូមវាយពាក្យ "RESET" ដើម្បីបញ្ជាក់!'}), 400
 
     try:
-        # ៣. លុបទិន្នន័យទាំងអស់ចេញពី Collections ទាំងអស់
-        # លុបលំដាប់ពីចុងក្រោយ មកដើម ដើម្បីកុំឱ្យជាប់ Foreign Key (បើមាន)
-        
-        db.payment_history_col.delete_many({})   # លុបប្រវត្តិទូរទាត់
-        db.activities_col.delete_many({})        # លុប Activity ទាំងអស់
-        db.loans_col.delete_many({})             # លុបកម្ចីទាំងអស់
-        db.pawns_col.delete_many({})             # លុបបញ្ចាំទាំងអស់
-        db.expenses_col.delete_many({})          # លុបចំណាយទាំងអស់
-        db.customers_col.delete_many({})         # លុបអតិថិជនទាំងអស់
-        
-        # លុប Counter ដើម្បីឱ្យលេខកូដចាប់ផ្តើមពី 1 វិញ
+        db.payment_history_col.delete_many({})
+        db.activities_col.delete_many({})
+        db.loans_col.delete_many({})
+        db.pawns_col.delete_many({})
+        db.expenses_col.delete_many({})
+        db.customers_col.delete_many({})
         db.counters_col.delete_many({})
         
-        # ចំណាំ: មិនលុប users_col, officers_col, settings_col, permissions_col ទេ
-        # ព្រោះយើងចង់រក្សាគណនី Admin និងការកំណត់ប្រព័ន្ធទុក
-
-        # ៤. កត់ត្រាសកម្មភាព (Audit Log)
         db.log_activity(
             None, None, 'reset_data', 
             'បានលុបទិន្នន័យទាំងអស់ (Reset Database)', 
