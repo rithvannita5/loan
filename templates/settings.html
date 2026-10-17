@@ -488,6 +488,11 @@
             <button class="btn btn-warning" onclick="cleanOrphanData()">
                 <i class="fas fa-broom"></i> សម្អាតទិន្នន័យខូច
             </button>
+            {% if session.get('role') == 'admin' %}
+            <button class="btn btn-danger" onclick="openResetModal()" style="background:#e74c3c; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; margin-left:10px;">
+                <i class="fas fa-trash-alt"></i> លុបទិន្នន័យទាំងអស់ (Reset)
+            </button>
+            {% endif %}
         </div>
 
         <!-- ===== PANEL 1: USER MANAGEMENT ===== -->
@@ -951,6 +956,7 @@
             </div>
         </div>
 
+        
         <!-- ===== OFFICER MODAL ===== -->
         <div class="modal-overlay" id="officerModal">
             <div class="modal-box">
@@ -990,6 +996,99 @@
             </div>
         </div>
 
+        <!-- ===== RESET DATA MODAL ===== -->
+<div class="modal-overlay" id="resetModal">
+    <div class="modal-box" style="max-width: 450px; border-top: 5px solid #e74c3c;">
+        <div class="modal-header" style="border-bottom-color:#e74c3c;">
+            <h3 style="color:#e74c3c;"><i class="fas fa-exclamation-triangle"></i> ព្រមាន! ការលុបទិន្នន័យទាំងអស់</h3>
+            <button class="modal-close" onclick="closeResetModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div style="background: #fff5f5; padding: 15px; border-radius: 8px; border-left: 4px solid #e74c3c; margin-bottom: 20px;">
+                <p style="color: #721c24; font-weight: 600; margin-bottom: 10px;">
+                    សកម្មភាពនេះនឹងលុប៖
+                </p>
+                <ul style="margin-left: 20px; color: #721c24; font-size: 14px;">
+                    <li>អតិថិជនទាំងអស់</li>
+                    <li>កម្ចី និងបញ្ចាំទាំងអស់</li>
+                    <li>ប្រវត្តិទូរទាត់ទាំងអស់</li>
+                    <li>ចំណាយ និងសកម្មភាពទាំងអស់</li>
+                </ul>
+                <p style="color: #721c24; font-weight: bold; margin-top: 10px;">
+                    * សកម្មភាពនេះ <u>មិនអាចត្រឡប់វិញបានឡើយ</u>!
+                </p>
+            </div>
+
+            <div class="form-group">
+                <label>ដើម្បីបញ្ជាក់ សូមវាយពាក្យ <strong>RESET</strong> ខាងក្រោម៖</label>
+                <input type="text" id="reset_confirm_text" placeholder="វាយ RESET" autocomplete="off" style="width:100%; padding:10px; border:2px solid #e74c3c; border-radius:8px; text-align:center; font-weight:bold; letter-spacing:2px;">
+            </div>
+
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button type="button" class="btn" style="flex:1; background:#e74c3c; color:white; padding:12px; justify-content:center; border-radius:8px; font-weight:bold;" onclick="confirmReset()">
+                    <i class="fas fa-trash-alt"></i> បញ្ជាក់ការលុប
+                </button>
+                <button type="button" class="btn" style="flex:1; background:#e2e8f0; color:#2d3748; padding:12px; justify-content:center; border-radius:8px;" onclick="closeResetModal()">
+                    បោះបង់
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== JAVASCRIPT សម្រាប់ RESET ===== -->
+<script>
+    function openResetModal() {
+        document.getElementById('resetModal').classList.add('active');
+        document.getElementById('reset_confirm_text').value = '';
+        document.getElementById('reset_confirm_text').focus();
+    }
+
+    function closeResetModal() {
+        document.getElementById('resetModal').classList.remove('active');
+    }
+
+    async function confirmReset() {
+        const confirmText = document.getElementById('reset_confirm_text').value.trim();
+        
+        if (confirmText !== 'RESET') {
+            alert('សូមវាយពាក្យ "RESET" ឱ្យបានត្រឹមត្រូវ!');
+            return;
+        }
+
+        const btn = event.target;
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> កំពុងលុប...';
+
+        try {
+            const response = await fetch('/api/reset_all_data', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ confirm_text: confirmText })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert('✅ ' + result.message);
+                closeResetModal();
+                setTimeout(() => {
+                    window.location.href = '/dashboard'; // ត្រឡប់ទៅ Dashboard
+                }, 1000);
+            } else {
+                alert('❌ ' + (result.error || 'មានបញ្ហា!'));
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('❌ មានបញ្ហាក្នុងការភ្ជាប់ទៅម៉ាស៊ីនមេ!');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+    }
+</script>
+        
         <!-- ===== ROLE MODAL ===== -->
         <div class="modal-overlay" id="roleModal">
             <div class="modal-box">
