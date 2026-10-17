@@ -110,14 +110,14 @@ def init_database():
     if users_col.count_documents({}) == 0:
         user_id = get_next_sequence('users')
         users_col.insert_one({
-    '_id': user_id,
-    'username': 'admin',
-    'password': 'admin123',   # ← ត្រឹមត្រូវ!
-    'full_name': 'អ្នកគ្រប់គ្រងប្រព័ន្ធ',
-    'role': 'admin',
-    'created_at': datetime.now()
-})
-        print("✅ Created default admin user: admin / 123456")
+            '_id': user_id,
+            'username': 'admin',
+            'password': 'admin123',
+            'full_name': 'អ្នកគ្រប់គ្រងប្រព័ន្ធ',
+            'role': 'admin',
+            'created_at': datetime.now()
+        })
+        print("✅ Created default admin user: admin / admin123")
 
     print(f"✅ MongoDB Database initialized: {DB_NAME}")
 
@@ -577,19 +577,24 @@ def get_loans_paginated_excluding_status(page=1, per_page=50, exclude_status='Ba
 # ===== PAYMENT HISTORY FUNCTIONS =====
 # ============================================================
 
-def record_payment(loan_id, period, amount, payment_method, notes, penalty=0):
+def record_payment(loan_id, period, amount, payment_method='cash', notes='',
+                   payment_date=None, penalty=0, currency='USD'):
+    """រក្សាទុកការទូរទាត់ក្នុង payment_history collection"""
     payment_id = get_next_sequence('payment_history')
-    today = datetime.now().date().isoformat()
+
+    if payment_date is None:
+        payment_date = datetime.now().date().isoformat()
 
     doc = {
         '_id': payment_id,
         'loan_id': int(loan_id),
         'period': int(period),
         'amount': float(amount),
-        'payment_date': today,
+        'payment_date': payment_date,
         'payment_method': payment_method,
         'penalty': float(penalty),
-        'notes': notes,
+        'currency': currency,
+        'notes': notes or '',
         'created_at': datetime.now()
     }
     payment_history_col.insert_one(doc)
@@ -597,11 +602,33 @@ def record_payment(loan_id, period, amount, payment_method, notes, penalty=0):
 
 
 def get_payment_history_by_loan(loan_id):
-    payments = payment_history_col.find({'loan_id': int(loan_id)}).sort('period', ASCENDING)
-    return _to_dict_list(payments)
+    """ទាញយកប្រវត្តិទូរទាត់នៃកម្ចីជាក់លាក់"""
+    try:
+        loan_id_int = int(loan_id)
+    except:
+        loan_id_int = loan_id
+
+    payments = list(payment_history_col.find({
+        'loan_id': loan_id_int
+    }).sort('created_at', -1))
+
+    result = []
+    for p in payments:
+        doc = dict(p)
+        doc['_id'] = str(doc['_id'])
+        doc['id'] = doc['_id']
+
+        created = doc.get('created_at')
+        if hasattr(created, 'strftime'):
+            doc['created_at'] = created.strftime('%Y-%m-%d %H:%M:%S')
+
+        result.append(doc)
+
+    return result
 
 
 def get_payment_history(limit=100):
+    """ទាញយកប្រវត្តិទូរទាត់ថ្មីៗ (ពី activities)"""
     pipeline = [
         {'$match': {'action': 'collection_payment'}},
         {'$sort': {'created_at': DESCENDING}},
@@ -642,8 +669,15 @@ def get_payment_history(limit=100):
         method_match = re.search(r'តាមរយៈ\s+(\S+)', description)
         method = method_match.group(1) if method_match else 'cash'
 
-        penalty_match = re.search(r'ពិន័យ:\s*\$?([0-9.]+)', description)
-        penalty = float(penalty_match.group(1)) if penalty_match else 0
+        # ===== ទាញពិន័យ =====
+        penalty = 0
+        penalty_match = re.search(r'ពិន័យ\s*\$?([0-9.]+)', description)
+        if penalty_match:
+            penalty = float(penalty_match.group(1))
+        else:
+            penalty_match_khr = re.search(r'ពិន័យ\s*៛\s*([0-9,]+)', description)
+            if penalty_match_khr:
+                penalty = float(penalty_match_khr.group(1).replace(',', ''))
 
         notes_match = re.search(r'កំណត់ចំណាំ:\s*([^)]+)', description)
         notes = notes_match.group(1) if notes_match else ''
@@ -654,6 +688,8 @@ def get_payment_history(limit=100):
 
         result.append({
             'id': p['_id'],
+            '_id': str(p['_id']),
+            'activity_id': p['_id'],        # ← សំខាន់សម្រាប់ Edit/Delete!
             'loan_id': p.get('loan_id'),
             'loan_code': loan.get('loan_code', 'N/A'),
             'customer_name': customer.get('name', 'មិនស្គាល់'),
@@ -1181,7 +1217,7 @@ def get_permissions(role):
 
 
 # ============================================================
-# ===== ACTIVITY FUNCTIONS (តែ ១ ដងគត់!) =====
+# ===== ACTIVITY FUNCTIONS =====
 # ============================================================
 
 def log_activity(customer_id, loan_id, action, description, status=None, user_id=None):
@@ -1404,7 +1440,6 @@ def get_recent_loans(limit=100):
 def get_dashboard_full_stats():
     """ទាញយកស្ថិតិពេញលេញសម្រាប់ Dashboard"""
 
-    # ===== ១. ទុនទំលាក់សរុប =====
     disb_usd = list(loans_col.aggregate([
         {'$match': {'currency': 'USD'}},
         {'$group': {'_id': None, 'total': {'$sum': '$loan_amount'}}}
@@ -1417,7 +1452,6 @@ def get_dashboard_full_stats():
     ]))
     total_disbursement_khr = disb_khr[0]['total'] if disb_khr else 0
 
-    # ===== ២. ការប្រាក់សរុប =====
     interest_usd = list(loans_col.aggregate([
         {'$match': {'currency': 'USD'}},
         {'$group': {'_id': None, 'total': {'$sum': '$total_interest'}}}
@@ -1430,7 +1464,6 @@ def get_dashboard_full_stats():
     ]))
     total_interest_khr = interest_khr[0]['total'] if interest_khr else 0
 
-    # ===== ៣. ទឹកប្រាក់សងសរុប =====
     collect_usd = list(loans_col.aggregate([
         {'$match': {'currency': 'USD'}},
         {'$group': {'_id': None, 'total': {'$sum': '$amount_paid'}}}
@@ -1443,7 +1476,6 @@ def get_dashboard_full_stats():
     ]))
     total_collection_khr = collect_khr[0]['total'] if collect_khr else 0
 
-    # ===== ៤. បំណុលសរុបរួមការប្រាក់ =====
     debt_usd = list(loans_col.aggregate([
         {'$match': {'currency': 'USD', 'status': {'$nin': ['Completed', 'Rejected']}}},
         {'$group': {'_id': None, 'total': {'$sum': '$remaining_balance'}}}
@@ -1456,13 +1488,11 @@ def get_dashboard_full_stats():
     ]))
     total_debt_khr = debt_khr[0]['total'] if debt_khr else 0
 
-    # ===== ៥. ចំណាយសរុប =====
     expense_result = list(expenses_col.aggregate([
         {'$group': {'_id': None, 'total': {'$sum': '$amount'}}}
     ]))
     total_expense = expense_result[0]['total'] if expense_result else 0
 
-    # ===== ៦. ចំណូលសុទ្ធ =====
     net_income = (total_interest_usd + total_interest_khr) - total_expense
 
     return {
@@ -1487,13 +1517,11 @@ def get_dashboard_charts_data():
     """ទាញយកទិន្នន័យសម្រាប់ Charts"""
     six_months_ago = datetime.now() - timedelta(days=180)
 
-    # ===== កម្ចីតាមស្ថានភាព =====
     status_result = list(loans_col.aggregate([
         {'$group': {'_id': '$status', 'count': {'$sum': 1}}}
     ]))
     loans_by_status = {item['_id']: item['count'] for item in status_result if item['_id']}
 
-    # ===== កម្ចីតាមរូបិយប័ណ្ណ =====
     currency_result = list(loans_col.aggregate([
         {'$group': {'_id': '$currency', 'count': {'$sum': 1}, 'total': {'$sum': '$loan_amount'}}}
     ]))
@@ -1505,7 +1533,6 @@ def get_dashboard_charts_data():
                 'total': item.get('total', 0)
             }
 
-    # ===== កម្ចីប្រចាំខែ =====
     monthly_result = list(loans_col.aggregate([
         {'$match': {'created_at': {'$gte': six_months_ago}}},
         {'$group': {
@@ -1520,7 +1547,6 @@ def get_dashboard_charts_data():
         for item in monthly_result
     ]
 
-    # ===== ការប្រមូលប្រាក់ប្រចាំខែ =====
     collection_result = list(payment_history_col.aggregate([
         {'$match': {'created_at': {'$gte': six_months_ago}}},
         {'$group': {
@@ -1555,22 +1581,18 @@ def get_calendar_data(year, month):
     start_str = first_day.strftime('%Y-%m-%d')
     end_str = last_day.strftime('%Y-%m-%d')
 
-    # ===== ១. កម្ចីថ្មីក្នុងខែ =====
     loans_in_month = list(loans_col.find({
         'loan_date': {'$gte': start_str, '$lte': end_str}
     }))
 
-    # ===== ២. ការប្រមូលប្រាក់ក្នុងខែ =====
     payments_in_month = list(payment_history_col.find({
         'payment_date': {'$gte': start_str, '$lte': end_str}
     }))
 
-    # ===== ៣. ចំណាយក្នុងខែ =====
     expenses_in_month = list(expenses_col.find({
         'expense_date': {'$gte': start_str, '$lte': end_str}
     }))
 
-    # ===== ៤. បង្កើត Daily Summary =====
     daily_data = {}
     current = first_day
     while current <= last_day:
@@ -1588,7 +1610,6 @@ def get_calendar_data(year, month):
         }
         current += timedelta(days=1)
 
-    # ===== បន្ថែមកម្ចី =====
     for loan in loans_in_month:
         date_str = loan.get('loan_date', '')
         if date_str in daily_data:
@@ -1598,12 +1619,10 @@ def get_calendar_data(year, month):
             else:
                 daily_data[date_str]['loans_amount_khr'] += loan.get('loan_amount', 0)
 
-    # ===== បន្ថែមការប្រមូល =====
     for payment in payments_in_month:
         date_str = payment.get('payment_date', '')
         if date_str in daily_data:
             amount = payment.get('amount', 0)
-            # ===== ពិនិត្យ currency ពី loan =====
             loan_id = payment.get('loan_id')
             currency = 'USD'
             if loan_id:
@@ -1616,7 +1635,6 @@ def get_calendar_data(year, month):
             else:
                 daily_data[date_str]['collections_usd'] += amount
 
-    # ===== បន្ថែមចំណាយ =====
     for exp in expenses_in_month:
         date_str = exp.get('expense_date', '')
         if date_str in daily_data:
@@ -1627,7 +1645,6 @@ def get_calendar_data(year, month):
                 'amount': exp.get('amount', 0)
             })
 
-    # ===== បន្ថែមព្រឹត្តិការណ៍កម្ចី =====
     for loan in loans_in_month:
         date_str = loan.get('loan_date', '')
         if date_str in daily_data:
@@ -1638,7 +1655,6 @@ def get_calendar_data(year, month):
                 'currency': loan.get('currency', 'USD')
             })
 
-    # ===== សរុបខែ =====
     monthly_summary = {
         'total_loans': len(loans_in_month),
         'total_loans_usd': sum(l.get('loan_amount', 0) for l in loans_in_month if l.get('currency') == 'USD'),
