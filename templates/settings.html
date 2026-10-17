@@ -1262,12 +1262,16 @@
         }
 
         function openRoleModal(roleData) {
-            document.getElementById('role_id').value = roleData ? roleData.id : '';
-            document.getElementById('role_name').value = roleData ? roleData.name : '';
-            document.getElementById('role_description').value = roleData ? roleData.description : '';
-            document.getElementById('roleModalTitle').textContent = roleData ? 'កែប្រែតួនាទី' : 'បង្កើតតួនាទីថ្មី';
-            openModal('roleModal');
-        }
+    document.getElementById('role_id').value = roleData ? roleData.id : '';
+    document.getElementById('role_name').value = roleData ? roleData.name : '';
+    document.getElementById('role_description').value = roleData ? roleData.description : '';
+    
+    // បើជាការកែប្រែ មិនឱ្យវាយឈ្មោះថ្មីទេ
+    document.getElementById('role_name').readOnly = roleData ? true : false;
+    
+    document.getElementById('roleModalTitle').textContent = roleData ? 'កែប្រែតួនាទី' : 'បង្កើតតួនាទីថ្មី';
+    openModal('roleModal');
+}
 
         // ===== CLOSE MODAL ON OVERLAY CLICK =====
         document.querySelectorAll('.modal-overlay').forEach(modal => {
@@ -1598,8 +1602,8 @@
                                 <td>${role.description || 'គ្មានការពណ៌នា'}</td>
                                 <td>${role.user_count || 0}</td>
                                 <td>
-                                    <button class="btn btn-primary btn-sm" onclick="editRole(${role.id})"><i class="fas fa-edit"></i></button>
-                                    <button class="btn btn-danger btn-sm" onclick="deleteRole(${role.id})"><i class="fas fa-trash"></i></button>
+                                    <button class="btn btn-primary btn-sm" onclick="editRole('${role.id}')"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteRole('${role.id}')"><i class="fas fa-trash"></i></button>
                                 </td>
                             </tr>
                         `).join('');
@@ -1611,14 +1615,25 @@
         }
 
         function editRole(roleId) {
-            fetch(`/api/roles/${roleId}`)
-                .then(response => response.json())
-                .then(role => {
-                    openRoleModal(role);
-                })
-                .catch(error => { console.error('Error loading role:', error);
-                    alert('❌ មានបញ្ហាក្នុងការផ្ទុកទិន្នន័យ!'); });
-        }
+    fetch(`/api/roles/${roleId}`)
+        .then(response => {
+            if (!response.ok) throw new Error('មិនឃើញតួនាទី');
+            return response.json();
+        })
+        .then(role => {
+            document.getElementById('role_id').value = role.id;
+            document.getElementById('role_name').value = role.name;
+            // ឈ្មោះតួនាទីមិនអាចកែបានទេ ដូច្នេះយើងធ្វើឱ្យវា Read-only
+            document.getElementById('role_name').readOnly = true; 
+            document.getElementById('role_description').value = role.description || '';
+            document.getElementById('roleModalTitle').textContent = 'កែប្រែព័ត៌មានតួនាទី';
+            openModal('roleModal');
+        })
+        .catch(error => { 
+            console.error('Error loading role:', error);
+            alert('❌ មានបញ្ហាក្នុងការផ្ទុកទិន្នន័យ!'); 
+        });
+}
 
         function deleteRole(roleId) {
             if (!confirm('តើអ្នកចង់លុបតួនាទីនេះមែនទេ?')) return;
@@ -1633,36 +1648,50 @@
         }
 
         function saveRole(event) {
-            event.preventDefault();
-            const submitBtn = event.target.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '⏳ <span class="spinner"></span> កំពុងរក្សាទុក...';
+    event.preventDefault();
+    const submitBtn = event.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '⏳ <span class="spinner"></span> កំពុងរក្សាទុក...';
 
-            const id = document.getElementById('role_id').value;
-            const name = document.getElementById('role_name').value.trim();
-            const description = document.getElementById('role_description').value.trim();
+    const id = document.getElementById('role_id').value;
+    const name = document.getElementById('role_name').value.trim();
+    const description = document.getElementById('role_description').value.trim();
 
-            if (!name) { alert('សូមបញ្ចូលឈ្មោះតួនាទី!');
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalText; return; }
+    if (!name) { 
+        alert('សូមបញ្ចូលឈ្មោះតួនាទី!');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText; 
+        return; 
+    }
 
-            const url = id ? `/api/roles/${id}` : '/api/roles';
-            const method = id ? 'PUT' : 'POST';
+    const url = id ? `/api/roles/${id}` : '/api/roles';
+    const method = id ? 'PUT' : 'POST';
 
-            fetch(url, { method: method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, description }) })
-                .then(response => response.json()).then(result => {
-                    if (result.success) {
-                        alert('✅ ' + (id ? 'កែប្រែតួនាទីជោគជ័យ!' : 'បង្កើតតួនាទីថ្មីជោគជ័យ!'));
-                        closeModal('roleModal');
-                        loadRoles();
-                    } else { alert('❌ ' + (result.error || 'មានបញ្ហា!')); }
-                })
-                .catch(error => { console.error('Error:', error);
-                    alert('❌ មានបញ្ហាក្នុងការភ្ជាប់ទៅម៉ាស៊ីនមេ!'); })
-                .finally(() => { submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalText; });
+    fetch(url, { 
+        method: method, 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify({ name, description }) 
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            alert('✅ ' + (id ? 'កែប្រែតួនាទីជោគជ័យ!' : 'បង្កើតតួនាទីថ្មីជោគជ័យ!'));
+            closeModal('roleModal');
+            loadRoles(); // ទាញយកទិន្នន័យថ្មីមកបង្ហាញវិញ
+        } else { 
+            alert('❌ ' + (result.error || 'មានបញ្ហា!')); 
         }
+    })
+    .catch(error => { 
+        console.error('Error:', error);
+        alert('❌ មានបញ្ហាក្នុងការភ្ជាប់ទៅម៉ាស៊ីនមេ!'); 
+    })
+    .finally(() => { 
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText; 
+    });
+}
 
         function loadPermissionsForRole(role) {
             fetch(`/api/permissions/${role}`)
