@@ -304,9 +304,6 @@ def print_schedule(loan_id):
     loan_dict = dict(loan) if not isinstance(loan, dict) else loan
     customer_dict = dict(customer) if customer and not isinstance(customer, dict) else (customer or {})
 
-    # ============================================================
-    # ===== គណនា Schedule តាម calc_type =====
-    # ============================================================
     schedule_data = []
     loan_amount = float(loan.get('loan_amount', 0))
     interest_rate = float(loan.get('interest_rate', 0))
@@ -322,7 +319,6 @@ def print_schedule(loan_id):
         except:
             start_date = get_cambodia_date()
 
-        # ===== ១. រំលោះបង់ថេរ =====
         if calc_type == 1:
             if rate_decimal > 0:
                 daily_payment = loan_amount * (rate_decimal * (1 + rate_decimal) ** duration_num) / ((1 + rate_decimal) ** duration_num - 1)
@@ -360,7 +356,6 @@ def print_schedule(loan_id):
                     'due_date': due_date.strftime('%Y-%m-%d')
                 })
 
-        # ===== ២. ដើមថេរ ការថេរ =====
         elif calc_type == 2:
             total_interest = loan_amount * rate_decimal * duration_num
             total_payment = loan_amount + total_interest
@@ -400,7 +395,6 @@ def print_schedule(loan_id):
                     'due_date': due_date.strftime('%Y-%m-%d')
                 })
 
-        # ===== ៣. បង់តែការ បង់ថយ =====
         elif calc_type == 3:
             midpoint = duration_num // 2
             principal_payment_1 = loan_amount / 2
@@ -437,7 +431,6 @@ def print_schedule(loan_id):
                     'due_date': due_date.strftime('%Y-%m-%d')
                 })
 
-        # ===== ៤. បង់តែការប្រាក់ =====
         elif calc_type == 4:
             daily_interest = loan_amount * rate_decimal
             balance = loan_amount
@@ -767,7 +760,6 @@ def api_calculate_loan():
     total_payment = 0
     daily_payment = 0
 
-    # ===== ១. រំលោះបង់ថេរ =====
     if calc_type == 1:
         if rate_decimal > 0:
             daily_payment = loan_amount * (rate_decimal * (1 + rate_decimal) ** duration_num) / ((1 + rate_decimal) ** duration_num - 1)
@@ -807,7 +799,6 @@ def api_calculate_loan():
                 'due_date': due_date.strftime('%Y-%m-%d')
             })
 
-    # ===== ២. ដើមថេរ ការថេរ =====
     elif calc_type == 2:
         total_interest = loan_amount * rate_decimal * duration_num
         total_payment = loan_amount + total_interest
@@ -847,7 +838,6 @@ def api_calculate_loan():
                 'due_date': due_date.strftime('%Y-%m-%d')
             })
 
-    # ===== ៣. បង់តែការ បង់ថយ =====
     elif calc_type == 3:
         midpoint = duration_num // 2
         principal_payment_1 = loan_amount / 2
@@ -886,7 +876,6 @@ def api_calculate_loan():
                 'due_date': due_date.strftime('%Y-%m-%d')
             })
 
-    # ===== ៤. បង់តែការប្រាក់ =====
     elif calc_type == 4:
         daily_interest = loan_amount * rate_decimal
         total_interest = daily_interest * duration_num
@@ -1080,7 +1069,6 @@ def api_collection(type):
 
 @app.route('/api/collection/customer/<int:customer_id>')
 def api_collection_customer(customer_id):
-    """ទាញយកកម្ចីទាំងអស់របស់អតិថិជន សម្រាប់ការទូរទាត់"""
     if 'username' not in session:
         return jsonify([])
 
@@ -1187,8 +1175,9 @@ def api_collection_count(type):
         return jsonify({'count': 0})
 
 
-# ===== API: COLLECTION PAYMENT =====
-# ===== API: COLLECTION PAYMENT =====
+# ============================================================
+# ===== API: COLLECTION PAYMENT (កែហើយ - ពិន័យមិនរត់ចូលកម្ចី) =====
+# ============================================================
 @app.route('/api/collection_payment', methods=['POST'])
 def api_collection_payment():
     if 'username' not in session:
@@ -1196,9 +1185,9 @@ def api_collection_payment():
 
     data = request.get_json()
     loan_id = data.get('loan_id')
-    amount = data.get('amount')           # ទឹកប្រាក់សរុបដែលទទួល (រួមពិន័យ)
+    amount = data.get('amount')           # ទឹកប្រាក់សរុប (រួមពិន័យ)
     payment_method = data.get('payment_method', 'cash')
-    penalty = data.get('penalty', 0)      # ទឹកប្រាក់ពិន័យ
+    penalty = data.get('penalty', 0)      # ពិន័យ
     notes = data.get('notes', '')
     payment_date = data.get('payment_date', '')
 
@@ -1216,25 +1205,23 @@ def api_collection_payment():
     except:
         period = 1
 
-    # ===== គណនាចំនួនដែលត្រូវដកពីកម្ចី (ដើម + ការប្រាក់) =====
-    # amount = ទឹកប្រាក់សរុបដែលទទួល
-    # penalty = ពិន័យ (មិនរាប់បញ្ចូលក្នុងកម្ចី)
-    # amount_for_loan = amount - penalty  ← ចំនួនដែលត្រូវដកពី remaining_balance
-
+    # ============================================================
+    # ===== គណនាចំនួនដែលចូលកម្ចី (ដើម + ការប្រាក់) =====
+    # ============================================================
     penalty = float(penalty) if penalty else 0
     amount = float(amount)
 
-    # ===== បើ penalty > amount នោះ penalty = amount ហើយ amount_for_loan = 0 =====
+    # បើពិន័យធំជាងទឹកប្រាក់ កំណត់ពិន័យ = ទឹកប្រាក់
     if penalty > amount:
         penalty = amount
 
-    amount_for_loan = amount - penalty    # ← ចំនួនដែលចូលកម្ចី (ដើម + ការប្រាក់)
+    # amount_for_loan = ចំនួនដែលចូលកម្ចី (ដើម + ការប្រាក់)
+    amount_for_loan = amount - penalty
 
-    # ===== Update Loan (ដកតែ amount_for_loan ចេញ) =====
+    # ===== Update Loan: ដកតែ amount_for_loan ចេញ =====
     total_paid = (loan.get('amount_paid', 0) or 0) + amount_for_loan
     remaining = (loan.get('remaining_balance', 0) or 0) - amount_for_loan
 
-    # ===== បើ remaining < 0 → កំណត់ត្រឹម 0 =====
     if remaining < 0:
         remaining = 0
 
@@ -1264,7 +1251,7 @@ def api_collection_payment():
         user_id=session.get('user_id')
     )
 
-    # ===== Record payment history =====
+    # ===== Record Payment History =====
     try:
         db.record_payment(
             loan_id, period, amount, payment_method, notes,
@@ -1281,6 +1268,7 @@ def api_collection_payment():
         'penalty': penalty,
         'remaining_balance': remaining
     })
+
 
 # ===== API: ACTIVITIES =====
 @app.route('/api/activities')
@@ -1311,7 +1299,7 @@ def api_activities():
 
 
 # ============================================================
-# ===== API: SETTINGS (USERS, OFFICERS, HOLIDAYS, PERMISSIONS) =====
+# ===== API: SETTINGS =====
 # ============================================================
 
 @app.route('/api/users', methods=['GET'])
@@ -1367,7 +1355,6 @@ def api_delete_user(user_id):
         return jsonify({'error': str(e)}), 400
 
 
-# ===== API: OFFICERS =====
 @app.route('/api/officers', methods=['GET'])
 def api_get_officers():
     if 'username' not in session:
@@ -1421,7 +1408,6 @@ def api_delete_officer(officer_id):
         return jsonify({'error': str(e)}), 400
 
 
-# ===== API: HOLIDAYS =====
 @app.route('/api/holidays', methods=['GET', 'POST'])
 def api_holidays():
     if 'username' not in session:
@@ -1460,7 +1446,6 @@ def api_delete_special_holiday(holiday_id):
     return jsonify({'success': True})
 
 
-# ===== API: PERMISSIONS =====
 @app.route('/api/permissions', methods=['POST'])
 def api_save_permissions():
     if 'username' not in session:
@@ -1479,12 +1464,11 @@ def api_get_permissions(role):
 
 
 # ============================================================
-# ===== API: PAYMENTS (កែហើយ) =====
+# ===== API: PAYMENTS =====
 # ============================================================
 
 @app.route('/api/payments')
 def api_payments():
-    """ទាញយកប្រវត្តិទូរទាត់ថ្មីៗ"""
     if 'username' not in session:
         return jsonify([])
 
@@ -1496,7 +1480,9 @@ def api_payments():
 
             if '_id' in doc:
                 doc['_id'] = str(doc['_id'])
-                doc['id'] = doc['_id']
+
+            if 'activity_id' not in doc:
+                doc['activity_id'] = doc.get('_id', '')
 
             created = doc.get('created_at')
             if hasattr(created, 'strftime'):
@@ -1518,14 +1504,12 @@ def api_payments():
 
 @app.route('/api/loan_payments/<loan_id>')
 def api_loan_payments(loan_id):
-    """ទាញយកប្រវត្តិទូរទាត់ទាំងអស់នៃកម្ចីជាក់លាក់"""
     if 'username' not in session:
         return jsonify([])
 
     try:
         payments = []
 
-        # ===== ព្យាយាមស្វែងរកក្នុង payment_history =====
         try:
             loan_id_int = int(loan_id)
         except:
@@ -1538,7 +1522,6 @@ def api_loan_payments(loan_id):
         except Exception as e:
             print(f"⚠️ Error querying payment_history: {e}")
 
-        # ===== បើរកមិនឃើញ → ព្យាយាមពី activities =====
         if not payments:
             try:
                 activities = list(db.activities_col.find({
@@ -1550,6 +1533,7 @@ def api_loan_payments(loan_id):
                     description = a.get('description', '')
                     amount = 0
                     currency = 'USD'
+                    penalty = 0
 
                     match = re.search(r'\$([0-9.]+)', description)
                     if match:
@@ -1559,6 +1543,11 @@ def api_loan_payments(loan_id):
                         if match_khr:
                             amount = float(match_khr.group(1).replace(',', ''))
                             currency = 'KHR'
+
+                    # ទាញពិន័យ
+                    pen_match = re.search(r'ពិន័យ\s*\$([0-9.]+)', description)
+                    if pen_match:
+                        penalty = float(pen_match.group(1))
 
                     method = 'cash'
                     if 'ABA' in description:
@@ -1580,7 +1569,7 @@ def api_loan_payments(loan_id):
                         'amount': amount,
                         'currency': currency,
                         'payment_method': method,
-                        'penalty': 0,
+                        'penalty': penalty,
                         'notes': '',
                         'payment_date': created_str.split(' ')[0] if created_str else '',
                         'created_at': created_str
@@ -1588,7 +1577,6 @@ def api_loan_payments(loan_id):
             except Exception as e:
                 print(f"⚠️ Could not fallback to activities: {e}")
 
-        # ===== បំប្លែង ObjectId និង Format កាលបរិច្ឆេទ =====
         result = []
         for p in payments:
             doc = dict(p) if not isinstance(p, dict) else p
@@ -1619,14 +1607,225 @@ def api_loan_payments(loan_id):
 
 @app.route('/api/payment_history/<int:loan_id>')
 def api_payment_history(loan_id):
-    """API ជំនួស — ដូច api_loan_payments"""
     return api_loan_payments(loan_id)
 
 
 @app.route('/api/payments/loan/<loan_id>')
 def get_payments_by_loan(loan_id):
-    """API ជំនួស — ដូច api_loan_payments"""
     return api_loan_payments(loan_id)
+
+
+# ============================================================
+# ===== API: EDIT PAYMENT (កែហើយ - ពិន័យមិនរត់ចូលកម្ចី) =====
+# ============================================================
+@app.route('/api/edit_payment', methods=['POST'])
+def api_edit_payment():
+    if 'username' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    data = request.get_json()
+    activity_id = data.get('activity_id')
+    loan_id = data.get('loan_id')
+    amount = data.get('amount')
+    payment_method = data.get('payment_method')
+    notes = data.get('notes')
+
+    if not activity_id or not loan_id or not amount:
+        return jsonify({'error': 'Missing data'}), 400
+
+    try:
+        old_activity = db.activities_col.find_one({'_id': int(activity_id)})
+        if not old_activity:
+            return jsonify({'error': 'មិនឃើញការទូរទាត់នេះទេ!'}), 404
+
+        loan = db.loans_col.find_one({'_id': int(loan_id)})
+        if not loan:
+            return jsonify({'error': 'មិនឃើញកម្ចីនេះទេ!'}), 404
+
+        # ===== ទាញចំនួនចាស់ + ពិន័យចាស់ =====
+        old_desc = old_activity.get('description', '')
+        match = re.search(r'\$([0-9.]+)', old_desc)
+        old_amount = float(match.group(1)) if match else 0
+
+        if old_amount == 0:
+            match_khr = re.search(r'៛\s*([0-9,]+)', old_desc)
+            if match_khr:
+                old_amount = float(match_khr.group(1).replace(',', ''))
+
+        # ពិន័យចាស់
+        old_penalty = 0
+        old_pen_match = re.search(r'ពិន័យ\s*\$([0-9.]+)', old_desc)
+        if old_pen_match:
+            old_penalty = float(old_pen_match.group(1))
+        else:
+            old_pen_match_khr = re.search(r'ពិន័យ\s*៛\s*([0-9,]+)', old_desc)
+            if old_pen_match_khr:
+                old_penalty = float(old_pen_match_khr.group(1).replace(',', ''))
+
+        # ===== ពិន័យថ្មី =====
+        new_penalty = data.get('penalty', 0) or 0
+        new_amount = float(amount)
+
+        if new_penalty > new_amount:
+            new_penalty = new_amount
+
+        # ===== គណនាចំនួនចូលកម្ចី (ដើម + ការប្រាក់) =====
+        old_amount_for_loan = old_amount - old_penalty
+        new_amount_for_loan = new_amount - new_penalty
+
+        # ===== Difference =====
+        diff = new_amount_for_loan - old_amount_for_loan
+        new_amount_paid = (loan.get('amount_paid', 0) or 0) + diff
+        new_remaining = (loan.get('remaining_balance', 0) or 0) - diff
+
+        if new_amount_paid < 0:
+            new_amount_paid = 0
+        if new_remaining < 0:
+            new_remaining = 0
+
+        # ===== Update Loan =====
+        db.loans_col.update_one(
+            {'_id': int(loan_id)},
+            {'$set': {
+                'amount_paid': new_amount_paid,
+                'remaining_balance': new_remaining,
+                'updated_at': datetime.now()
+            }}
+        )
+
+        # ===== Update Activity Description =====
+        currency = loan.get('currency', 'USD')
+        if currency == 'KHR':
+            amount_str = f'៛ {round(new_amount/100)*100:,.0f}'
+            if new_penalty > 0:
+                amount_str += f' (ពិន័យ ៛ {round(new_penalty/100)*100:,.0f})'
+        else:
+            amount_str = f'${new_amount:.2f}'
+            if new_penalty > 0:
+                amount_str += f' (ពិន័យ ${new_penalty:.2f})'
+
+        new_description = f'បានប្រមូលប្រាក់ {amount_str} តាមរយៈ {payment_method}'
+        if notes:
+            new_description += f', កំណត់ចំណាំ: {notes}'
+
+        db.activities_col.update_one(
+            {'_id': int(activity_id)},
+            {'$set': {
+                'description': new_description,
+                'updated_at': datetime.now()
+            }}
+        )
+
+        return jsonify({
+            'success': True,
+            'message': f'បានកែប្រែការទូរទាត់ពី {old_amount:,.2f} ទៅ {new_amount:,.2f} រួចរាល់!'
+        })
+
+    except Exception as e:
+        import traceback
+        print(f"❌ Error in edit_payment: {e}")
+        print(traceback.format_exc())
+        return jsonify({'error': str(e)}), 500
+
+
+# ============================================================
+# ===== API: DELETE PAYMENT (កែហើយ - ពិន័យមិនរត់ចូលកម្ចី) =====
+# ============================================================
+@app.route('/api/delete_payment', methods=['POST'])
+def api_delete_payment():
+    if 'username' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    data = request.get_json()
+    activity_id = data.get('activity_id')
+
+    if not activity_id:
+        return jsonify({'error': 'Missing activity_id'}), 400
+
+    try:
+        activity = db.activities_col.find_one({'_id': int(activity_id)})
+        if not activity:
+            return jsonify({'error': 'មិនឃើញការទូរទាត់នេះទេ!'}), 404
+
+        loan_id = activity.get('loan_id')
+
+        # ===== ទាញចំនួនសរុប + ពិន័យពី description =====
+        description = activity.get('description', '')
+        match = re.search(r'\$([0-9.]+)', description)
+        total_amount = float(match.group(1)) if match else 0
+
+        if total_amount == 0:
+            match_khr = re.search(r'៛\s*([0-9,]+)', description)
+            if match_khr:
+                total_amount = float(match_khr.group(1).replace(',', ''))
+
+        # ===== ទាញពិន័យ =====
+        penalty = 0
+        pen_match = re.search(r'ពិន័យ\s*\$([0-9.]+)', description)
+        if pen_match:
+            penalty = float(pen_match.group(1))
+        else:
+            pen_match_khr = re.search(r'ពិន័យ\s*៛\s*([0-9,]+)', description)
+            if pen_match_khr:
+                penalty = float(pen_match_khr.group(1).replace(',', ''))
+
+        # ===== ព្យាយាមទាញពិន័យពី payment_history (ជាងសុវត្ថិភាព) =====
+        if loan_id:
+            try:
+                payment_record = db.payment_history_col.find_one({
+                    'loan_id': int(loan_id),
+                    'amount': total_amount
+                })
+                if payment_record:
+                    penalty = payment_record.get('penalty', 0) or penalty
+            except:
+                pass
+
+        # ===== គណនាចំនួនដែលចូលកម្ចី =====
+        amount_for_loan = total_amount - penalty
+
+        # ===== បញ្ច្រាសការគណនាកម្ចី (ដកតែ amount_for_loan) =====
+        if loan_id:
+            loan = db.loans_col.find_one({'_id': int(loan_id)})
+            if loan:
+                new_amount_paid = (loan.get('amount_paid', 0) or 0) - amount_for_loan
+                new_remaining = (loan.get('remaining_balance', 0) or 0) + amount_for_loan
+
+                if new_amount_paid < 0:
+                    new_amount_paid = 0
+
+                db.loans_col.update_one(
+                    {'_id': int(loan_id)},
+                    {'$set': {
+                        'amount_paid': new_amount_paid,
+                        'remaining_balance': new_remaining,
+                        'updated_at': datetime.now()
+                    }}
+                )
+
+        # ===== លុប Payment History =====
+        if loan_id:
+            try:
+                db.payment_history_col.delete_one({
+                    'loan_id': int(loan_id),
+                    'amount': total_amount
+                })
+            except:
+                pass
+
+        # ===== លុប Activity =====
+        db.activities_col.delete_one({'_id': int(activity_id)})
+
+        return jsonify({
+            'success': True,
+            'message': f'បានលុបការទូរទាត់រួចរាល់!'
+        })
+
+    except Exception as e:
+        import traceback
+        print(f"❌ Error in delete_payment: {e}")
+        print(traceback.format_exc())
+        return jsonify({'error': str(e)}), 500
 
 
 # ===== API: DISBURSEMENT =====
@@ -1736,181 +1935,6 @@ def api_approve_disbursement():
     except Exception as e:
         import traceback
         print(f"❌ Error in /api/approve_disbursement: {e}")
-        print(traceback.format_exc())
-        return jsonify({'error': str(e)}), 500
-
-
-@app.route('/api/edit_payment', methods=['POST'])
-def api_edit_payment():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
-    data = request.get_json()
-    activity_id = data.get('activity_id')
-    loan_id = data.get('loan_id')
-    amount = data.get('amount')
-    payment_method = data.get('payment_method')
-    notes = data.get('notes')
-
-    if not activity_id or not loan_id or not amount:
-        return jsonify({'error': 'Missing data'}), 400
-
-    try:
-        old_activity = db.activities_col.find_one({'_id': int(activity_id)})
-        if not old_activity:
-            return jsonify({'error': 'មិនឃើញការទូរទាត់នេះទេ!'}), 404
-
-        loan = db.loans_col.find_one({'_id': int(loan_id)})
-        if not loan:
-            return jsonify({'error': 'មិនឃើញកម្ចីនេះទេ!'}), 404
-
-        old_desc = old_activity.get('description', '')
-        match = re.search(r'\$([0-9.]+)', old_desc)
-        old_amount = float(match.group(1)) if match else 0
-
-        if old_amount == 0:
-            match_khr = re.search(r'៛\s*([0-9,]+)', old_desc)
-            if match_khr:
-                old_amount = float(match_khr.group(1).replace(',', ''))
-
-        diff = amount - old_amount
-        new_amount_paid = (loan.get('amount_paid', 0) or 0) + diff
-        new_remaining = (loan.get('remaining_balance', 0) or 0) - diff
-
-        if new_amount_paid < 0:
-            new_amount_paid = 0
-        if new_remaining < 0:
-            new_remaining = 0
-
-        db.loans_col.update_one(
-            {'_id': int(loan_id)},
-            {'$set': {
-                'amount_paid': new_amount_paid,
-                'remaining_balance': new_remaining,
-                'updated_at': datetime.now()
-            }}
-        )
-
-        new_description = f'បានប្រមូលប្រាក់ ${amount:.2f} តាមរយៈ {payment_method}'
-        if notes:
-            new_description += f', កំណត់ចំណាំ: {notes}'
-
-        db.activities_col.update_one(
-            {'_id': int(activity_id)},
-            {'$set': {
-                'description': new_description,
-                'updated_at': datetime.now()
-            }}
-        )
-
-        return jsonify({
-            'success': True,
-            'message': f'បានកែប្រែការទូរទាត់ពី ${old_amount:.2f} ទៅ ${amount:.2f} រួចរាល់!'
-        })
-
-    except Exception as e:
-        import traceback
-        print(f"❌ Error in edit_payment: {e}")
-        print(traceback.format_exc())
-        return jsonify({'error': str(e)}), 500
-
-
-@app.route('/api/delete_payment', methods=['POST'])
-def api_delete_payment():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
-    data = request.get_json()
-    activity_id = data.get('activity_id')
-
-    if not activity_id:
-        return jsonify({'error': 'Missing activity_id'}), 400
-
-    try:
-        # ===== ទាញយក Activity =====
-        activity = db.activities_col.find_one({'_id': int(activity_id)})
-        if not activity:
-            return jsonify({'error': 'មិនឃើញការទូរទាត់នេះទេ!'}), 404
-
-        loan_id = activity.get('loan_id')
-
-        # ===== ទាញចំនួនសរុបពី description =====
-        description = activity.get('description', '')
-        
-        # ទាញចំនួនសរុប (amount + penalty)
-        match = re.search(r'\$([0-9.]+)', description)
-        total_amount = float(match.group(1)) if match else 0
-        
-        if total_amount == 0:
-            match_khr = re.search(r'៛\s*([0-9,]+)', description)
-            if match_khr:
-                total_amount = float(match_khr.group(1).replace(',', ''))
-
-        # ===== ទាញពិន័យពី description (បើមាន) =====
-        # Format: "បានប្រមូលប្រាក់ $1,100.00 (ពិន័យ $100.00) តាមរយៈ cash"
-        penalty = 0
-        penalty_match = re.search(r'ពិន័យ\s*\$([0-9.]+)', description)
-        if penalty_match:
-            penalty = float(penalty_match.group(1))
-        else:
-            # ស្វែងរក ៛ ពិន័យ
-            penalty_match_khr = re.search(r'ពិន័យ\s*៛\s*([0-9,]+)', description)
-            if penalty_match_khr:
-                penalty = float(penalty_match_khr.group(1).replace(',', ''))
-
-        # ===== ព្យាយាមទាញពិន័យពី payment_history (ជាងសុវត្ថិភាព) =====
-        try:
-            payment_record = db.payment_history_col.find_one({
-                'loan_id': int(loan_id) if loan_id else None,
-                'amount': total_amount
-            })
-            if payment_record:
-                penalty = payment_record.get('penalty', 0) or penalty
-        except:
-            pass
-
-        # ===== គណនាចំនួនដែលចូលកម្ចីពិត (ដើម + ការប្រាក់) =====
-        amount_for_loan = total_amount - penalty
-
-        # ===== បញ្ច្រាសការគណនាកម្ចី =====
-        if loan_id:
-            loan = db.loans_col.find_one({'_id': int(loan_id)})
-            if loan:
-                new_amount_paid = (loan.get('amount_paid', 0) or 0) - amount_for_loan
-                new_remaining = (loan.get('remaining_balance', 0) or 0) + amount_for_loan
-
-                if new_amount_paid < 0:
-                    new_amount_paid = 0
-
-                db.loans_col.update_one(
-                    {'_id': int(loan_id)},
-                    {'$set': {
-                        'amount_paid': new_amount_paid,
-                        'remaining_balance': new_remaining,
-                        'updated_at': datetime.now()
-                    }}
-                )
-
-        # ===== លុប Payment History =====
-        try:
-            db.payment_history_col.delete_one({
-                'loan_id': int(loan_id) if loan_id else None,
-                'amount': total_amount
-            })
-        except:
-            pass
-
-        # ===== លុប Activity =====
-        db.activities_col.delete_one({'_id': int(activity_id)})
-
-        return jsonify({
-            'success': True,
-            'message': f'បានលុបការទូរទាត់រួចរាល់! (ដក {amount_for_loan:,.2f} ចេញពីកម្ចី, ពិន័យ {penalty:,.2f})'
-        })
-
-    except Exception as e:
-        import traceback
-        print(f"❌ Error in delete_payment: {e}")
         print(traceback.format_exc())
         return jsonify({'error': str(e)}), 500
 
@@ -2353,18 +2377,17 @@ def api_summary_report():
 
         for p in payments:
             amount = p.get('amount', 0) or 0
+            penalty_p = p.get('penalty', 0) or 0
             method = p.get('payment_method', 'cash') or 'cash'
 
             total_collected_usd += amount
+            penalty_collected_usd += penalty_p
+            interest_collected_usd += (amount - penalty_p)
 
             if method == 'aba':
                 aba_total_usd += amount
             elif method == 'acleda':
                 acleda_total_usd += amount
-            elif method == 'penalty':
-                penalty_collected_usd += amount
-            else:
-                interest_collected_usd += amount
 
         expenses = list(db.expenses_col.find({
             'expense_date': {'$gte': from_date, '$lte': to_date}
