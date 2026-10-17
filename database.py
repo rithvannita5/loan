@@ -82,6 +82,13 @@ def _to_dict_list(docs):
 
 def init_database():
     """បង្កើត Index និង Admin User ដំបូង"""
+    if roles_col.count_documents({}) == 0:
+    roles_col.insert_many([
+        {'_id': 'admin', 'name': 'admin', 'description': 'អ្នកគ្រប់គ្រងប្រព័ន្ធទាំងស្រុង', 'created_at': datetime.now()},
+        {'_id': 'officer', 'name': 'officer', 'description': 'មន្ត្រីឥណទាន', 'created_at': datetime.now()},
+        {'_id': 'user', 'name': 'user', 'description': 'អ្នកប្រើប្រាស់ធម្មតា', 'created_at': datetime.now()}
+    ])
+    print("✅ Created default roles: admin, officer, user")
     try:
         # ===== បង្កើត Index =====
         customers_col.create_index('code', unique=True)
