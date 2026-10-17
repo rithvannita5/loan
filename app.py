@@ -1464,6 +1464,65 @@ def api_get_permissions(role):
 
 
 # ============================================================
+# ===== API: ROLES (បន្ថែមថ្មី) =====
+# ============================================================
+
+@app.route('/api/roles', methods=['GET'])
+def api_get_roles():
+    if 'username' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    try:
+        roles = db.get_all_roles()
+        return jsonify(roles)
+    except Exception as e:
+        print(f"❌ Error in get_roles: {e}")
+        return jsonify([])
+
+@app.route('/api/roles/<string:role_id>', methods=['GET'])
+def api_get_role(role_id):
+    if 'username' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    role = db.get_role_by_id(role_id)
+    if not role:
+        return jsonify({'error': 'មិនឃើញតួនាទីនេះទេ!'}), 404
+    return jsonify(role)
+
+@app.route('/api/roles', methods=['POST'])
+def api_create_role():
+    if 'username' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    try:
+        data = request.json
+        if not data.get('name'):
+            return jsonify({'error': 'សូមបញ្ចូលឈ្មោះតួនាទី!'}), 400
+        
+        role_id = db.create_role(data)
+        return jsonify({'success': True, 'id': role_id})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+@app.route('/api/roles/<string:role_id>', methods=['PUT'])
+def api_update_role(role_id):
+    if 'username' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    try:
+        data = request.json
+        db.update_role(role_id, data)
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+@app.route('/api/roles/<string:role_id>', methods=['DELETE'])
+def api_delete_role(role_id):
+    if 'username' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    try:
+        db.delete_role(role_id)
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+# ============================================================
 # ===== API: PAYMENTS =====
 # ============================================================
 
