@@ -1091,34 +1091,60 @@
         
         <!-- ===== ROLE MODAL ===== -->
         <div class="modal-overlay" id="roleModal">
-            <div class="modal-box">
-                <div class="modal-header">
-                    <h3><i class="fas fa-user-shield"></i> <span id="roleModalTitle">បន្ថែម/កែប្រែ តួនាទី</span></h3>
-                    <button class="modal-close" onclick="closeModal('roleModal')">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <form id="roleForm" onsubmit="saveRole(event)">
-                        <input type="hidden" id="role_id" value="">
-                        <div class="form-group">
-                            <label>ឈ្មោះតួនាទី <span class="required">*</span></label>
-                            <input type="text" id="role_name" required placeholder="បញ្ចូលឈ្មោះតួនាទី...">
-                        </div>
-                        <div class="form-group">
-                            <label>ការពណ៌នា</label>
-                            <input type="text" id="role_description" placeholder="បញ្ចូលការពណ៌នា...">
-                        </div>
-                        <div style="display:flex; gap:10px; margin-top:20px;">
-                            <button type="submit" class="btn btn-primary" style="flex:1; justify-content:center;">
-                                <i class="fas fa-check"></i> រក្សាទុក
-                            </button>
-                            <button type="button" class="btn btn-secondary" onclick="closeModal('roleModal')">
-                                <i class="fas fa-times"></i> បោះបង់
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+    <div class="modal-box" style="max-width: 800px;"> <!-- ពង្រីក Modal ឱ្យធំដើម្បីដាក់ Checkbox -->
+        <div class="modal-header">
+            <h3><i class="fas fa-user-shield"></i> <span id="roleModalTitle">បន្ថែម/កែប្រែ តួនាទី</span></h3>
+            <button class="modal-close" onclick="closeModal('roleModal')">&times;</button>
         </div>
+        <div class="modal-body">
+            <form id="roleForm" onsubmit="saveRole(event)">
+                <input type="hidden" id="role_id" value="">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>ឈ្មោះតួនាទី <span class="required">*</span></label>
+                        <input type="text" id="role_name" required placeholder="ឧ. manager, staff...">
+                    </div>
+                    <div class="form-group">
+                        <label>ការពណ៌នា</label>
+                        <input type="text" id="role_description" placeholder="បញ្ចូលការពណ៌នា...">
+                    </div>
+                </div>
+
+                <!-- ===== ប្រអប់សិទ្ធិទាំងអស់ (Permissions Grid) ===== -->
+                <div id="rolePermissionContainer" style="display:none; margin-top:15px; border-top: 2px dashed #e2e8f0; padding-top: 15px;">
+                    <h4 style="margin-bottom:15px; color:#2d3748; font-size:16px;"><i class="fas fa-key"></i> កំណត់សិទ្ធិប្រើប្រាស់</h4>
+                    
+                    <div class="permission-grid" style="max-height: 400px; overflow-y: auto; padding-right:10px;">
+                        <!-- ចម្លង Checkbox ទាំងអស់ពីខាងក្រោមមកដាក់ទីនេះ -->
+                        <div class="permission-item">
+                            <input type="checkbox" id="perm_dashboard">
+                            <label for="perm_dashboard">📊 Dashboard</label>
+                        </div>
+                        
+                        <div class="permission-item">
+                            <input type="checkbox" id="perm_customers">
+                            <label for="perm_customers">👤 អតិថិជន</label>
+                        </div>
+
+                        <!-- ចម្លងពីកូដចាស់របស់បង ដាក់ចូលទីនេះឱ្យអស់... -->
+                        <!-- (Loans, Bad Loans, Pawn, Payments, Collection, Disbursement, Reports, Settings, Audit, Delete) -->
+                        
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <button type="submit" class="btn btn-primary" style="flex:1; justify-content:center;">
+                        <i class="fas fa-check"></i> រក្សាទុក
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('roleModal')">
+                        <i class="fas fa-times"></i> បោះបង់
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
     </div>
 
@@ -1262,15 +1288,116 @@
         }
 
         function openRoleModal(roleData) {
+    // ១. កំណត់ទិន្នន័យចាស់ (បើជាការកែប្រែ)
     document.getElementById('role_id').value = roleData ? roleData.id : '';
     document.getElementById('role_name').value = roleData ? roleData.name : '';
     document.getElementById('role_description').value = roleData ? roleData.description : '';
-    
-    // បើជាការកែប្រែ មិនឱ្យវាយឈ្មោះថ្មីទេ
     document.getElementById('role_name').readOnly = roleData ? true : false;
-    
     document.getElementById('roleModalTitle').textContent = roleData ? 'កែប្រែតួនាទី' : 'បង្កើតតួនាទីថ្មី';
+
+    // ២. បង្ហាញប្រអប់សិទ្ធិ (Permissions Grid) នៅពេលបង្កើត ឬកែប្រែ
+    // យើងផ្លាស់ប្រអប់សិទ្ធិពីផ្ទាំងខាងក្រោម មកដាក់ក្នុង Modal វិញ
+    const permissionContainer = document.getElementById('rolePermissionContainer');
+    
+    // បង្ហាញផ្ទាំងសិទ្ធិ
+    permissionContainer.style.display = 'block';
+    
+    // បើជាការកែប្រែ សូម Load សិទ្ធិចាស់របស់តួនាទីនោះមកបង្ហាញ
+    if (roleData) {
+        loadPermissionsForRoleInModal(roleData.id);
+    } else {
+        // បើបង្កើតថ្មី សូម Clear ធីកទាំងអស់ចោល
+        document.querySelectorAll('#rolePermissionContainer input[type="checkbox"]').forEach(cb => cb.checked = false);
+    }
+
     openModal('roleModal');
+}
+
+// Function ថ្មីសម្រាប់ Load សិទ្ធិចូលក្នុង Modal
+function loadPermissionsForRoleInModal(role) {
+    fetch(`/api/permissions/${role}`)
+        .then(response => response.json())
+        .then(permissions => {
+            if (permissions && typeof permissions === 'object') {
+                // រត់ពិនិត្យគ្រប់ Checkbox ក្នុង Modal
+                document.querySelectorAll('#rolePermissionContainer input[type="checkbox"]').forEach(cb => {
+                    const permKey = cb.id.replace('perm_', ''); // ឧ. perm_dashboard -> dashboard
+                    cb.checked = permissions[permKey] || false;
+                });
+            }
+        })
+        .catch(error => console.error('Error loading permissions:', error));
+}
+
+// Function សម្រាប់ Save ទាំងតួនាទី និងសិទ្ធិក្នុងពេលតែមួយ
+async function saveRole(event) {
+    event.preventDefault();
+    const submitBtn = event.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '⏳ <span class="spinner"></span> កំពុងរក្សាទុក...';
+
+    const id = document.getElementById('role_id').value;
+    const name = document.getElementById('role_name').value.trim();
+    const description = document.getElementById('role_description').value.trim();
+
+    if (!name) { 
+        alert('សូមបញ្ចូលឈ្មោះតួនាទី!');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText; 
+        return; 
+    }
+
+    try {
+        // ១. បង្កើត ឬកែប្រែ តួនាទីជាមុន
+        const url = id ? `/api/roles/${id}` : '/api/roles';
+        const method = id ? 'PUT' : 'POST';
+
+        const roleResponse = await fetch(url, { 
+            method: method, 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify({ name, description }) 
+        });
+        
+        const roleResult = await roleResponse.json();
+
+        if (!roleResult.success) {
+            throw new Error(roleResult.error || 'មានបញ្ហាក្នុងការរក្សាទុកតួនាទី');
+        }
+
+        // ទាញយក ID របស់តួនាទី (បើបង្កើតថ្មី វានឹងផ្តល់ ID មកវិញ)
+        const finalRoleId = id || roleResult.id;
+
+        // ២. ប្រមូលទិន្នន័យសិទ្ធិពី Checkbox ក្នុង Modal
+        const permissionsData = {};
+        document.querySelectorAll('#rolePermissionContainer input[type="checkbox"]').forEach(cb => {
+            const permKey = cb.id.replace('perm_', '');
+            permissionsData[permKey] = cb.checked;
+        });
+
+        // ៣. រក្សាទុកសិទ្ធិ
+        const permResponse = await fetch('/api/permissions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ role: finalRoleId, permissions: permissionsData })
+        });
+        
+        const permResult = await permResponse.json();
+        if (!permResult.success) {
+            throw new Error(permResult.error || 'មានបញ្ហាក្នុងការរក្សាទុកសិទ្ធិ');
+        }
+
+        alert('✅ ' + (id ? 'កែប្រែតួនាទីជោគជ័យ!' : 'បង្កើតតួនាទីថ្មីជោគជ័យ!'));
+        closeModal('roleModal');
+        loadRoles();
+
+    } catch (error) {
+        console.error('Error:', error);
+        alert('❌ ' + error.message);
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    }
 }
 
         // ===== CLOSE MODAL ON OVERLAY CLICK =====
